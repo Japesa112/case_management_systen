@@ -182,4 +182,13 @@
                     listItem.innerHTML = `
                         ${file.name} 
                         <button type="button" class="btn btn-sm btn-danger remove-file" data-index="${index}">Remove</button>
-     
+                    `;
+                    fileListContainer.appendChild(listItem);
+                });
+            }
+        });
+    });
+    </script>
+    
+    
+@endpush

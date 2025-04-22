@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Forwarding;
 use \App\Models\CaseModel;
 use Illuminate\Support\Facades\Log;
+
 class ForwardingController extends Controller
 {
     /**
@@ -15,7 +16,7 @@ class ForwardingController extends Controller
     {
         $forwardings = Forwarding::with(['case', 'lawyer'])->get();
         
-        return view('forwarding.index', compact('forwardings'));
+        return view('dvc_appointments.index', compact('forwardings'));
     }
     public function create($case_id) {
         $case_name = null;
@@ -33,45 +34,57 @@ class ForwardingController extends Controller
             }
         }
 
-        return view('forwarding.create', compact('case_id', 'case_name', 'case_number', 'forwarding'));
+        return view('dvc_appointments.create', compact('case_id', 'case_name', 'case_number', 'forwarding'));
     }
     
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        try{
-            $validated = $request->validate([
-                'case_id' => 'required|exists:cases,case_id',
-                'dvc_appointment_date' => 'required|date',
-                'briefing_notes' => 'nullable|string',
-            ]);
-            $case = CaseModel::where('case_id', $validated['case_id'])->with('lawyers')->first();
-            if ($case && $case->lawyers()->isNotEmpty()) {
-                // If evaluations exist, store the first evaluation's ID
-                $validated['lawyer_id'] = $case->lawyers->first()->lawyer_id;
-            } else {
-                // If no evaluations exist, set evaluation_id as null
-                $validated['lawyer_id'] = null;
+{
+    try {
+        $validated = $request->validate([
+            'case_id' => 'required|exists:cases,case_id',
+            'dvc_appointment_date' =>  'required|date_format:Y-m-d\TH:i',
+            'briefing_notes' => 'nullable|string',
+        ]);
+
+        $dateTime = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->dvc_appointment_date);
+        $validated['dvc_appointment_date'] = $dateTime->toDateString();
+        $validated['dvc_appointment_time'] = $dateTime->toTimeString();
+
+        $case = CaseModel::with('lawyers1')->where('case_id', $validated['case_id'])->first();
+
+        if ($case && $case->lawyers1->isNotEmpty()) {
+            foreach ($case->lawyers1 as $lawyer) {
+                Forwarding::create([
+                    'case_id' => $validated['case_id'],
+                    'lawyer_id' => $lawyer->lawyer_id,
+                    'dvc_appointment_date' => $validated['dvc_appointment_date'],
+                    'dvc_appointment_time' => $validated['dvc_appointment_time'],
+                    'briefing_notes' => $validated['briefing_notes'] ?? null,
+                ]);
             }
-    
-            $forwarding = Forwarding::create($validated);
-            return redirect()->route('forwarding.index', [
-                'case_id' => $request->case_id, 
-                'forwarding' => $forwarding->forwarding_id
-            ])->with('forwarding_success', true)
-            ->with('success', 'The Advice Added successfully');
-            ;
-            
-        
-        }
-        catch (\Exception $e) {
-            Log::error($e->getMessage());
-            return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
+        } else {
+            Forwarding::create([
+                'case_id' => $validated['case_id'],
+                'lawyer_id' => null,
+                'dvc_appointment_date' => $validated['dvc_appointment_date'],
+                'dvc_appointment_time' => $validated['dvc_appointment_time'],
+                'briefing_notes' => $validated['briefing_notes'] ?? null,
+            ]);
         }
 
+        return redirect()->route('dvc_appointments.index', [
+            'case_id' => $request->case_id,
+        ])->with('forwarding_success', true)
+          ->with('success', 'The Advice Added successfully');
+
+    } catch (\Exception $e) {
+        Log::error($e->getMessage());
+        return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
     }
+}
 
     /**
      * Display the specified resource.

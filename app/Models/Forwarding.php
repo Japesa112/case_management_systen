@@ -19,6 +19,7 @@ class Forwarding extends Model
         'case_id',
         'lawyer_id',
         'dvc_appointment_date',
+        'dvc_appointment_time',
         'briefing_notes',
     ];
 
