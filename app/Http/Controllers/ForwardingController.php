@@ -89,15 +89,62 @@ class ForwardingController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id)
-    {
-        $forwarding = Forwarding::with(['case', 'lawyer'])->findOrFail($id);
-        return response()->json($forwarding);
+    public function show($forwarding_id)
+{
+    $forwarding = Forwarding::with('case')->find($forwarding_id);
+
+    if (!$forwarding) {
+        return response()->json([
+            'error' => 'Forwarding record not found.'
+        ], 404);
     }
+
+    return response()->json([
+        'forwarding' => $forwarding,
+        'case_name' => $forwarding->case->case_name ?? 'Unknown Case',
+         'case_number' => $forwarding->case->case_number ?? 'Unknown Case'
+    ]);
+}
+
+public function update(Request $request, $forwarding_id)
+{
+    try {
+        $validated = $request->validate([
+            'case_id' => 'required|exists:cases,case_id',
+            'dvc_appointment_date' => 'required|date_format:Y-m-d\TH:i',
+            'briefing_notes' => 'nullable|string',
+        ]);
+
+        // Convert datetime-local to separate date and time
+        $dateTime = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->dvc_appointment_date);
+        $validated['dvc_appointment_date'] = $dateTime->toDateString();
+        $validated['dvc_appointment_time'] = $dateTime->toTimeString();
+
+        // Fetch the forwarding record
+        $forwarding = Forwarding::where('forwarding_id', $forwarding_id)->first();
+
+        if (!$forwarding) {
+            return redirect()->back()->with('error', 'Forwarding record not found.');
+        }
+
+        // Update fields
+        $forwarding->update([
+            'case_id' => $validated['case_id'],
+            'dvc_appointment_date' => $validated['dvc_appointment_date'],
+            'dvc_appointment_time' => $validated['dvc_appointment_time'],
+            'briefing_notes' => $validated['briefing_notes'],
+        ]);
+        return response()->json(['message' => 'Forwarding updated successfully!', 'forwarding' => $forwarding]);
+
+    } catch (\Exception $e) {
+        Log::error($e->getMessage());
+        return response()->json(['error' => 'Error updating the forwarding!']);
+    }
+}
 
     /**
      * Update the specified resource in storage.
-     */
+    
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
@@ -112,7 +159,7 @@ class ForwardingController extends Controller
 
         return response()->json(['message' => 'Forwarding updated successfully!', 'forwarding' => $forwarding]);
     }
-
+ */
     /**
      * Remove the specified resource from storage.
      */

@@ -484,7 +484,7 @@ Route::prefix('dvc_appointments')->group(function () {
     Route::get('/check-case', [ForwardingController::class, 'checkCase'])->name('dvc_appointments.checkCase');
     Route::get('/create/{case_id}', [ForwardingController::class, 'create'])->name('dvc_appointments.create');
     Route::post('/store', [ForwardingController::class, 'store'])->name('dvc_appointments.store');
-    Route::get('/show/{appointment}', [ForwardingController::class, 'show'])->name('dvc_appointments.show');
+    Route::get('/show/{forwarding_id}', [ForwardingController::class, 'show'])->name('dvc_appointments.show');
     Route::get('/edit/{appointment}', [ForwardingController::class, 'edit'])->name('dvc_appointments.edit');
     Route::put('/update/{appointment}', [ForwardingController::class, 'update'])->name('dvc_appointments.update');
     

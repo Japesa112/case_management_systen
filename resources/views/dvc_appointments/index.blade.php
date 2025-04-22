@@ -154,39 +154,51 @@
             <div class="modal-body">
                 <div class="row">
                   
+                    <form id="editAppointmentForm" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        @method('PUT')
                     
-                        <form id="editAppointmentForm" method="POST" enctype="multipart/form-data">
-                            @csrf
-                            @method('PUT')
-
-                            <input type="hidden" id="edit_appointment_id" name="ag_appointment_id">
-                            <input type="hidden" class="form-control" id="edit_case_id" name="case_id" readonly>
-                           
-                            <div class="mb-3">
-                                <label for="edit_case_id" class="form-label">Case Name</label>
-                                <input type="text" class="form-control" id="edit_case_name" name="case_name" readonly disabled>
+                        <input type="hidden" id="edit_appointment_id" name="ag_appointment_id">
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <!-- Case Number -->
+                                <div class="form-group mt-2">
+                                    <label for="edit_case_id">Case Number <span class="text-danger">*</span></label>
+                                    <input type="hidden" name="case_id" id="edit_case_id" class="form-control">
+                                    <input type="text" id="edit_case_number" class="form-control" disabled>
+                                </div>
+                    
+                                <!-- Case Name -->
+                                <div class="form-group mt-2">
+                                    <label for="edit_case_name">Case Name <span class="text-danger">*</span></label>
+                                    <input type="text" id="edit_case_name" class="form-control" disabled>
+                                    <input type="hidden" name="case_name" id="hidden_case_name">
+                                </div>
                             </div>
-
-                            <div class="mb-3">
-                                <label for="edit_appointment_date" class="form-label">Appointment Date</label>
-                                <input type="date" class="form-control" id="edit_appointment_date" name="dvc_appointment_date">
+                    
+                            <div class="col-md-6">
+                                <!-- Appointment Date & Time -->
+                                <div class="form-group mt-2">
+                                    <label for="edit_appointment_date">Appointment Date & Time <span class="text-danger">*</span></label>
+                                    <input type="datetime-local" name="dvc_appointment_date" id="edit_appointment_date" class="form-control" required>
+                                </div>
+                    
+                                <!-- Briefing Notes -->
+                                <div class="form-group mt-2">
+                                    <label for="edit_briefing_notes">Briefing Notes <span class="text-danger">*</span></label>
+                                    <textarea class="form-control" id="edit_briefing_notes" name="briefing_notes" rows="2" placeholder="Enter briefing notes" required></textarea>
+                                </div>
                             </div>
-                           
-                            <div class="mb-3">
-                                <label for="edit_briefing_notes" class="form-label">Briefing Notes</label>
-                                <textarea class="form-control" id="edit_briefing_notes" name="briefing_notes" rows="3" required></textarea>
-                            </div>
-                            <!--
-                            <div class="mb-3">
-                                <label for="editAttachments" class="form-label">Upload New Attachments</label>
-                                <input type="file" class="form-control" id="editAttachments" name="attachments[]" multiple>
-                            </div>
-                        -->
-
+                        </div>
+                    
+                        <div class="form-group text-center mt-2">
                             <button type="submit" class="btn btn-primary" id="updateAppointmentBtn">
-                                Update Appointment
+                                <i class="fa fa-save"></i> Update Appointment
                             </button>
-                        </form>
+                        </div>
+                    </form>
+                    
                 
             </div>
         </div>
@@ -240,7 +252,7 @@
                 url: "{{ route('dvc_appointments.show', ':id') }}".replace(':id', forwarding_id),
                 type: "GET",
                 success: function (response) {
-                    let appointment = response.appointment;
+                    let appointment = response.forwarding;
                     let case_name = response.case_name;
 
                     let content = `
@@ -248,6 +260,7 @@
                             <div class="col-md-6">
                               <strong>Case Name:</strong> ${case_name ?? 'N/A'}<br>
                                 <strong>Appointment Date:</strong> ${appointment.dvc_appointment_date ?? 'N/A'}<br>
+                                 <strong>Appointment Date:</strong> ${appointment.dvc_appointment_time ?? 'N/A'}<br>
                                 <strong>Appointment Comments:</strong> <p>${appointment.briefing_notes ?? 'N/A'}</p>
                             </div>
                             <div class="col-md-6">
@@ -273,8 +286,8 @@
 
         $(document).ready(function () {
     $(document).on('click', '.edit-appointment', function () {
-        let ag_appointment_id = $(this).data('id');
-    
+        let forwarding_id = $(this).data('id');
+      alert(forwarding_id);
         // Fetch appointment details using AJAX
         $.ajax({
             url: `dvc_appointments/show/${forwarding_id}`, // Make sure this route exists in your Laravel routes
@@ -282,15 +295,16 @@
             success: function (response) {
                 let appointment = response.forwarding;
                 let case_name = response.case_name;
+                let case_number = response.case_number;
 
                 // Populate form fields with fetched data
                 $('#edit_appointment_id').val(appointment.forwarding_id);
                 $('#edit_case_id').val(appointment.case_id);
+                $('#edit_case_number').val(case_number); // or appointment.case_number if available
                 $('#edit_case_name').val(case_name);
-                $('#edit_appointment_date').val(appointment.dvc_appointment_date);
-                $('#edit_ag_appointment').val(appointment.briefing_notes);
-
-
+                $('#hidden_case_name').val(case_name);
+                $('#edit_appointment_date').val(appointment.dvc_appointment_date + 'T' + appointment.dvc_appointment_time); // make sure time is included
+                $('#edit_briefing_notes').val(appointment.briefing_notes);
 
 
                
