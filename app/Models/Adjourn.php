@@ -18,6 +18,7 @@ class Adjourn extends Model
     protected $fillable = [
         'case_id',
         'next_hearing_date',
+        'next_hearing_time',
         'adjourn_comments',
     ];
 

@@ -102,7 +102,7 @@
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $evaluation->case->case_name ?? 'N/A' }}</td>
-                                <td>{{ $evaluation->lawyer->user->full_name ?? 'N/A' }}
+                                <td>{{ $evaluation->user->full_name ?? 'N/A' }}
                                 </td>
                                 <td>{{ $evaluation->evaluation_date }}</td>
                                 <td>{{ Str::limit($evaluation->comments, 50) }}</td>
@@ -188,6 +188,8 @@
                                 <strong>Case Name:</strong> ${evaluation.case_name ?? 'N/A'}<br>
                                 <strong>Lawyer:</strong> ${evaluation.lawyer_name ?? 'N/A'}<br>
                                 <strong>Evaluation Date:</strong> ${evaluation.evaluation_date ?? 'N/A'}<br>
+                                <strong>Evaluation Time:</strong> ${evaluation.evaluation_time ?? 'N/A'}<br>
+
                                 <strong>Quote:</strong> ${evaluation.quote ?? 'N/A'}<br>
                             </div>
                             <div class="col-md-6">

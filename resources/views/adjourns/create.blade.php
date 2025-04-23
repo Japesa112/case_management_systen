@@ -67,8 +67,8 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group mt-2">
-                                    <label for="next_hearing_date">Next Hearing Date <span class="text-danger">*</span></label>
-                                    <input type="date" name="next_hearing_date" id="next_hearing_date" class="form-control" required>
+                                    <label for="next_hearing_date">Next Hearing Date and Time<span class="text-danger">*</span></label>
+                                    <input type="datetime-local" name="next_hearing_date" id="next_hearing_date" class="form-control" required>
                                 </div>
                                 <div class="form-group mt-2">
                                     <label for="adjourn_comments">Adjourn Comments</label>

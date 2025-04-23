@@ -106,7 +106,7 @@
                                 
                                 <div class="form-group mt-2">
                                     <label for="payment_date">Payment Date <span class="text-danger">*</span></label>
-                                    <input type="date" name="payment_date" id="payment_date" class="form-control" required>
+                                    <input type="datetime-local" name="payment_date" id="payment_date" class="form-control" required>
                                 </div>
                                 <div class="form-group mt-2">
                                     <label for="appeal_details">Transaction  Details</label>

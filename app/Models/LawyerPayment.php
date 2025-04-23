@@ -14,7 +14,7 @@ class LawyerPayment extends Model
 
     protected $fillable = [
         'case_id', 'amount_paid', 'payment_method', 'lawyer_id',
-        'transaction', 'payment_date', 'lawyer_payment_status'
+        'transaction', 'payment_date', 'payment_time', 'lawyer_payment_status'
     ];
 
     public function attachments()

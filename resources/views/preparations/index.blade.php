@@ -204,7 +204,7 @@
                         
                                     <div class="mb-3">
                                         <label for="edit_preparation_date" class="form-label">Preparation Date <span class="text-danger">*</span></label>
-                                        <input type="date" class="form-control" id="edit_preparation_date" name="preparation_date" required>
+                                        <input type="datetime-local" class="form-control" id="edit_preparation_date" name="preparation_date" required>
                                     </div>
                         
                                     
@@ -300,7 +300,7 @@
                             
                             <strong>Case Name:</strong> ${case_name ?? 'N/A'}<br>
                             <strong>Preparation Date:</strong> ${preparation.preparation_date ?? 'N/A'}<br>
-                            
+                            <strong>Preparation Time:</strong> ${preparation.preparation_time ?? 'N/A'}<br>
                         </div>
                         <div class="col-md-6">
                             <strong>Status:</strong> ${preparation.preparation_status ?? 'N/A'}<br>
@@ -350,12 +350,12 @@
                 let preparation = response.preparation;
                 let attachments = response.attachments; // Get attachments correctly
                 let case_name = response.case_name;
-
+                let formattedDateTime = response.formattedDateTime
               // Populate form fields with fetched data
                 $('#edit_preparation_id').val(preparation.preparation_id);
                 $('#edit_case_id').val(preparation.case_id);
                 $('#edit_case_name').val(case_name);
-                $('#edit_preparation_date').val(preparation.preparation_date);
+                $('#edit_preparation_date').val(formattedDateTime);
                 $('#edit_preparation_status').val(preparation.preparation_status);
                 $('#edit_briefing_notes').val(preparation.briefing_notes);
 

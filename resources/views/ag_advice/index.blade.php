@@ -169,7 +169,7 @@
 
                             <div class="mb-3">
                                 <label for="edit_advice_date" class="form-label">Advice Date</label>
-                                <input type="date" class="form-control" id="edit_advice_date" name="advice_date">
+                                <input type="datetime-local" class="form-control" id="edit_advice_date" name="advice_date">
                             </div>
                            
                             <div class="mb-3">
@@ -247,7 +247,8 @@
                         <div class="row">
                             <div class="col-md-6">
                               <strong>Case Name:</strong> ${case_name ?? 'N/A'}<br>
-                                <strong>Next Hearing Date:</strong> ${advice.advice_date ?? 'N/A'}<br>
+                                <strong>Advice Date:</strong> ${advice.advice_date ?? 'N/A'}<br>
+                                <strong>Advice Time:</strong> ${advice.advice_time ?? 'N/A'}<br>
                                 <strong>Advice Comments:</strong> <p>${advice.ag_advice ?? 'N/A'}</p>
                             </div>
                             <div class="col-md-6">
@@ -282,12 +283,13 @@
             success: function (response) {
                 let advice = response.advice;
                 let case_name = response.case_name;
+                let formattedDateTime  = response.formattedDateTime;
 
                 // Populate form fields with fetched data
                 $('#edit_advice_id').val(advice.ag_advice_id);
                 $('#edit_case_id').val(advice.case_id);
                 $('#edit_case_name').val(case_name);
-                $('#edit_advice_date').val(advice.advice_date);
+                $('#edit_advice_date').val(formattedDateTime);
                 $('#edit_ag_advice').val(advice.ag_advice);
 
 

@@ -61,7 +61,7 @@
                     
                                 <div class="form-group mt-2">
                                     <label for="preparation_date">Preparation Date <span class="text-danger">*</span></label>
-                                    <input type="date" name="preparation_date" id="preparation_date" class="form-control" required>
+                                    <input type="datetime-local" name="preparation_date" id="preparation_date" class="form-control" required>
                                 </div>
                     
                                 <div class="form-group mt-2">

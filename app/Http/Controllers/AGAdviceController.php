@@ -52,11 +52,13 @@ class AGAdviceController extends Controller
         try{
 
             $validated = $request->validate([
-                'advice_date' => 'required|date',
+                'advice_date' => 'required|date_format:Y-m-d\TH:i',
                 'ag_advice' => 'required|string',
                 'case_id' => 'required|exists:cases,case_id',
             ]);
-        
+            $dateTime = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->advice_date);
+            $validated['advice_date']  = $dateTime->toDateString();
+            $validated['advice_time'] = $dateTime->toTimeString();
             // Retrieve the case and check for evaluations
             $case = CaseModel::where('case_id', $validated['case_id'])->with('evaluations')->first();
         
@@ -96,9 +98,12 @@ class AGAdviceController extends Controller
         try{
             $advice = AGAdvice::with('case')->findOrFail($ag_advice_id);
             Log::info('The ID is: '. $advice->ag_advice_id .'   Data is: '.$advice);
-    
+            $formattedDateTime = $advice->advice_date && $advice->advice_time
+            ? \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', "$advice->advice_date $advice->advice_time")->format('Y-m-d\TH:i')
+            : '';
         return response()->json([
             'case_name' => $advice->case->case_name,
+            'formattedDateTime'=> $formattedDateTime,
             'advice' => $advice,
             
         ]);
@@ -126,14 +131,16 @@ class AGAdviceController extends Controller
         
         try{
             $validated = $request->validate([
-                'advice_date' => 'required|date',
+                'advice_date' => 'required|date_format:Y-m-d\TH:i',
                 'ag_advice' => 'required|string',
                 'case_id' => 'required|exists:cases,case_id',
             ]);
         
             // Retrieve the case and check for evaluations
             $case = CaseModel::where('case_id', $validated['case_id'])->with('evaluations')->first();
-        
+            $dateTime = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->advice_date);
+            $validated['advice_date']  = $dateTime->toDateString();
+            $validated['advice_time'] = $dateTime->toTimeString();
             if ($case && $case->evaluations->isNotEmpty()) {
                 // If evaluations exist, store the first evaluation's ID
                 $validated['evaluation_id'] = $case->evaluations->first()->id;

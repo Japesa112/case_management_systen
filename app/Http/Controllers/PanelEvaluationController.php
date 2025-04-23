@@ -15,13 +15,13 @@ class PanelEvaluationController extends Controller
 
     if ($isLawyer) {
         // Fetch evaluations for the logged-in lawyer
-        $evaluations = PanelEvaluation::with(['case', 'lawyer'])
-                                      ->where('lawyer_id', Auth::id())  // Filter by lawyer_id
+        $evaluations = PanelEvaluation::with(['case', 'user'])
+                                      ->where('user_id', Auth::id())  // Filter by lawyer_id
                                       ->paginate(5);
                                     
     } else {
         // Fetch all evaluations for non-lawyer users
-        $evaluations = PanelEvaluation::with(['case', 'lawyer'])->paginate(5);
+        $evaluations = PanelEvaluation::with(['case', 'user'])->paginate(5);
     }
 
     return view('evaluations.index', compact('evaluations'));
@@ -33,6 +33,7 @@ class PanelEvaluationController extends Controller
     $case_id = $request->case_id ?? null;
     $case_name = null;
     $evaluation = null;
+
 
 
     if ($case_id) {
@@ -70,19 +71,22 @@ public function store(Request $request)
     $validatedData = $request->validate([
         'case_id'          => 'required|exists:cases,case_id', // Ensure the case exists
         'lawyer_id'        => 'required|exists:users,user_id', // Ensure the lawyer exists
-        'evaluation_date'  => 'required|date',
+        'evaluation_date'  =>  'required|date_format:Y-m-d\TH:i',
         'comments'         => 'nullable|string',
         'pager'            =>  'nullable|string',
         'quote'            => 'nullable|numeric',
         'worked_before'    => 'required|in:Yes,No',
     ]);
-
+    $dateTime = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->evaluation_date);
+    $evaluation_date = $dateTime->toDateString();
+    $evaluation_time = $dateTime->toTimeString();
     try {
         // Store the evaluation
         $evaluation = PanelEvaluation::create([
             'case_id'         => $request->case_id,
             'lawyer_id'       => $request->lawyer_id,
-            'evaluation_date' => $request->evaluation_date,
+            'evaluation_date' => $evaluation_date,
+            'evaluation_time' => $evaluation_time,
             'comments'        => $request->comments,
             'quote'           => $request->quote,
             'pager'           => $request->pager,
@@ -101,17 +105,23 @@ public function store(Request $request)
 
 public function show(PanelEvaluation $evaluation)
 {
+
+    $formattedDateTime = $evaluation->evaluation_date && $evaluation->evaluation_time
+    ? \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', "$evaluation->evaluation_date $evaluation->evaluation_time")->format('Y-m-d\TH:i')
+    : '';
     if (request()->ajax()) {
         return response()->json([
             'evaluation' => [
                 'case_name' => $evaluation->case->case_name ?? 'N/A',
-                'lawyer_name' => $evaluation->lawyer->user->full_name ?? 'N/A',
+                'lawyer_name' => $evaluation->user->full_name ?? 'N/A',
                 'evaluation_date' => $evaluation->evaluation_date,
+                'evaluation_time' => $evaluation->evaluation_time,
                 'quote' => $evaluation->quote,
                 'outcome' => $evaluation->outcome,
                 'pager' => $evaluation->pager,
                 'worked_before' => $evaluation->worked_before,
                 'comments' => $evaluation->comments,
+                'formattedDateTime'=> $formattedDateTime,
             ]
         ]);
     }
@@ -121,22 +131,30 @@ public function show(PanelEvaluation $evaluation)
 
     public function edit(PanelEvaluation $evaluation)
     {
+        
+    $formattedDateTime = $evaluation->evaluation_date && $evaluation->evaluation_time
+    ? \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', "$evaluation->evaluation_date $evaluation->evaluation_time")->format('Y-m-d\TH:i')
+    : '';
+    $evaluation['formattedDateTime'] = $formattedDateTime;
         return view('evaluations.edit', compact('evaluation'));
     }
 
     public function update(Request $request, PanelEvaluation $evaluation)
 {
     $request->validate([
-        'evaluation_date' => 'required|date',
+        'evaluation_date' => 'required|date_format:Y-m-d\TH:i',
         'worked_before' => 'required|in:Yes,No',
         'outcome' => 'required|in:Yes,No',
         'quote' => 'nullable|string|max:255',
         'pager' => 'nullable|string|max:255',
         'comments' => 'nullable|string|max:1000',
     ]);
-
+    $dateTime = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->evaluation_date);
+    $evaluation_date = $dateTime->toDateString();
+    $evaluation_time = $dateTime->toTimeString();
     $evaluation->update([
-        'evaluation_date' => $request->evaluation_date,
+        'evaluation_date' => $evaluation_date,
+        'evaluation_time' => $evaluation_time,
         'worked_before' => $request->worked_before,
         'outcome' => $request->outcome,
         'quote' => $request->quote,

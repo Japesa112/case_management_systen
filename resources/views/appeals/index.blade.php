@@ -176,7 +176,7 @@
 
                             <div class="mb-3">
                                 <label for="edit_next_hearing_date" class="form-label">Next Hearing Date</label>
-                                <input type="date" class="form-control" id="edit_next_hearing_date" name="next_hearing_date">
+                                <input type="datetime-local" class="form-control" id="edit_next_hearing_date" name="next_hearing_date">
                             </div>
 
                             <div class="mb-3">
@@ -255,6 +255,7 @@
                             <div class="col-md-6">
                               <strong>Case Name:</strong> ${case_name ?? 'N/A'}<br>
                                 <strong>Next Hearing Date:</strong> ${appeal.next_hearing_date ?? 'N/A'}<br>
+                                 <strong>Next Hearing Time:</strong> ${appeal.next_hearing_time ?? 'N/A'}<br>
                                 <strong>Appeal Comments:</strong> <p>${appeal.appeal_comments ?? 'N/A'}</p>
                             </div>
                             <div class="col-md-6">
@@ -302,12 +303,12 @@
                 let appeal = response.appeal;
                 let attachments = response.attachments; // Get attachments correctly
                 let case_name = response.case_name;
-
+                let formattedDateTime = response.formattedDateTime
                 // Populate form fields with fetched data
                 $('#edit_appeal_id').val(appeal.appeal_id);
                 $('#edit_case_id').val(appeal.case_id);
                 $('#edit_case_name').val(case_name);
-                $('#edit_next_hearing_date').val(appeal.next_hearing_date);
+                $('#edit_next_hearing_date').val(formattedDateTime);
                 $('#edit_appeal_comments').val(appeal.appeal_comments);
 
 

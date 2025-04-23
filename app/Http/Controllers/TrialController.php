@@ -48,21 +48,30 @@ class TrialController extends Controller
         // Validate request data
         $validatedData = $request->validate([
             'case_id' => 'required|exists:cases,case_id',
-            'trial_date' => 'required|date',
+            'trial_date' => 'required|date_format:Y-m-d\TH:i',
             'judgement_details' => 'nullable|string',
-            'judgement_date' => 'nullable|date|after_or_equal:trial_date',
+            'judgement_date' => 'required|date_format:Y-m-d\TH:i|after_or_equal:trial_date',
             'outcome' => 'required|string|in:Win,Loss,Adjourned',
             'trialAttachments.*' => 'file|mimes:pdf,doc,docx,jpg,png|max:2048' // File validation
         ]);
 
         Log::info('Trial Request Data:', $request->all());
+        $dateJudgementTime = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->judgement_date);
+        $judgement_date= $dateJudgementTime->toDateString();
+        $judgement_time = $dateJudgementTime->toTimeString();
 
+
+        $dateTrialTime = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->trial_date);
+        $trial_date= $dateTrialTime->toDateString();
+        $trial_time = $dateTrialTime->toTimeString();
         // Create the trial record
         $trial = Trial::create([
             'case_id' => $request->case_id,
-            'trial_date' => $request->trial_date,
+            'trial_date' => $trial_date,
+            'trial_time' => $trial_time,
             'judgement_details' => $request->judgement_details,
-            'judgement_date' => $request->judgement_date,
+            'judgement_date' => $judgement_date,
+            'judgement_time' => $judgement_time,
             'outcome' => $request->outcome,
             'created_at' => now(),
             'updated_at' => now()
@@ -105,9 +114,19 @@ class TrialController extends Controller
         try{
             $trial = Trial::with('attachments')->where('trial_id', $trial_id)->firstOrFail();
             Log::info('', $trial->toArray());
+            
+            $formattedJudgementDateTime = $trial->judgement_date && $trial->judgement_time
+            ? \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', "$trial->judgement_date $trial->judgement_time")->format('Y-m-d\TH:i')
+            : '';
+            $formattedTrialDateTime = $trial->trial_date && $trial->trial_time
+            ? \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', "$trial->trial_date $trial->trial_time")->format('Y-m-d\TH:i')
+            : '';
+            
             return response()->json([
                 'case_name' => $trial->case->case_name,
                 'trial' => $trial,
+                'formattedJudgementDateTime'=> $formattedJudgementDateTime,
+                'formattedTrialDateTime'=> $formattedTrialDateTime,
                 'attachments' => $trial->attachments,
             ]);
         }
@@ -147,18 +166,27 @@ class TrialController extends Controller
         // Validate request data
         $request->validate([
             'case_id' => 'required|exists:cases,case_id',
-            'trial_date' => 'required|date',
-            'judgement_date' => 'nullable|date',
+            'trial_date' => 'required|date_format:Y-m-d\TH:i',
+            'judgement_date' => 'required|date_format:Y-m-d\TH:i|after_or_equal:trial_date',
             'judgement_details' => 'nullable|string',
             'outcome' => 'required|string|in:Win,Loss,Adjourned',
             'attachments.*' => 'file|mimes:pdf,doc,docx,jpg,png|max:2048' // Validate file uploads
         ]);
+        $dateJudgementTime = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->judgement_date);
+        $judgement_date= $dateJudgementTime->toDateString();
+        $judgement_time = $dateJudgementTime->toTimeString();
 
+
+        $dateTrialTime = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->trial_date);
+        $trial_date= $dateTrialTime->toDateString();
+        $trial_time = $dateTrialTime->toTimeString();
         // Update trial details
         $trial->update([
             'case_id' => $request->case_id,
-            'trial_date' => $request->trial_date,
+            'trial_date' => $trial_date,
+            'trial_time' => $trial_time,
             'judgement_date' => $request->judgement_date,
+            'judgement_time' => $judgement_time,
             'judgement_details' => $request->judgement_details,
             'outcome' => $request->outcome,
             'updated_at' => now(),

@@ -50,10 +50,13 @@ class PaymentController extends Controller
                 'amount_paid' => 'required|numeric',
                 'payment_method' => 'required|string',
                 'transaction' => 'nullable|string',
-                'payment_date' => 'required|date',                
+                'payment_date' => 'required|date_format:Y-m-d\TH:i',                
                 'auctioneer_involvement' => 'nullable|string',
                 'paymentAttachments.*' => 'file|mimes:pdf,doc,docx,jpg,png|max:2048'
             ]);
+            $dateTime = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->payment_date);
+            $validatedData['payment_date'] = $dateTime->toDateString();
+            $validatedData['payment_time'] = $dateTime->toTimeString();
 
             $payment = Payment::create($validatedData);
 
@@ -83,11 +86,14 @@ class PaymentController extends Controller
     public function show($payment_id)
     {
         $payment= Payment::with('attachments')->where('payment_id', $payment_id)->firstOrFail();
-    
+        $formattedDateTime = $payment->payment_date && $payment->payment_time
+        ? \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', "$payment->payment_date $payment->payment_time")->format('Y-m-d\TH:i')
+        : '';
         return response()->json([
             'case_name' => $payment->case->case_name,
             'payment' => $payment,
             'attachments' => $payment->attachments,
+            'formattedDateTime'=> $formattedDateTime
         ]);
     }
     
@@ -113,11 +119,13 @@ class PaymentController extends Controller
             'amount_paid' => 'required|numeric',
             'payment_method' => 'required|string',
             'transaction' => 'nullable|string',
-            'payment_date' => 'required|date',
+            'payment_date' => 'required|date_format:Y-m-d\TH:i',
             'auctioneer_involvement' => 'nullable|string'
         ]);
 
-        
+        $dateTime = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->payment_date);
+        $validatedData['payment_date'] = $dateTime->toDateString();
+        $validatedData['payment_time'] = $dateTime->toTimeString();
 
         $payment->update($validatedData);
 

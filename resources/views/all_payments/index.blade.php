@@ -208,7 +208,7 @@
                                 
                                 <div class="form-group mt-2">
                                     <label for="payment_date">Payment Date <span class="text-danger">*</span></label>
-                                    <input type="date" name="payment_date" id="edit_payment_date" class="form-control" required>
+                                    <input type="datetime-local" name="payment_date" id="edit_payment_date" class="form-control" required>
                                 </div>
                                 <div class="form-group mt-2">
                                     <label for="appeal_details">Transaction  Details</label>
@@ -295,6 +295,7 @@
         <div class="col-md-6">
             <strong>Case Name:</strong> ${case_name ?? 'N/A'}<br>
             <strong>Payment Date:</strong> ${payment.payment_date ?? 'N/A'}<br>
+            <strong>Payment Date:</strong> ${payment.payment_time ?? 'N/A'}<br>
             <strong>Amount Paid:</strong> ${payment.amount_paid ?? 'N/A'}<br>
             <strong>Payment Method:</strong> ${payment.payment_method ?? 'N/A'}<br>
             <strong>Transaction ID:</strong> ${payment.transaction ?? 'N/A'}<br>
@@ -344,6 +345,7 @@
             type: "GET",
             success: function (response) {
                 let payment= response.payment;
+                let formattedDateTime = response.formattedDateTime;
                 let attachments = response.attachments; // Get attachments correctly
                 let case_name = response.case_name;
                 console.log("Thepayment method is: "+payment.payment_method);
@@ -359,7 +361,7 @@
                     $('#edit_payment_method').val(payment.payment_method);
 
                 $('#edit_auctioneer_involvement').val(payment.auctioneer_involvement);
-                $('#edit_payment_date').val(payment.payment_date);
+                $('#edit_payment_date').val(formattedDateTime);
                 $('#edit_amount_paid').val(payment.amount_paid);
 
 

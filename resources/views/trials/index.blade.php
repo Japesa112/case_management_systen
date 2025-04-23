@@ -208,12 +208,12 @@
                         
                                     <div class="mb-3">
                                         <label for="edit_trial_date" class="form-label">Trial Date <span class="text-danger">*</span></label>
-                                        <input type="date" class="form-control" id="edit_trial_date" name="trial_date" required>
+                                        <input type="datetime-local" class="form-control" id="edit_trial_date" name="trial_date" required>
                                     </div>
                         
                                     <div class="mb-3">
                                         <label for="edit_judgement_date" class="form-label">Judgement Date</label>
-                                        <input type="date" class="form-control" id="edit_judgement_date" name="judgement_date">
+                                        <input type="datetime-local" class="form-control" id="edit_judgement_date" name="judgement_date">
                                     </div>
                                 </div>
                         
@@ -306,8 +306,10 @@
                         <div class="col-md-6">
                             <strong>Case Name:</strong> ${case_name ?? 'N/A'}<br>
                             <strong>Trial Date:</strong> ${trial.trial_date ?? 'N/A'}<br>
+                             <strong>Trial Time:</strong> ${trial.trial_time ?? 'N/A'}<br>
                             <strong>Judgement Details:</strong> <p>${trial.judgement_details ?? 'N/A'}</p>
                             <strong>Judgement Date:</strong> ${trial.judgement_date ?? 'N/A'}<br>
+                             <strong>Judgement Time:</strong> ${trial.judgement_time ?? 'N/A'}<br>
                         </div>
                         <div class="col-md-6">
                             <strong>Outcome:</strong> ${trial.outcome ?? 'N/A'}<br>
@@ -357,14 +359,16 @@
                 let trial = response.trial;
                 let attachments = response.attachments; // Get attachments correctly
                 let case_name = response.case_name;
+                let formattedJudgementDateTime = response.formattedJudgementDateTime;
+                let formattedTrialDateTime = response.formattedTrialDateTime;
 
                 // Populate form fields with fetched data
               // Populate form fields with fetched data
                     $('#edit_trial_id').val(trial.trial_id);
                     $('#edit_case_id').val(trial.case_id);
                     $('#edit_case_name').val(case_name);
-                    $('#edit_trial_date').val(trial.trial_date);
-                    $('#edit_judgement_date').val(trial.judgement_date);
+                    $('#edit_trial_date').val(formattedTrialDateTime);
+                    $('#edit_judgement_date').val(formattedJudgementDateTime);
                     $('#edit_judgement_details').val(trial.judgement_details);
                     $('#edit_outcome').val(trial.outcome);
 

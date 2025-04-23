@@ -85,12 +85,16 @@ class LawyerPaymentController extends Controller
                 'amount_paid' => 'required|numeric',
                 'payment_method' => 'required|string',
                 'transaction' => 'nullable|string',
-                'payment_date' => 'required|date',
+                'payment_date' => 'required|date_format:Y-m-d\TH:i',
                 'lawyer_payment_status' => 'required|string|in:Pending,Completed,Failed',
                 'lawyerPaymentAttachments.*' => 'file|mimes:pdf,doc,docx,jpg,png|max:2048' // File validation
             ]);
 
             Log::info('Lawyer Payment Request Data:', $request->all());
+            $dateTime = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->payment_date);
+            $payment_date = $dateTime->toDateString();
+            $payment_time = $dateTime->toTimeString();
+
 
             // Create the lawyer payment record
             $lawyerPayment = LawyerPayment::create([
@@ -99,7 +103,8 @@ class LawyerPaymentController extends Controller
                 'amount_paid' => $request->amount_paid,
                 'payment_method' => $request->payment_method,
                 'transaction_id' => $request->transaction_id,
-                'payment_date' => $request->payment_date,
+                'payment_date' => $payment_date,
+                'payment_time' => $payment_time,
                 'lawyer_payment_status' => $request->lawyer_payment_status,
                 'created_at' => now(),
                 'updated_at' => now()
@@ -141,13 +146,16 @@ class LawyerPaymentController extends Controller
         try {
             $lawyerPayment = LawyerPayment::with('attachments')->where('payment_id', $lawyer_payment_id)->firstOrFail();
             Log::info('', $lawyerPayment->toArray());
-
+            $formattedDateTime = $lawyerPayment->payment_date && $lawyerPayment->payment_time
+            ? \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', "$lawyerPayment->payment_date $lawyerPayment->payment_time")->format('Y-m-d\TH:i')
+            : '';
             return response()->json([
                 'case_name' => $lawyerPayment->case->case_name,
                 'lawyer_id' => $lawyerPayment->lawyer_id,
                 'lawyer' => $lawyerPayment->lawyer->license_number.'-'. $lawyerPayment->lawyer->user->full_name,
                 'payment' => $lawyerPayment,
                 'attachments' => $lawyerPayment->attachments,
+                'formattedDateTime'=> $formattedDateTime
             ]);
         } catch (\Exception $e) {
             Log::info("The show function is not working");
@@ -186,10 +194,13 @@ class LawyerPaymentController extends Controller
                 'amount_paid' => 'required|numeric',
                 'payment_method' => 'required|string',
                 'transaction' => 'nullable|string',
-                'payment_date' => 'required|date',
+                'payment_date' => 'required|date_format:Y-m-d\TH:i',
                 'lawyer_payment_status' => 'required|string|in:Pending,Completed,Failed',
                 'lawyerPaymentAttachments.*' => 'file|mimes:pdf,doc,docx,jpg,png|max:2048' // Validate file uploads
             ]);
+            $dateTime = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->payment_date);
+            $lawyerPayment['payment_date'] = $dateTime->toDateString();
+            $lawyerPayment['payment_time'] = $dateTime->toTimeString();
 
             // Update lawyer payment details
             $lawyerPayment->update($request->all());

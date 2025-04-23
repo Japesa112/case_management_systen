@@ -20,6 +20,7 @@ class AGAdvice extends Model
     protected $fillable = [
         'evaluation_id',
         'advice_date',
+        'advice_time',
         'ag_advice',
         'case_id',
     ];

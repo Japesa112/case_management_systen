@@ -46,17 +46,21 @@ class AdjournController extends Controller
             // Validate adjourn data
             $validatedData = $request->validate([
                 'case_id' => 'required|exists:cases,case_id',
-                'next_hearing_date' => 'nullable|date',
+                'next_hearing_date' => 'required|date_format:Y-m-d\TH:i',
                 'adjourn_comments' => 'nullable|string',
                 'attachments.*' => 'file|mimes:pdf,doc,docx,jpg,png|max:2048' // Validate file uploads
             ]);
+            $dateTime = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->next_hearing_date);
+            $next_hearing_date = $dateTime->toDateString();
+            $next_hearing_time = $dateTime->toTimeString();
     
             Log::info('Request Data:', $request->all());
     
             // Create the adjourn
             $adjourn = Adjourn::create([
                 'case_id' => $request->case_id,
-                'next_hearing_date' => $request->next_hearing_date,
+                'next_hearing_date' => $next_hearing_date,
+                'next_hearing_time' => $next_hearing_time,
                 'adjourn_comments' => $request->adjourn_comments,
                 'created_at' => now(),
                 'updated_at' => now()
@@ -98,10 +102,13 @@ class AdjournController extends Controller
     public function show($adjourns_id)
     {
         $adjourn = Adjourn::with('attachments')->where('adjourns_id', $adjourns_id)->firstOrFail();
-    
+        $formattedDateTime = $adjourn->next_hearing_date && $adjourn->next_hearing_time
+        ? \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', "$adjourn->next_hearing_date $adjourn->next_hearing_time")->format('Y-m-d\TH:i')
+        : '';
         return response()->json([
             'case_name' => $adjourn->case->case_name,
             'adjourn' => $adjourn,
+            'formattedDateTime'=> $formattedDateTime,
             'attachments' => $adjourn->attachments,
         ]);
     }
@@ -115,13 +122,16 @@ class AdjournController extends Controller
         try{
             $request->validate([
                 'case_id' => 'required|exists:cases,case_id',
-                'next_hearing_date' => 'nullable|date',
+                'next_hearing_date' => 'required|date_format:Y-m-d\TH:i',
                 'appeal_comments' => 'nullable|string',
             ]);
-        
+            $dateTime = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->next_hearing_date);
+            $next_hearing_date = $dateTime->toDateString();
+            $next_hearing_time = $dateTime->toTimeString();
             $adjourn->update([
                 'case_id' => $request->case_id,
-                'next_hearing_date' => $request->next_hearing_date,
+                'next_hearing_date' => $next_hearing_date,
+                'next_hearing_time' => $next_hearing_time,
                 'adjourn_comments' => $request->adjourn_comments,
             ]);
             

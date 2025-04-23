@@ -16,8 +16,10 @@ class Trial extends Model
     protected $fillable = [
         'case_id',
         'trial_date',
+        'trial_time',
         'judgement_details',
         'judgement_date',
+        'judgement_time',
         'outcome'
     ];
 

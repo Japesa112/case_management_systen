@@ -6,6 +6,7 @@ use App\User;
 use Illuminate\Database\Eloquent\Model;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 use App\Models\Lawyer;
 class PanelEvaluation extends Model
 {
@@ -18,6 +19,7 @@ class PanelEvaluation extends Model
         'case_id',
         'lawyer_id',
         'evaluation_date',
+        'evaluation_time',
         'comments',
         'quote',
         'pager',
@@ -30,9 +32,9 @@ class PanelEvaluation extends Model
         return $this->belongsTo(CaseModel::class, 'case_id'); // Adjust if needed
     }
 
-    public function lawyer()
+    public function user()
 {
-    return $this->belongsTo(Lawyer::class, 'lawyer_id'); // Ensure this matches the column in evaluations
+    return $this->belongsTo(User::class, 'lawyer_id'); // Ensure this matches the column in evaluations
 }
 
 

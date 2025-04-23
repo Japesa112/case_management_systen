@@ -24,14 +24,14 @@
                             </ul>
                         </div>
                     @endif
-
+                        <p></p>
                     <form action="{{ route('evaluations.update', $evaluation->evaluation_id) }}" method="POST">
                         @csrf
                         @method('PUT') <!-- Laravel requires this for updates -->
 
                         <!-- Hidden Fields -->
                         <input type="hidden" name="case_id" value="{{ $evaluation->case_id }}">
-                        <input type="hidden" name="lawyer_id" value="{{ $evaluation->lawyer_id }}">
+                        <input type="hidden" name="lawyer_id" value=" {{  Auth::user()->user_id }} ">
 
                         <div class="row">
                             <div class="col-md-6">
@@ -44,13 +44,13 @@
                                 <!-- Lawyer Name (Not Editable) -->
                                 <div class="form-group mt-2">
                                     <label for="reviewer">Lawyer</label>
-                                    <input type="text" class="form-control" value="{{ $evaluation->lawyer->user->full_name ?? 'N/A' }}" disabled>
+                                    <input type="text" class="form-control" value=" {{  Auth::user()->full_name  ?? 'N/A' }}" disabled>
                                 </div>
 
                                 <!-- Evaluation Date -->
                                 <div class="form-group mt-2">
                                     <label for="evaluation_date">Evaluation Date <span class="text-danger">*</span></label>
-                                    <input type="date" name="evaluation_date" id="evaluation_date" class="form-control" value="{{ $evaluation->evaluation_date }}" required>
+                                    <input type="datetime-local" name="evaluation_date" id="evaluation_date" class="form-control" value="{{ $evaluation->formattedDateTime  }}" required>
                                 </div>
 
                                 <!-- Worked Before -->

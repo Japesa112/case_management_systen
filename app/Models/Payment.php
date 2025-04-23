@@ -13,7 +13,7 @@ class Payment extends Model
 
     protected $fillable = [
         'case_id', 'amount_paid', 'payment_method', 'transaction',
-        'payment_date',  'auctioneer_involvement'
+        'payment_date', 'payment_time', 'auctioneer_involvement'
     ];
 
     public function attachments()

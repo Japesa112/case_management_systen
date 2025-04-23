@@ -49,7 +49,7 @@
                                 <!-- Evaluation Date -->
                                 <div class="form-group mt-2">
                                     <label for="evaluation_date">Evaluation Date <span class="text-danger">*</span></label>
-                                    <input type="date" name="evaluation_date" id="evaluation_date" class="form-control" required>
+                                    <input type="datetime-local" name="evaluation_date" id="evaluation_date" class="form-control" required>
                                 </div>
 
                                 <div class="form-group mt-2">

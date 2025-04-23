@@ -60,13 +60,13 @@
 
                                 </div>
                                 <div class="form-group mt-2">
-                                    <label for="trial_date">Trial Date <span class="text-danger">*</span></label>
-                                    <input type="date" name="trial_date" id="trial_date" class="form-control" required>
+                                    <label for="trial_date">Trial Date and Time  <span class="text-danger">*</span></label>
+                                    <input type="datetime-local" name="trial_date" id="trial_date" class="form-control" required>
                                 </div>
                     
                                 <div class="form-group mt-2">
-                                    <label for="judgement_date">Judgement Date</label>
-                                    <input type="date" name="judgement_date" id="judgement_date" class="form-control">
+                                    <label for="judgement_date">Judgement Date and Time </label>
+                                    <input type="datetime-local" name="judgement_date" id="judgement_date" class="form-control">
                                 </div>
                             </div>
                     

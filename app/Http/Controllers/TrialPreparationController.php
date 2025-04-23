@@ -48,18 +48,21 @@ class TrialPreparationController extends Controller
         // Validate request data
         $validatedData = $request->validate([
             'case_id' => 'required|exists:cases,case_id',
-            'preparation_date' => 'required|date',
+            'preparation_date' =>  'required|date_format:Y-m-d\TH:i',
             'briefing_notes' => 'nullable|string',
             'preparation_status' => 'required|string|in:Pending,Ongoing,Completed',
             'modalAttachments.*' => 'file|mimes:pdf,doc,docx,jpg,png|max:2048' // Validate file uploads
         ]);
 
         Log::info('Trial Preparation Request Data:', $request->all());
-
+        $dateTime = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->preparation_date);
+        $preparation_date= $dateTime->toDateString();
+        $preparation_time = $dateTime->toTimeString();
         // Create the trial preparation record
         $trialPreparation = TrialPreparation::create([
             'case_id' => $request->case_id,
-            'preparation_date' => $request->preparation_date,
+            'preparation_date' => $preparation_date,
+            'preparation_time' => $preparation_time,           
             'briefing_notes' => $request->briefing_notes,
             'preparation_status' => $request->preparation_status,
             'created_at' => now(),
@@ -106,8 +109,13 @@ class TrialPreparationController extends Controller
         try{
             $preparation = TrialPreparation::with('attachments')->where('preparation_id', $preparation_id)->firstOrFail();
             Log::info('', $preparation->toArray());
+            
+            $formattedDateTime = $preparation->preparation_date && $preparation->preparation_time
+            ? \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', "$preparation->preparation_date $preparation->preparation_time")->format('Y-m-d\TH:i')
+            : '';
             return response()->json([
                 'case_name' => $preparation->case->case_name,
+                'formattedDateTime' => $formattedDateTime,
                 'preparation' => $preparation,
                 'attachments' => $preparation->attachments,
             ]);
@@ -147,14 +155,17 @@ class TrialPreparationController extends Controller
         try {
             $request->validate([
                 'case_id' => 'required|exists:cases,case_id',
-                'preparation_date' => 'required|date',
+                'preparation_date' =>'required|date_format:Y-m-d\TH:i',
                 'briefing_notes' => 'nullable|string',
                 'preparation_status' => 'required|string',
             ]);
-    
+            $dateTime = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->preparation_date);
+            $preparation_date= $dateTime->toDateString();
+            $preparation_time = $dateTime->toTimeString();
             $trialPreparation->update([
                 'case_id' => $request->case_id,
-                'preparation_date' => $request->preparation_date,
+                'preparation_date' => $preparation_date,
+                'preparation_time' => $preparation_time,   
                 'briefing_notes' => $request->briefing_notes,
                 'preparation_status' => $request->preparation_status,
                 'updated_at' => now(),

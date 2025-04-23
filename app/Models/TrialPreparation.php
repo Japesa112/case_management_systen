@@ -15,7 +15,7 @@ class TrialPreparation extends Model
 
     protected $primaryKey = 'preparation_id';
 
-    protected $fillable = ['case_id', 'preparation_date', 'briefing_notes', 'preparation_status'];
+    protected $fillable = ['case_id', 'preparation_date','preparation_time', 'briefing_notes', 'preparation_status'];
 
 
     /**

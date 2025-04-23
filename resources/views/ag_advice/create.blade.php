@@ -69,7 +69,7 @@
                             <div class="col-md-6">
                                 <div class="form-group mt-2">
                                     <label for="next_hearing_date">Advice Date <span class="text-danger">*</span></label>
-                                    <input type="date" name="advice_date" id="advice_date" class="form-control" required>
+                                    <input type="datetime-local" name="advice_date" id="advice_date" class="form-control" required>
                                 </div>
                                 <div class="form-group mt-2">
                                     <label for="adjourn_comments">Advice Details <span class="text-danger">*</span></label>
