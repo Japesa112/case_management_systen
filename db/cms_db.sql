@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 23, 2025 at 03:39 PM
+-- Generation Time: Apr 23, 2025 at 03:43 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -27,15 +27,17 @@ SET time_zone = "+00:00";
 -- Table structure for table `adjourns`
 --
 
-CREATE TABLE `adjourns` (
-  `adjourns_id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `adjourns` (
+  `adjourns_id` int(11) NOT NULL AUTO_INCREMENT,
   `case_id` int(11) NOT NULL,
   `next_hearing_date` date NOT NULL,
   `next_hearing_time` time NOT NULL,
   `adjourn_comments` text DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`adjourns_id`),
+  KEY `case_id` (`case_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `adjourns`
@@ -52,16 +54,18 @@ INSERT INTO `adjourns` (`adjourns_id`, `case_id`, `next_hearing_date`, `next_hea
 -- Table structure for table `adjourn_attachments`
 --
 
-CREATE TABLE `adjourn_attachments` (
-  `attachment_id` bigint(20) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `adjourn_attachments` (
+  `attachment_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `adjourns_id` int(11) NOT NULL,
   `file_name` varchar(255) NOT NULL,
   `file_path` varchar(255) NOT NULL,
   `file_type` varchar(100) NOT NULL,
   `upload_date` timestamp NULL DEFAULT current_timestamp(),
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`attachment_id`),
+  KEY `adjourns_id` (`adjourns_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `adjourn_attachments`
@@ -77,15 +81,17 @@ INSERT INTO `adjourn_attachments` (`attachment_id`, `adjourns_id`, `file_name`, 
 -- Table structure for table `appeal`
 --
 
-CREATE TABLE `appeal` (
-  `appeal_id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `appeal` (
+  `appeal_id` int(11) NOT NULL AUTO_INCREMENT,
   `case_id` int(11) NOT NULL,
   `next_hearing_date` date NOT NULL,
   `next_hearing_time` time NOT NULL,
   `appeal_comments` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`appeal_id`),
+  KEY `case_id` (`case_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `appeal`
@@ -129,16 +135,18 @@ INSERT INTO `appeal` (`appeal_id`, `case_id`, `next_hearing_date`, `next_hearing
 -- Table structure for table `appeal_attachments`
 --
 
-CREATE TABLE `appeal_attachments` (
-  `attachment_id` bigint(20) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `appeal_attachments` (
+  `attachment_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `appeal_id` int(11) NOT NULL,
   `file_name` varchar(255) NOT NULL,
   `file_path` varchar(255) NOT NULL,
   `file_type` varchar(50) DEFAULT NULL,
   `upload_date` datetime NOT NULL DEFAULT '2025-03-18 06:14:24',
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`attachment_id`),
+  KEY `fk_appeal_attachments_appeal` (`appeal_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `appeal_attachments`
@@ -167,16 +175,18 @@ INSERT INTO `appeal_attachments` (`attachment_id`, `appeal_id`, `file_name`, `fi
 -- Table structure for table `caseclosures`
 --
 
-CREATE TABLE `caseclosures` (
-  `closure_id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `caseclosures` (
+  `closure_id` int(11) NOT NULL AUTO_INCREMENT,
   `case_id` int(11) NOT NULL,
   `closure_date` date NOT NULL,
   `final_outcome` text DEFAULT NULL,
   `follow_up_actions` text DEFAULT NULL,
   `lawyer_payment_confirmed` enum('Yes','No') NOT NULL DEFAULT 'No',
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`closure_id`),
+  KEY `case_id` (`case_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `caseclosures`
@@ -193,16 +203,18 @@ INSERT INTO `caseclosures` (`closure_id`, `case_id`, `closure_date`, `final_outc
 -- Table structure for table `caseclosure_attachments`
 --
 
-CREATE TABLE `caseclosure_attachments` (
-  `attachment_id` int(20) NOT NULL,
+CREATE TABLE IF NOT EXISTS `caseclosure_attachments` (
+  `attachment_id` int(20) NOT NULL AUTO_INCREMENT,
   `caseclosure_id` int(11) NOT NULL,
   `file_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `file_path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `file_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `upload_date` timestamp NULL DEFAULT current_timestamp(),
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`attachment_id`),
+  KEY `caseclosure_id` (`caseclosure_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `caseclosure_attachments`
@@ -220,8 +232,8 @@ INSERT INTO `caseclosure_attachments` (`attachment_id`, `caseclosure_id`, `file_
 -- Table structure for table `cases`
 --
 
-CREATE TABLE `cases` (
-  `case_id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `cases` (
+  `case_id` int(11) NOT NULL AUTO_INCREMENT,
   `track_number` varchar(255) DEFAULT NULL,
   `case_number` varchar(255) NOT NULL,
   `case_name` varchar(255) NOT NULL,
@@ -233,8 +245,10 @@ CREATE TABLE `cases` (
   `initial_status` enum('Under Review','Approved','Rejected','Needs Negotiation') NOT NULL,
   `created_by` int(11) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`case_id`),
+  KEY `created_by` (`created_by`)
+) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `cases`
@@ -291,8 +305,8 @@ INSERT INTO `cases` (`case_id`, `track_number`, `case_number`, `case_name`, `dat
 -- Table structure for table `case_activities`
 --
 
-CREATE TABLE `case_activities` (
-  `id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `case_activities` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `case_id` int(11) NOT NULL,
   `type` enum('mention','application','hearing') NOT NULL,
   `sequence_number` int(11) NOT NULL,
@@ -304,8 +318,10 @@ CREATE TABLE `case_activities` (
   `virtual_link` varchar(512) DEFAULT NULL,
   `court_contacts` text DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_case_type_sequence` (`case_id`,`type`,`sequence_number`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `case_activities`
@@ -326,15 +342,17 @@ INSERT INTO `case_activities` (`id`, `case_id`, `type`, `sequence_number`, `cour
 -- Table structure for table `case_documents`
 --
 
-CREATE TABLE `case_documents` (
-  `document_id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `case_documents` (
+  `document_id` int(11) NOT NULL AUTO_INCREMENT,
   `document_name` varchar(255) NOT NULL,
   `document_uploaded_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `document_updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `case_id` int(11) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`document_id`),
+  KEY `case_id` (`case_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `case_documents`
@@ -373,13 +391,16 @@ INSERT INTO `case_documents` (`document_id`, `document_name`, `document_uploaded
 -- Table structure for table `case_lawyer`
 --
 
-CREATE TABLE `case_lawyer` (
-  `assigned_id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `case_lawyer` (
+  `assigned_id` int(11) NOT NULL AUTO_INCREMENT,
   `case_id` int(11) NOT NULL,
   `lawyer_id` int(11) NOT NULL,
   `created_at` date NOT NULL DEFAULT current_timestamp(),
-  `updated_at` date NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` date NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`assigned_id`),
+  KEY `case_assignd_fk` (`case_id`),
+  KEY `lawyer_assigned_fk` (`lawyer_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `case_lawyer`
@@ -396,16 +417,18 @@ INSERT INTO `case_lawyer` (`assigned_id`, `case_id`, `lawyer_id`, `created_at`, 
 -- Table structure for table `complainants`
 --
 
-CREATE TABLE `complainants` (
-  `Complainant_id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `complainants` (
+  `Complainant_id` int(11) NOT NULL AUTO_INCREMENT,
   `case_id` int(11) DEFAULT NULL,
   `complainant_name` varchar(255) NOT NULL,
   `phone` varchar(255) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
   `address` varchar(255) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`Complainant_id`),
+  KEY `case_id` (`case_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `complainants`
@@ -456,8 +479,8 @@ INSERT INTO `complainants` (`Complainant_id`, `case_id`, `complainant_name`, `ph
 -- Table structure for table `documents_filing`
 --
 
-CREATE TABLE `documents_filing` (
-  `document_id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `documents_filing` (
+  `document_id` int(11) NOT NULL AUTO_INCREMENT,
   `document_name` varchar(255) NOT NULL,
   `document_type` enum('Defense','Claim') NOT NULL,
   `mention_date` date DEFAULT NULL,
@@ -465,7 +488,9 @@ CREATE TABLE `documents_filing` (
   `filing_date` date DEFAULT NULL,
   `document_uploaded_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `document_updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `case_id` int(11) DEFAULT NULL
+  `case_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`document_id`),
+  KEY `case_id` (`case_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -474,8 +499,8 @@ CREATE TABLE `documents_filing` (
 -- Table structure for table `evaluations`
 --
 
-CREATE TABLE `evaluations` (
-  `evaluation_id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `evaluations` (
+  `evaluation_id` int(11) NOT NULL AUTO_INCREMENT,
   `case_id` int(11) DEFAULT NULL,
   `lawyer_id` int(11) DEFAULT NULL,
   `evaluation_date` date NOT NULL,
@@ -486,8 +511,11 @@ CREATE TABLE `evaluations` (
   `outcome` enum('Yes','No') NOT NULL,
   `worked_before` enum('Yes','No') NOT NULL DEFAULT 'No',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`evaluation_id`),
+  KEY `case_id` (`case_id`),
+  KEY `evaluations_ibfk_2` (`lawyer_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `evaluations`
@@ -504,16 +532,19 @@ INSERT INTO `evaluations` (`evaluation_id`, `case_id`, `lawyer_id`, `evaluation_
 -- Table structure for table `evaluation_ag_advice`
 --
 
-CREATE TABLE `evaluation_ag_advice` (
-  `ag_advice_id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `evaluation_ag_advice` (
+  `ag_advice_id` int(11) NOT NULL AUTO_INCREMENT,
   `evaluation_id` int(11) DEFAULT NULL,
   `advice_date` date NOT NULL,
   `advice_time` time NOT NULL,
   `ag_advice` text DEFAULT NULL,
   `case_id` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`ag_advice_id`),
+  KEY `evaluation_id` (`evaluation_id`),
+  KEY `case_ag_fk` (`case_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `evaluation_ag_advice`
@@ -530,13 +561,14 @@ INSERT INTO `evaluation_ag_advice` (`ag_advice_id`, `evaluation_id`, `advice_dat
 -- Table structure for table `failed_jobs`
 --
 
-CREATE TABLE `failed_jobs` (
+CREATE TABLE IF NOT EXISTS `failed_jobs` (
   `uuid` char(36) NOT NULL,
   `connection` text NOT NULL,
   `queue` text NOT NULL,
   `payload` longtext NOT NULL,
   `exception` longtext NOT NULL,
-  `failed_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `failed_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`uuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -545,16 +577,19 @@ CREATE TABLE `failed_jobs` (
 -- Table structure for table `forwardings`
 --
 
-CREATE TABLE `forwardings` (
-  `forwarding_id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `forwardings` (
+  `forwarding_id` int(11) NOT NULL AUTO_INCREMENT,
   `case_id` int(11) NOT NULL,
   `lawyer_id` int(11) DEFAULT NULL,
   `dvc_appointment_date` date DEFAULT NULL,
   `briefing_notes` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `dvc_appointment_time` time DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `dvc_appointment_time` time DEFAULT NULL,
+  PRIMARY KEY (`forwarding_id`),
+  KEY `case_id` (`case_id`),
+  KEY `lawyer_id` (`lawyer_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `forwardings`
@@ -571,9 +606,10 @@ INSERT INTO `forwardings` (`forwarding_id`, `case_id`, `lawyer_id`, `dvc_appoint
 -- Table structure for table `fsd`
 --
 
-CREATE TABLE `fsd` (
+CREATE TABLE IF NOT EXISTS `fsd` (
   `id` int(11) NOT NULL,
-  `case_number` varchar(255) NOT NULL
+  `case_number` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -582,15 +618,17 @@ CREATE TABLE `fsd` (
 -- Table structure for table `jobs`
 --
 
-CREATE TABLE `jobs` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `jobs` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `queue` varchar(255) NOT NULL,
   `payload` longtext NOT NULL,
   `attempts` tinyint(3) UNSIGNED NOT NULL,
   `reserved_at` int(10) UNSIGNED DEFAULT NULL,
   `available_at` int(10) UNSIGNED NOT NULL,
-  `created_at` int(10) UNSIGNED NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `created_at` int(10) UNSIGNED NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `jobs_queue_index` (`queue`)
+) ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -598,8 +636,8 @@ CREATE TABLE `jobs` (
 -- Table structure for table `lawyers`
 --
 
-CREATE TABLE `lawyers` (
-  `lawyer_id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `lawyers` (
+  `lawyer_id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) DEFAULT NULL,
   `license_number` varchar(50) NOT NULL,
   `area_of_expertise` varchar(255) DEFAULT NULL,
@@ -607,8 +645,11 @@ CREATE TABLE `lawyers` (
   `years_experience` int(11) DEFAULT NULL,
   `working_hours` varchar(100) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`lawyer_id`),
+  UNIQUE KEY `license_number` (`license_number`),
+  UNIQUE KEY `user_id` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `lawyers`
@@ -626,8 +667,8 @@ INSERT INTO `lawyers` (`lawyer_id`, `user_id`, `license_number`, `area_of_expert
 -- Table structure for table `lawyer_payments`
 --
 
-CREATE TABLE `lawyer_payments` (
-  `payment_id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `lawyer_payments` (
+  `payment_id` int(11) NOT NULL AUTO_INCREMENT,
   `case_id` int(11) NOT NULL,
   `amount_paid` decimal(10,2) DEFAULT NULL,
   `payment_method` varchar(50) DEFAULT NULL,
@@ -637,8 +678,11 @@ CREATE TABLE `lawyer_payments` (
   `payment_time` time NOT NULL,
   `lawyer_payment_status` enum('Pending','Completed') DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`payment_id`),
+  KEY `lawyer_id` (`lawyer_id`),
+  KEY `case_id` (`case_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `lawyer_payments`
@@ -660,16 +704,18 @@ INSERT INTO `lawyer_payments` (`payment_id`, `case_id`, `amount_paid`, `payment_
 -- Table structure for table `lawyer_payment_attachments`
 --
 
-CREATE TABLE `lawyer_payment_attachments` (
-  `attachment_id` int(20) NOT NULL,
+CREATE TABLE IF NOT EXISTS `lawyer_payment_attachments` (
+  `attachment_id` int(20) NOT NULL AUTO_INCREMENT,
   `lawyer_payment_id` int(11) NOT NULL,
   `file_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `file_path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `file_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `upload_date` timestamp NULL DEFAULT current_timestamp(),
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`attachment_id`),
+  KEY `lawyer_payment_id` (`lawyer_payment_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `lawyer_payment_attachments`
@@ -685,11 +731,12 @@ INSERT INTO `lawyer_payment_attachments` (`attachment_id`, `lawyer_payment_id`, 
 -- Table structure for table `migrations`
 --
 
-CREATE TABLE `migrations` (
-  `id` int(10) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `migrations` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `migration` varchar(255) NOT NULL,
-  `batch` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `batch` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `migrations`
@@ -706,8 +753,8 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 -- Table structure for table `negotiations`
 --
 
-CREATE TABLE `negotiations` (
-  `negotiation_id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `negotiations` (
+  `negotiation_id` int(11) NOT NULL AUTO_INCREMENT,
   `case_id` int(11) NOT NULL,
   `negotiator_id` int(11) DEFAULT NULL,
   `negotiation_method` varchar(100) DEFAULT NULL,
@@ -721,8 +768,10 @@ CREATE TABLE `negotiations` (
   `outcome` enum('Resolved','Pending','Requires Further Action','Closed','Declined') DEFAULT NULL,
   `complainant_response` text DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`negotiation_id`),
+  KEY `case_id` (`case_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `negotiations`
@@ -753,16 +802,18 @@ INSERT INTO `negotiations` (`negotiation_id`, `case_id`, `negotiator_id`, `negot
 -- Table structure for table `negotiation_attachments`
 --
 
-CREATE TABLE `negotiation_attachments` (
-  `attachment_id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `negotiation_attachments` (
+  `attachment_id` int(11) NOT NULL AUTO_INCREMENT,
   `negotiation_id` int(11) NOT NULL,
   `file_name` varchar(255) NOT NULL,
   `file_path` varchar(255) NOT NULL,
   `file_type` varchar(50) DEFAULT NULL,
   `upload_date` datetime DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `created_at` timestamp NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`attachment_id`),
+  KEY `negotiation_id` (`negotiation_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `negotiation_attachments`
@@ -787,14 +838,15 @@ INSERT INTO `negotiation_attachments` (`attachment_id`, `negotiation_id`, `file_
 -- Table structure for table `panel_evaluations`
 --
 
-CREATE TABLE `panel_evaluations` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `panel_evaluations` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `case_id` bigint(20) UNSIGNED NOT NULL,
   `evaluator_id` bigint(20) UNSIGNED NOT NULL,
   `remarks` text DEFAULT NULL,
   `score` int(11) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -803,8 +855,8 @@ CREATE TABLE `panel_evaluations` (
 -- Table structure for table `payments`
 --
 
-CREATE TABLE `payments` (
-  `payment_id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `payments` (
+  `payment_id` int(11) NOT NULL AUTO_INCREMENT,
   `case_id` int(11) NOT NULL,
   `amount_paid` decimal(10,2) DEFAULT NULL,
   `payment_method` enum('Cash','Bank Transfer','Credit Card','Mpesa','Other') NOT NULL,
@@ -813,8 +865,10 @@ CREATE TABLE `payments` (
   `payment_time` time NOT NULL,
   `auctioneer_involvement` text DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`payment_id`),
+  KEY `case_id` (`case_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `payments`
@@ -832,16 +886,18 @@ INSERT INTO `payments` (`payment_id`, `case_id`, `amount_paid`, `payment_method`
 -- Table structure for table `payment_attachments`
 --
 
-CREATE TABLE `payment_attachments` (
-  `attachment_id` int(20) NOT NULL,
+CREATE TABLE IF NOT EXISTS `payment_attachments` (
+  `attachment_id` int(20) NOT NULL AUTO_INCREMENT,
   `payment_id` int(11) NOT NULL,
   `file_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `file_path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `file_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `upload_date` timestamp NULL DEFAULT current_timestamp(),
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`attachment_id`),
+  KEY `payment_id` (`payment_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `payment_attachments`
@@ -861,12 +917,14 @@ INSERT INTO `payment_attachments` (`attachment_id`, `payment_id`, `file_name`, `
 -- Table structure for table `securitylogs`
 --
 
-CREATE TABLE `securitylogs` (
-  `log_id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `securitylogs` (
+  `log_id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
   `action` varchar(255) NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
-  `ip_address` varchar(45) DEFAULT NULL
+  `ip_address` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`log_id`),
+  KEY `user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -875,8 +933,8 @@ CREATE TABLE `securitylogs` (
 -- Table structure for table `trials`
 --
 
-CREATE TABLE `trials` (
-  `trial_id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `trials` (
+  `trial_id` int(11) NOT NULL AUTO_INCREMENT,
   `case_id` int(11) NOT NULL,
   `trial_date` date NOT NULL,
   `trial_time` time NOT NULL,
@@ -885,8 +943,10 @@ CREATE TABLE `trials` (
   `judgement_time` time NOT NULL,
   `outcome` enum('Win','Loss','Adjourned','Dismissed') DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`trial_id`),
+  KEY `case_id` (`case_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `trials`
@@ -904,16 +964,18 @@ INSERT INTO `trials` (`trial_id`, `case_id`, `trial_date`, `trial_time`, `judgem
 -- Table structure for table `trials_attachments`
 --
 
-CREATE TABLE `trials_attachments` (
-  `attachment_id` bigint(20) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `trials_attachments` (
+  `attachment_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `trial_id` int(11) NOT NULL,
   `file_name` varchar(255) NOT NULL,
   `file_path` varchar(255) NOT NULL,
   `file_type` varchar(100) NOT NULL,
   `upload_date` timestamp NULL DEFAULT current_timestamp(),
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`attachment_id`),
+  KEY `trial_id` (`trial_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `trials_attachments`
@@ -929,16 +991,18 @@ INSERT INTO `trials_attachments` (`attachment_id`, `trial_id`, `file_name`, `fil
 -- Table structure for table `trial_preparations`
 --
 
-CREATE TABLE `trial_preparations` (
-  `preparation_id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `trial_preparations` (
+  `preparation_id` int(11) NOT NULL AUTO_INCREMENT,
   `case_id` int(11) NOT NULL,
   `preparation_date` date DEFAULT NULL,
   `preparation_time` time NOT NULL,
   `briefing_notes` text DEFAULT NULL,
   `preparation_status` enum('Pending','Ongoing','Completed') NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`preparation_id`),
+  KEY `case_id` (`case_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `trial_preparations`
@@ -954,16 +1018,18 @@ INSERT INTO `trial_preparations` (`preparation_id`, `case_id`, `preparation_date
 -- Table structure for table `trial_preparation_attachments`
 --
 
-CREATE TABLE `trial_preparation_attachments` (
-  `attachment_id` bigint(20) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `trial_preparation_attachments` (
+  `attachment_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `preparation_id` int(11) NOT NULL,
   `file_name` varchar(255) NOT NULL,
   `file_path` varchar(255) NOT NULL,
   `file_type` varchar(100) NOT NULL,
   `upload_date` timestamp NULL DEFAULT current_timestamp(),
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`attachment_id`),
+  KEY `preparation_id` (`preparation_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `trial_preparation_attachments`
@@ -978,12 +1044,15 @@ INSERT INTO `trial_preparation_attachments` (`attachment_id`, `preparation_id`, 
 -- Table structure for table `trial_preparation_lawyer`
 --
 
-CREATE TABLE `trial_preparation_lawyer` (
-  `id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `trial_preparation_lawyer` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `preparation_id` int(11) NOT NULL,
   `lawyer_id` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `fk_trial_preparation_lawyer_preparation` (`preparation_id`),
+  KEY `fk_trial_preparation_lawyer_lawyer` (`lawyer_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -992,12 +1061,15 @@ CREATE TABLE `trial_preparation_lawyer` (
 -- Table structure for table `trial_preparation_witness`
 --
 
-CREATE TABLE `trial_preparation_witness` (
-  `id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `trial_preparation_witness` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `preparation_id` int(11) NOT NULL,
   `witness_id` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `fk_trial_preparation_witness_preparation` (`preparation_id`),
+  KEY `fk_trial_preparation_witness_witness` (`witness_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -1006,8 +1078,8 @@ CREATE TABLE `trial_preparation_witness` (
 -- Table structure for table `users`
 --
 
-CREATE TABLE `users` (
-  `user_id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `users` (
+  `user_id` int(11) NOT NULL AUTO_INCREMENT,
   `username` varchar(100) NOT NULL,
   `email` varchar(255) NOT NULL,
   `password_hash` varchar(255) NOT NULL,
@@ -1016,8 +1088,11 @@ CREATE TABLE `users` (
   `role` enum('Lawyer','Admin','Case Manager','Evaluator','DVC','Other') NOT NULL,
   `account_status` enum('Active','Pending','Suspended') DEFAULT 'Pending',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `last_login` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `last_login` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`user_id`),
+  UNIQUE KEY `username` (`username`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
@@ -1036,8 +1111,8 @@ INSERT INTO `users` (`user_id`, `username`, `email`, `password_hash`, `full_name
 -- Table structure for table `witnesses`
 --
 
-CREATE TABLE `witnesses` (
-  `witness_id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `witnesses` (
+  `witness_id` int(11) NOT NULL AUTO_INCREMENT,
   `case_id` int(11) NOT NULL,
   `witness_name` varchar(255) NOT NULL,
   `phone` varchar(200) DEFAULT NULL,
@@ -1045,8 +1120,10 @@ CREATE TABLE `witnesses` (
   `availability` enum('Yes','No') NOT NULL,
   `witness_statement` text DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`witness_id`),
+  KEY `case_id` (`case_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `witnesses`
@@ -1062,16 +1139,18 @@ INSERT INTO `witnesses` (`witness_id`, `case_id`, `witness_name`, `phone`, `emai
 -- Table structure for table `witnesses_attachments`
 --
 
-CREATE TABLE `witnesses_attachments` (
-  `attachment_id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `witnesses_attachments` (
+  `attachment_id` int(11) NOT NULL AUTO_INCREMENT,
   `witness_id` int(11) NOT NULL,
   `file_name` varchar(255) NOT NULL,
   `file_path` varchar(255) NOT NULL,
   `file_type` varchar(50) NOT NULL,
   `upload_date` timestamp NOT NULL DEFAULT current_timestamp(),
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`attachment_id`),
+  KEY `fk_witness_attachment` (`witness_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `witnesses_attachments`
@@ -1080,488 +1159,6 @@ CREATE TABLE `witnesses_attachments` (
 INSERT INTO `witnesses_attachments` (`attachment_id`, `witness_id`, `file_name`, `file_path`, `file_type`, `upload_date`, `created_at`, `updated_at`) VALUES
 (2, 1, 'Drawing 3 (1).pdf', 'witness_attachments/J6l6QvlqnWOvL2txdhtJsCkdgvbFdILkKuWderOW.pdf', 'pdf', '2025-03-20 09:59:04', '2025-03-20 09:59:04', '2025-03-20 09:59:04'),
 (5, 1, 'Drawing 4 (2).pdf', 'witness_attachments/tQrgXrtUDavPmPHp3Y6H6UBfklsDDenSUl3W9SWo.pdf', 'pdf', '2025-03-20 10:00:09', '2025-03-20 10:00:09', '2025-03-20 10:00:09');
-
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `adjourns`
---
-ALTER TABLE `adjourns`
-  ADD PRIMARY KEY (`adjourns_id`),
-  ADD KEY `case_id` (`case_id`);
-
---
--- Indexes for table `adjourn_attachments`
---
-ALTER TABLE `adjourn_attachments`
-  ADD PRIMARY KEY (`attachment_id`),
-  ADD KEY `adjourns_id` (`adjourns_id`);
-
---
--- Indexes for table `appeal`
---
-ALTER TABLE `appeal`
-  ADD PRIMARY KEY (`appeal_id`),
-  ADD KEY `case_id` (`case_id`);
-
---
--- Indexes for table `appeal_attachments`
---
-ALTER TABLE `appeal_attachments`
-  ADD PRIMARY KEY (`attachment_id`),
-  ADD KEY `fk_appeal_attachments_appeal` (`appeal_id`);
-
---
--- Indexes for table `caseclosures`
---
-ALTER TABLE `caseclosures`
-  ADD PRIMARY KEY (`closure_id`),
-  ADD KEY `case_id` (`case_id`);
-
---
--- Indexes for table `caseclosure_attachments`
---
-ALTER TABLE `caseclosure_attachments`
-  ADD PRIMARY KEY (`attachment_id`),
-  ADD KEY `caseclosure_id` (`caseclosure_id`);
-
---
--- Indexes for table `cases`
---
-ALTER TABLE `cases`
-  ADD PRIMARY KEY (`case_id`),
-  ADD KEY `created_by` (`created_by`);
-
---
--- Indexes for table `case_activities`
---
-ALTER TABLE `case_activities`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `uq_case_type_sequence` (`case_id`,`type`,`sequence_number`);
-
---
--- Indexes for table `case_documents`
---
-ALTER TABLE `case_documents`
-  ADD PRIMARY KEY (`document_id`),
-  ADD KEY `case_id` (`case_id`);
-
---
--- Indexes for table `case_lawyer`
---
-ALTER TABLE `case_lawyer`
-  ADD PRIMARY KEY (`assigned_id`),
-  ADD KEY `case_assignd_fk` (`case_id`),
-  ADD KEY `lawyer_assigned_fk` (`lawyer_id`);
-
---
--- Indexes for table `complainants`
---
-ALTER TABLE `complainants`
-  ADD PRIMARY KEY (`Complainant_id`),
-  ADD KEY `case_id` (`case_id`);
-
---
--- Indexes for table `documents_filing`
---
-ALTER TABLE `documents_filing`
-  ADD PRIMARY KEY (`document_id`),
-  ADD KEY `case_id` (`case_id`);
-
---
--- Indexes for table `evaluations`
---
-ALTER TABLE `evaluations`
-  ADD PRIMARY KEY (`evaluation_id`),
-  ADD KEY `case_id` (`case_id`),
-  ADD KEY `evaluations_ibfk_2` (`lawyer_id`);
-
---
--- Indexes for table `evaluation_ag_advice`
---
-ALTER TABLE `evaluation_ag_advice`
-  ADD PRIMARY KEY (`ag_advice_id`),
-  ADD KEY `evaluation_id` (`evaluation_id`),
-  ADD KEY `case_ag_fk` (`case_id`);
-
---
--- Indexes for table `failed_jobs`
---
-ALTER TABLE `failed_jobs`
-  ADD PRIMARY KEY (`uuid`);
-
---
--- Indexes for table `forwardings`
---
-ALTER TABLE `forwardings`
-  ADD PRIMARY KEY (`forwarding_id`),
-  ADD KEY `case_id` (`case_id`),
-  ADD KEY `lawyer_id` (`lawyer_id`);
-
---
--- Indexes for table `fsd`
---
-ALTER TABLE `fsd`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `jobs`
---
-ALTER TABLE `jobs`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `jobs_queue_index` (`queue`);
-
---
--- Indexes for table `lawyers`
---
-ALTER TABLE `lawyers`
-  ADD PRIMARY KEY (`lawyer_id`),
-  ADD UNIQUE KEY `license_number` (`license_number`),
-  ADD UNIQUE KEY `user_id` (`user_id`);
-
---
--- Indexes for table `lawyer_payments`
---
-ALTER TABLE `lawyer_payments`
-  ADD PRIMARY KEY (`payment_id`),
-  ADD KEY `lawyer_id` (`lawyer_id`),
-  ADD KEY `case_id` (`case_id`);
-
---
--- Indexes for table `lawyer_payment_attachments`
---
-ALTER TABLE `lawyer_payment_attachments`
-  ADD PRIMARY KEY (`attachment_id`),
-  ADD KEY `lawyer_payment_id` (`lawyer_payment_id`);
-
---
--- Indexes for table `migrations`
---
-ALTER TABLE `migrations`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `negotiations`
---
-ALTER TABLE `negotiations`
-  ADD PRIMARY KEY (`negotiation_id`),
-  ADD KEY `case_id` (`case_id`);
-
---
--- Indexes for table `negotiation_attachments`
---
-ALTER TABLE `negotiation_attachments`
-  ADD PRIMARY KEY (`attachment_id`),
-  ADD KEY `negotiation_id` (`negotiation_id`);
-
---
--- Indexes for table `panel_evaluations`
---
-ALTER TABLE `panel_evaluations`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `payments`
---
-ALTER TABLE `payments`
-  ADD PRIMARY KEY (`payment_id`),
-  ADD KEY `case_id` (`case_id`);
-
---
--- Indexes for table `payment_attachments`
---
-ALTER TABLE `payment_attachments`
-  ADD PRIMARY KEY (`attachment_id`),
-  ADD KEY `payment_id` (`payment_id`);
-
---
--- Indexes for table `securitylogs`
---
-ALTER TABLE `securitylogs`
-  ADD PRIMARY KEY (`log_id`),
-  ADD KEY `user_id` (`user_id`);
-
---
--- Indexes for table `trials`
---
-ALTER TABLE `trials`
-  ADD PRIMARY KEY (`trial_id`),
-  ADD KEY `case_id` (`case_id`);
-
---
--- Indexes for table `trials_attachments`
---
-ALTER TABLE `trials_attachments`
-  ADD PRIMARY KEY (`attachment_id`),
-  ADD KEY `trial_id` (`trial_id`);
-
---
--- Indexes for table `trial_preparations`
---
-ALTER TABLE `trial_preparations`
-  ADD PRIMARY KEY (`preparation_id`),
-  ADD KEY `case_id` (`case_id`);
-
---
--- Indexes for table `trial_preparation_attachments`
---
-ALTER TABLE `trial_preparation_attachments`
-  ADD PRIMARY KEY (`attachment_id`),
-  ADD KEY `preparation_id` (`preparation_id`);
-
---
--- Indexes for table `trial_preparation_lawyer`
---
-ALTER TABLE `trial_preparation_lawyer`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `fk_trial_preparation_lawyer_preparation` (`preparation_id`),
-  ADD KEY `fk_trial_preparation_lawyer_lawyer` (`lawyer_id`);
-
---
--- Indexes for table `trial_preparation_witness`
---
-ALTER TABLE `trial_preparation_witness`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `fk_trial_preparation_witness_preparation` (`preparation_id`),
-  ADD KEY `fk_trial_preparation_witness_witness` (`witness_id`);
-
---
--- Indexes for table `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`user_id`),
-  ADD UNIQUE KEY `username` (`username`),
-  ADD UNIQUE KEY `email` (`email`);
-
---
--- Indexes for table `witnesses`
---
-ALTER TABLE `witnesses`
-  ADD PRIMARY KEY (`witness_id`),
-  ADD KEY `case_id` (`case_id`);
-
---
--- Indexes for table `witnesses_attachments`
---
-ALTER TABLE `witnesses_attachments`
-  ADD PRIMARY KEY (`attachment_id`),
-  ADD KEY `fk_witness_attachment` (`witness_id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `adjourns`
---
-ALTER TABLE `adjourns`
-  MODIFY `adjourns_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
--- AUTO_INCREMENT for table `adjourn_attachments`
---
-ALTER TABLE `adjourn_attachments`
-  MODIFY `attachment_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-
---
--- AUTO_INCREMENT for table `appeal`
---
-ALTER TABLE `appeal`
-  MODIFY `appeal_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
-
---
--- AUTO_INCREMENT for table `appeal_attachments`
---
-ALTER TABLE `appeal_attachments`
-  MODIFY `attachment_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
-
---
--- AUTO_INCREMENT for table `caseclosures`
---
-ALTER TABLE `caseclosures`
-  MODIFY `closure_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT for table `caseclosure_attachments`
---
-ALTER TABLE `caseclosure_attachments`
-  MODIFY `attachment_id` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
-
---
--- AUTO_INCREMENT for table `cases`
---
-ALTER TABLE `cases`
-  MODIFY `case_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
-
---
--- AUTO_INCREMENT for table `case_activities`
---
-ALTER TABLE `case_activities`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
-
---
--- AUTO_INCREMENT for table `case_documents`
---
-ALTER TABLE `case_documents`
-  MODIFY `document_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
-
---
--- AUTO_INCREMENT for table `case_lawyer`
---
-ALTER TABLE `case_lawyer`
-  MODIFY `assigned_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
-
---
--- AUTO_INCREMENT for table `complainants`
---
-ALTER TABLE `complainants`
-  MODIFY `Complainant_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
-
---
--- AUTO_INCREMENT for table `documents_filing`
---
-ALTER TABLE `documents_filing`
-  MODIFY `document_id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `evaluations`
---
-ALTER TABLE `evaluations`
-  MODIFY `evaluation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
-
---
--- AUTO_INCREMENT for table `evaluation_ag_advice`
---
-ALTER TABLE `evaluation_ag_advice`
-  MODIFY `ag_advice_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT for table `forwardings`
---
-ALTER TABLE `forwardings`
-  MODIFY `forwarding_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT for table `jobs`
---
-ALTER TABLE `jobs`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=100;
-
---
--- AUTO_INCREMENT for table `lawyers`
---
-ALTER TABLE `lawyers`
-  MODIFY `lawyer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
--- AUTO_INCREMENT for table `lawyer_payments`
---
-ALTER TABLE `lawyer_payments`
-  MODIFY `payment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
-
---
--- AUTO_INCREMENT for table `lawyer_payment_attachments`
---
-ALTER TABLE `lawyer_payment_attachments`
-  MODIFY `attachment_id` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-
---
--- AUTO_INCREMENT for table `migrations`
---
-ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT for table `negotiations`
---
-ALTER TABLE `negotiations`
-  MODIFY `negotiation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
-
---
--- AUTO_INCREMENT for table `negotiation_attachments`
---
-ALTER TABLE `negotiation_attachments`
-  MODIFY `attachment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
-
---
--- AUTO_INCREMENT for table `panel_evaluations`
---
-ALTER TABLE `panel_evaluations`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `payments`
---
-ALTER TABLE `payments`
-  MODIFY `payment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-
---
--- AUTO_INCREMENT for table `payment_attachments`
---
-ALTER TABLE `payment_attachments`
-  MODIFY `attachment_id` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
-
---
--- AUTO_INCREMENT for table `securitylogs`
---
-ALTER TABLE `securitylogs`
-  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `trials`
---
-ALTER TABLE `trials`
-  MODIFY `trial_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
--- AUTO_INCREMENT for table `trials_attachments`
---
-ALTER TABLE `trials_attachments`
-  MODIFY `attachment_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
--- AUTO_INCREMENT for table `trial_preparations`
---
-ALTER TABLE `trial_preparations`
-  MODIFY `preparation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT for table `trial_preparation_attachments`
---
-ALTER TABLE `trial_preparation_attachments`
-  MODIFY `attachment_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT for table `trial_preparation_lawyer`
---
-ALTER TABLE `trial_preparation_lawyer`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `trial_preparation_witness`
---
-ALTER TABLE `trial_preparation_witness`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `users`
---
-ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
--- AUTO_INCREMENT for table `witnesses`
---
-ALTER TABLE `witnesses`
-  MODIFY `witness_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT for table `witnesses_attachments`
---
-ALTER TABLE `witnesses_attachments`
-  MODIFY `attachment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Constraints for dumped tables
