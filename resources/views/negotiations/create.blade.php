@@ -148,7 +148,10 @@
                         </div>
 
                         <!-- Submit Button -->
-                        <div class="form-group text-center mt-2">
+                        <div class="d-flex justify-content-between mt-4">
+                        <button onclick="window.history.back();" class="btn btn-secondary">
+                            <i class="fa fa-arrow-left"></i> Back
+                        </button>
                             <button type="submit" class="btn btn-primary">
                                 <i class="fa fa-paper-plane"></i> Submit Negotiation
                             </button>

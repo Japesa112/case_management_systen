@@ -78,7 +78,8 @@
                 <button class="btn btn-primary btn-sm w-100 text-start text-truncate" title="Submit for Panel Evaluation">Submit for Panel Evaluation</button>
             </div>
             <div class="col-md-2 mb-2">
-                <button class="btn btn-warning btn-sm w-100 text-start text-truncate" title="Send to Negotiation">Send to Negotiation</button>
+                
+                 <a href="{{ route('negotiations.create', $case->case_id) }}" class="btn btn-warning btn-sm w-100 text-start text-truncate" title="Send to Negotiation">Send to Negotiation</a>
             </div>
             <div class="col-md-2 mb-2">
                 <a href="{{ route('dvc_appointments.create', $case->case_id) }}" class="btn btn-secondary btn-sm w-100 text-start text-truncate" title="Forward to DVC/VC">Forward to DVC/VC</a>

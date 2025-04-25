@@ -338,29 +338,29 @@
                     let case_name = response.case_name;
                     let lawyer = response.lawyer;
   
-          
-                    let content = `
-    <div class="row">
-        <div class="col-md-6">
-            <strong>Case Name:</strong> ${case_name ?? 'N/A'}<br>
-            <strong>Lawyer: </strong> ${lawyer ?? 'N/A'}<br>
-            <strong>Payment Date:</strong> ${payment.payment_date ?? 'N/A'}<br>
-            <strong>Payment Time:</strong> ${payment.payment_time ?? 'N/A'}<br>
-            <strong>Amount Paid:</strong> ${payment.amount_paid ?? 'N/A'}<br>
-            <strong>Payment Method:</strong> ${payment.payment_method ?? 'N/A'}<br>
-            
-             <strong>Payment :</strong> ${payment.lawyer_payment_status ?? 'N/A'}<br>
-        </div>
-        <div class="col-md-6">
-            <strong>Created At:</strong> ${payment.created_at ?? 'N/A'}<br>
-            <strong>Updated At:</strong> ${payment.updated_at ?? 'N/A'}<br>
-            <strong>Transaction Details:</strong> <p>${payment.transaction ?? 'N/A'}</p>
-        </div>
-    </div>
-    <hr>
-    <h5>Attachments</h5>
-    <ul class="list-group">
-`;
+                            
+                                        let content = `
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Case Name:</strong> ${case_name ?? 'N/A'}<br>
+                                <strong>Lawyer: </strong> ${lawyer ?? 'N/A'}<br>
+                                <strong>Payment Date:</strong> ${payment.payment_date ?? 'N/A'}<br>
+                                <strong>Payment Time:</strong> ${payment.payment_time ?? 'N/A'}<br>
+                                <strong>Amount Paid:</strong> ${payment.amount_paid ?? 'N/A'}<br>
+                                <strong>Payment Method:</strong> ${payment.payment_method ?? 'N/A'}<br>
+                                
+                                <strong>Payment :</strong> ${payment.lawyer_payment_status ?? 'N/A'}<br>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Created At:</strong> ${payment.created_at ?? 'N/A'}<br>
+                                <strong>Updated At:</strong> ${payment.updated_at ?? 'N/A'}<br>
+                                <strong>Transaction Details:</strong> <p>${payment.transaction ?? 'N/A'}</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <h5>Attachments</h5>
+                        <ul class="list-group">
+                    `;
 
 
                     if (attachments.length > 0) {

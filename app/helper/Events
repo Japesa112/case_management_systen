@@ -1,0 +1,20 @@
+<?php 
+namespace App\helper;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+class Events 
+{
+
+
+    public function getEventsFromAllTables(){
+
+
+        
+        Log::info("The Login man is: ". Auth::user()->full_name ."");
+        Log::info("getEventsFromAllTable function from helper has been called: ");
+
+    }
+}
+
+
+

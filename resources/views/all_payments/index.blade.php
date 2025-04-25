@@ -291,25 +291,25 @@
                     let case_name = response.case_name;
 
                     let content = `
-    <div class="row">
-        <div class="col-md-6">
-            <strong>Case Name:</strong> ${case_name ?? 'N/A'}<br>
-            <strong>Payment Date:</strong> ${payment.payment_date ?? 'N/A'}<br>
-            <strong>Payment Date:</strong> ${payment.payment_time ?? 'N/A'}<br>
-            <strong>Amount Paid:</strong> ${payment.amount_paid ?? 'N/A'}<br>
-            <strong>Payment Method:</strong> ${payment.payment_method ?? 'N/A'}<br>
-            <strong>Transaction ID:</strong> ${payment.transaction ?? 'N/A'}<br>
-        </div>
-        <div class="col-md-6">
-            <strong>Created At:</strong> ${payment.created_at ?? 'N/A'}<br>
-            <strong>Updated At:</strong> ${payment.updated_at ?? 'N/A'}<br>
-            <strong>Auctioneer Involvement:</strong> <p>${payment.auctioneer_involvement ?? 'N/A'}</p>
-        </div>
-    </div>
-    <hr>
-    <h5>Attachments</h5>
-    <ul class="list-group">
-`;
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Case Name:</strong> ${case_name ?? 'N/A'}<br>
+                                <strong>Payment Date:</strong> ${payment.payment_date ?? 'N/A'}<br>
+                                <strong>Payment Date:</strong> ${payment.payment_time ?? 'N/A'}<br>
+                                <strong>Amount Paid:</strong> ${payment.amount_paid ?? 'N/A'}<br>
+                                <strong>Payment Method:</strong> ${payment.payment_method ?? 'N/A'}<br>
+                                <strong>Transaction ID:</strong> ${payment.transaction ?? 'N/A'}<br>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Created At:</strong> ${payment.created_at ?? 'N/A'}<br>
+                                <strong>Updated At:</strong> ${payment.updated_at ?? 'N/A'}<br>
+                                <strong>Auctioneer Involvement:</strong> <p>${payment.auctioneer_involvement ?? 'N/A'}</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <h5>Attachments</h5>
+                        <ul class="list-group">
+                    `;
 
 
                     if (attachments.length > 0) {
