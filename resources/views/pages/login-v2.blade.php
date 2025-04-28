@@ -58,7 +58,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: linear-gradient(to bottom, rgba(0, 0, 66, 0.5), #000042);
+        background: linear-gradient(to bottom, rgba(66, 30, 0, 0.5), #000042);
     }
 
     /* Ensure Login Form is Centered */
@@ -95,9 +95,11 @@
 			<div class="login-header">
 				<div class="brand">
 					<div class="d-flex align-items-center">
-						<span class="logo"></span> <b>Color</b> Admin
+						<span class="">
+							<img src="https://rms.ku.ac.ke/RMS-old/IMS/assets/img/logo/Ku_Logo.png" class="img img-fluid w-100" alt="">
+						</span> <b>Kenyatta </b>  &nbsp; <b> University </b> 
 					</div>
-					<small>Bootstrap 5 Responsive Admin Template</small>
+					<h5>Case Management System - Login</h5>
 				</div>
 				<div class="icon">
 					<i class="fa fa-lock"></i>
@@ -146,20 +148,90 @@
 		<!-- END login-container -->
 	</div>
 	<!-- END login -->
-	
+	<div class="login-bg">
+		<video id="login-video-bg" autoplay muted loop playsinline style="display: none;">
+		  <source src="http://127.0.0.1:8000/videos/cout_4.mp4" type="video/mp4">
+		</video>
+	  </div>
 	<!-- BEGIN login-bg -->
 	<div class="login-bg-list clearfix">
-		<div class="login-bg-list-item active"><a href="javascript:;" class="login-bg-list-link" data-toggle="login-change-bg" data-img="/assets/img/login-bg/login-bg-17.jpg" style="background-image: url(/assets/img/login-bg/login-bg-17.jpg)"></a></div>
-		<div class="login-bg-list-item"><a href="javascript:;" class="login-bg-list-link" data-toggle="login-change-bg" data-img="/assets/img/login-bg/login-bg-16.jpg" style="background-image: url(/assets/img/login-bg/login-bg-16.jpg)"></a></div>
-		<div class="login-bg-list-item"><a href="javascript:;" class="login-bg-list-link" data-toggle="login-change-bg" data-img="/assets/img/login-bg/login-bg-15.jpg" style="background-image: url(/assets/img/login-bg/login-bg-15.jpg)"></a></div>
-		<div class="login-bg-list-item"><a href="javascript:;" class="login-bg-list-link" data-toggle="login-change-bg" data-img="/assets/img/login-bg/login-bg-14.jpg" style="background-image: url(/assets/img/login-bg/login-bg-14.jpg)"></a></div>
-		<div class="login-bg-list-item"><a href="javascript:;" class="login-bg-list-link" data-toggle="login-change-bg" data-img="/assets/img/login-bg/login-bg-13.jpg" style="background-image: url(/assets/img/login-bg/login-bg-13.jpg)"></a></div>
-		<div class="login-bg-list-item"><a href="javascript:;" class="login-bg-list-link" data-toggle="login-change-bg" data-img="/assets/img/login-bg/login-bg-12.jpg" style="background-image: url(/assets/img/login-bg/login-bg-12.jpg)"></a></div>
+		<div class="login-bg-list-item active"><a href="javascript:;" class="login-bg-list-link" data-toggle="login-change-bg" data-img="https://rms.ku.ac.ke/RMS-old/IMS/assets/img/login/GATE.JPG" style="background-image: url(https://rms.ku.ac.ke/RMS-old/IMS/assets/img/login/GATE.JPG)"></a></div>
+		<div class="login-bg-list-item"><a href="javascript:;" class="login-bg-list-link" data-toggle="login-change-bg" data-img="https://rms.ku.ac.ke/RMS-old/IMS/assets/img/login/Cac2.JPG" style="background-image: url(https://rms.ku.ac.ke/RMS-old/IMS/assets/img/login/Cac2.JPG)"></a></div>
+		<div class="login-bg-list-item"><a href="javascript:;" class="login-bg-list-link" data-toggle="login-change-bg" data-img="https://rms.ku.ac.ke/RMS-old/IMS/assets/img/login/Entrance.JPG" style="background-image: url(https://rms.ku.ac.ke/RMS-old/IMS/assets/img/login/Entrance.JPG)"></a></div>
+		<div class="login-bg-list-item"><a href="javascript:;" class="login-bg-list-link" data-toggle="login-change-bg" data-img="https://rms.ku.ac.ke/RMS-old/IMS/assets/img/login/Library.JPG" style="background-image: url(https://rms.ku.ac.ke/RMS-old/IMS/assets/img/login/Library.JPG)"></a></div>
+		<div class="login-bg-list-item"><a href="javascript:;" class="login-bg-list-link" data-toggle="login-change-bg" data-img="https://rms.ku.ac.ke/RMS-old/IMS/assets/img/login/Education.JPG" style="background-image: url(https://rms.ku.ac.ke/RMS-old/IMS/assets/img/login/Education.JPG)"></a></div>
+		<div class="login-bg-list-item">
+			<a href="javascript:;" 
+			   class="login-bg-list-link" 
+			   data-toggle="login-change-bg" 
+			 
+			   data-type="video" 
+			   data-video="http://127.0.0.1:8000/videos/cout_4.mp4"
+			  
+			</a>
+		  </div>
+		
+	
 	</div>
 	<!-- END login-bg -->
 @endsection
 
 @push('scripts')
+
+
+<script>
+	document.addEventListener('DOMContentLoaded', function() {
+	  const links = document.querySelectorAll('[data-toggle="login-change-bg"]');
+	
+	  links.forEach(link => {
+		link.addEventListener('click', function() {
+		  const type = this.getAttribute('data-type');
+		
+		  if (type === 'video') {
+			const videoUrl = this.getAttribute('data-video');
+
+		
+			
+			// Show video background
+			let video = document.getElementById('login-video-bg');
+			console.log(video); 
+
+			if (video) {
+				
+			  video = document.createElement('video');
+			  video.id = 'login-video-bg';
+			  video.autoplay = true;
+			  video.muted = true;
+			  video.loop = true;
+			  video.playsInline = true;
+			  video.style.position = 'fixed';
+			  video.style.right = 0;
+			  video.style.bottom = 0;
+			  video.style.minWidth = '100%';
+			  video.style.minHeight = '100%';
+			  video.style.zIndex = '-1';
+			  video.style.objectFit = 'cover';
+			  document.body.appendChild(video);
+			}
+			video.src = videoUrl;
+			video.style.display = 'block';
+	
+			// Hide image background if necessary
+			document.body.style.backgroundImage = 'none';
+		  } else {
+			
+			// Normal image background (system default)
+			let video = document.getElementById('login-video-bg');
+			if (video) {
+			  video.style.display = 'none';
+			  video.pause();
+			}
+		  }
+		});
+	  });
+	});
+	</script>
+	
 	<script src="/assets/js/demo/login-v2.demo.js"></script>
 	<script>
 		document.addEventListener("DOMContentLoaded", function () {

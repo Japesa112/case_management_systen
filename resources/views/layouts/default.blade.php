@@ -38,7 +38,7 @@
 				left: 0;
 				width: 100%;
 				height: 100%;
-				background: linear-gradient(to bottom, rgba(240, 240, 245, 0.4), #918708);
+			
 			}
 		</style>
 	
@@ -87,9 +87,10 @@
 	
 		<!-- ✅ Show Background Video Only When Needed -->
 	@if (!empty($showVideo) && $showVideo)
+	
 	<div class="video-container">
 		<video autoplay loop muted playsinline preload="auto">
-			<source src="{{ asset('videos/cout_4.mp4') }}" type="video/mp4">
+			<source src="../videos/54904-483011865_tiny.mp4" type="video/mp4">
 			<track src="" kind="captions" srclang="en" label="English Captions">
 		</video>
 		<div class="video-overlay"></div>
