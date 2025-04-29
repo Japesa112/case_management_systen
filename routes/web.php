@@ -34,6 +34,7 @@ use App\Http\Controllers\LawyerPaymentController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\CaseClosureController;
 use \App\Http\Controllers\ForwardingController;
+
 use App\Http\Controllers\AGAdviceController;
 use Illuminate\Support\Facades\Log;
 
@@ -188,9 +189,12 @@ Route::get('/home', 'MainController@home')->name('home');
 
 //Users route and controller
 Route::prefix('users')->group(function () {
-
+Route::get('/',[UserController::class, 'index'])->name('users.index');
 Route::post('/store', [UserController::class, 'store'])->name('users.store');
-
+Route::get('/add', [UserController::class, 'create'])->name('users.create');
+Route::get('/edit/{user}', [UserController::class, 'edit'])->name('users.edit');
+Route::put('/update/{user}', [UserController::class, 'update'])->name('users.update');
+Route::get('/show/{user_id}', [UserController::class, 'show'])->name('users.show');
 
 
 });
@@ -489,3 +493,4 @@ Route::prefix('dvc_appointments')->group(function () {
     Route::put('/update/{appointment}', [ForwardingController::class, 'update'])->name('dvc_appointments.update');
     
 });
+

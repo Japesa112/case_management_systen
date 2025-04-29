@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\User;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Lawyer;
+use Exception;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -14,7 +16,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::all();
+        $users = User::paginate(10);;
         return view('users.index', compact('users'));
     }
 
@@ -38,7 +40,7 @@ class UserController extends Controller
                 'full_name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users',
                 'phone' => 'required|string|max:15|unique:users',
-                'role' => 'required|string|in:user,lawyer',
+                'role' => 'required|string|in:user,lawyer,Admin',
                 'license_number' => 'required_if:role,lawyer|string|max:255|unique:lawyers',
                 'area_of_expertise' => 'nullable|string|max:255',
                 'firm_name' => 'nullable|string|max:255',
@@ -78,6 +80,9 @@ class UserController extends Controller
    
    
             }
+            else{
+                return redirect()->route('users.index')->with('success', 'User created successfully.');
+            }
         } catch(\Exception $e){
             return redirect()->back()->with('error', $e->getMessage());
         }
@@ -86,15 +91,27 @@ class UserController extends Controller
         
      
      }
-
-    /**
-     * Display the specified user.
-     */
-    public function show(User $user)
-    {
-        return view('users.show', compact('user'));
-    }
-
+     public function show($user_id)
+     {
+         try{
+            $user = User::where('user_id', $user_id)->firstOrFail();
+     
+         return response()->json([
+             'full_name'       => $user->full_name,
+             'username'        => $user->username,
+             'email'           => $user->email,
+             'phone'           => $user->phone,
+             'role'           => $user->role,
+             
+         ]);
+         }
+         catch(Exception $e){    
+             Log::error(''. $e->getMessage());
+             return response()->json([$e->getMessage()],500);
+         }
+         
+     }
+     
     /**
      * Show the form for editing the specified user.
      */
@@ -106,23 +123,28 @@ class UserController extends Controller
     /**
      * Update the specified user in storage.
      */
-    public function update(Request $request, User $user)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'role' => 'required|string',
+
+     public function update(Request $request, $user_id)
+     {
+        $data = $request->validate([
+            'full_name' => 'required|string|max:255',
+            'username'  => 'required|string|max:255',
+            'email'     => 'required|email',
+            'phone'     => 'required|string|max:15',
         ]);
+    
+        $user = User::where('user_id', $user_id)->firstOrFail();
+    
+        $user->update($data);
+    
+         return response()->json(['redirect' => route('users.index'), 'message' => 'User details updated successfully!']);
+         
+     
+      
+         
+     }
 
-        $user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'role' => $request->role,
-        ]);
-
-        return redirect()->route('users.index')->with('success', 'User updated successfully.');
-    }
-
+  
     /**
      * Remove the specified user from storage.
      */

@@ -157,19 +157,41 @@
 	<div class="login-bg-list clearfix">
 		<div class="login-bg-list-item active"><a href="javascript:;" class="login-bg-list-link" data-toggle="login-change-bg" data-img="https://rms.ku.ac.ke/RMS-old/IMS/assets/img/login/GATE.JPG" style="background-image: url(https://rms.ku.ac.ke/RMS-old/IMS/assets/img/login/GATE.JPG)"></a></div>
 		<div class="login-bg-list-item"><a href="javascript:;" class="login-bg-list-link" data-toggle="login-change-bg" data-img="https://rms.ku.ac.ke/RMS-old/IMS/assets/img/login/Cac2.JPG" style="background-image: url(https://rms.ku.ac.ke/RMS-old/IMS/assets/img/login/Cac2.JPG)"></a></div>
-		<div class="login-bg-list-item"><a href="javascript:;" class="login-bg-list-link" data-toggle="login-change-bg" data-img="https://rms.ku.ac.ke/RMS-old/IMS/assets/img/login/Entrance.JPG" style="background-image: url(https://rms.ku.ac.ke/RMS-old/IMS/assets/img/login/Entrance.JPG)"></a></div>
 		<div class="login-bg-list-item"><a href="javascript:;" class="login-bg-list-link" data-toggle="login-change-bg" data-img="https://rms.ku.ac.ke/RMS-old/IMS/assets/img/login/Library.JPG" style="background-image: url(https://rms.ku.ac.ke/RMS-old/IMS/assets/img/login/Library.JPG)"></a></div>
-		<div class="login-bg-list-item"><a href="javascript:;" class="login-bg-list-link" data-toggle="login-change-bg" data-img="https://rms.ku.ac.ke/RMS-old/IMS/assets/img/login/Education.JPG" style="background-image: url(https://rms.ku.ac.ke/RMS-old/IMS/assets/img/login/Education.JPG)"></a></div>
+		
+		
 		<div class="login-bg-list-item">
 			<a href="javascript:;" 
 			   class="login-bg-list-link" 
 			   data-toggle="login-change-bg" 
-			 
+			 	style="background-image: url(../images/judiciary.png)"
+			   data-type="video" 
+			   data-video="http://127.0.0.1:8000/videos/first_court.mp4">
+			  
+			</a>
+		</div>
+		<div class="login-bg-list-item">
+			<a href="javascript:;" 
+			   class="login-bg-list-link" 
+			   data-toggle="login-change-bg" 
+			 	style="background-image: url(../images/court_first.jpg)"
+			   data-type="video" 
+			   data-video="http://127.0.0.1:8000/videos/54904-483011865_tiny.mp4">
+			  
+			</a>
+		</div>
+		<div class="login-bg-list-item">
+			<a href="javascript:;" 
+			   class="login-bg-list-link" 
+			   data-toggle="login-change-bg" 
+			  style="background-image: url(../images/second_court.jpg)"
 			   data-type="video" 
 			   data-video="http://127.0.0.1:8000/videos/cout_4.mp4"
 			  
 			</a>
 		  </div>
+
+		  
 		
 	
 	</div>
@@ -213,6 +235,8 @@
 			  video.style.objectFit = 'cover';
 			  document.body.appendChild(video);
 			}
+
+			
 			video.src = videoUrl;
 			video.style.display = 'block';
 	
