@@ -6,12 +6,18 @@ use App\Models\Negotiation;
 use Dotenv\Util\Str;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
-
+use App\Models\CaseModel;
 class NegotiationController extends Controller
 {
     /**
      * Display a listing of negotiations.
      */
+
+     public function __construct()
+    {
+        $this->middleware('auth'); // Applies to all methods in the controller
+    }
+
     public function index()
     {
         $negotiations = Negotiation::with(['attachments', 'caseRecord'])->orderBy('created_at', 'desc')->paginate(5);
@@ -81,6 +87,13 @@ class NegotiationController extends Controller
 
         // Create a new negotiation if none exists
         $negotiation = Negotiation::create($validatedData);
+        $case = CaseModel::find($request->case_id);
+        if ($case) {
+          
+ // Assuming you want to set the case status to "Scheduled" when a hearing is added
+            $case->case_status = "Under Negotiation"; // Change this as needed
+            $case->save();
+        } 
 
         return redirect()->route('negotiations.create', ['case_id' => $validatedData['case_id'], 'negotiation' => $negotiation])
                          ->with('negotiation_success', true);

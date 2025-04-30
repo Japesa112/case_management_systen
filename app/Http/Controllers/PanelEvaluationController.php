@@ -6,8 +6,15 @@ use App\Models\PanelEvaluation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use  Illuminate\Support\Facades\Auth;
+use App\Models\CaseModel;
 class PanelEvaluationController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('auth'); // Applies to all methods in the controller
+    }
+
     public function index()
 {
     $isLawyer = Auth::user() && Auth::user()->role === 'Lawyer'; 
@@ -95,6 +102,15 @@ public function store(Request $request)
             'created_at'      => now(),
             'updated_at'      => now(),
         ]);
+
+        $case = CaseModel::find($request->case_id);
+        if ($case) {
+          
+ // Assuming you want to set the case status to "Scheduled" when a hearing is added
+            $case->case_status = "Under Panel Evaluation"; // Change this as needed
+            $case->save();
+        } 
+
 
         return redirect()->route('evaluations.index')->with('success', 'Evaluation created successfully.');
     } catch (\Exception $e) {

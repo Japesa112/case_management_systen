@@ -27,7 +27,7 @@ use Illuminate\Support\Facades\Storage;
 use App\User;
 use App\Mail\NewCaseNotification;
 use Illuminate\Support\Facades\Mail;
-
+use Illuminate\Support\Str;
 
 use App\helper\Events;
 
@@ -40,11 +40,36 @@ class CaseController extends Controller
      * Display a listing of the resource.
      */
     protected $primaryKey = 'case_id'; // Ensure this matches your database column
+    public function __construct()
+    {
+        $this->middleware('auth'); // Applies to all methods in the controller
+    }
 
     public function index()
     {
         //
         $cases = CaseModel::orderBy('created_at', 'desc')->paginate(10);
+        foreach ($cases as $case) {
+            if (Str::contains($case->case_status, '-')) {
+                $parts = explode('-', $case->case_status);
+               
+                // add two new attributes:
+              
+                if (count($parts) == 2 && is_numeric($parts[0])) {
+                    
+
+                    $ordinal =$this->ordinalParts((int) $parts[0]);
+                    $case->seq_num = $ordinal['number'];
+                   $case->seq_suffix = $ordinal['suffix'];
+                   $case->matter = $parts[1];
+
+                } else {
+                    $case->case_status_formatted = $case->case_status;
+                }
+            } else {
+                $case->case_status_formatted = $case->case_status;
+            }
+        }
         return view("cases.index", compact('cases'));
     }
 
@@ -320,7 +345,27 @@ class CaseController extends Controller
     
      public function show(CaseModel $case)
      {
-       
+
+        
+        if (Str::contains($case->case_status, '-')) {
+            $parts = explode('-', $case->case_status);
+           
+            // add two new attributes:
+          
+            if (count($parts) == 2 && is_numeric($parts[0])) {
+                
+
+                $ordinal =$this->ordinalParts((int) $parts[0]);
+                $case->seq_num = $ordinal['number'];
+               $case->seq_suffix = $ordinal['suffix'];
+               $case->matter = $parts[1];
+
+            } else {
+                $case->case_status_formatted = $case->case_status;
+            }
+        } else {
+            $case->case_status_formatted = $case->case_status;
+        }
      $complainant = Complainant::where('case_id', $case->case_id)->first();
 
         
@@ -564,6 +609,15 @@ public function addHearing(Request $request)
             'court_contacts' => $validated['court_contacts'] ?? null,
         ]);
 
+         // Update the case status after adding the hearing
+         $case = CaseModel::find($validated['case_id']);
+         if ($case) {
+           
+  // Assuming you want to set the case status to "Scheduled" when a hearing is added
+             $case->case_status = $validated['sequence_number'].'-Hearing'; // Change this as needed
+             $case->save();
+         }
+ 
         return response()->json(['message' => 'Hearing added successfully.']);
 
     } catch (\Exception $e) {
@@ -606,7 +660,13 @@ public function addMention(Request $request)
             'virtual_link' => $validated['virtual_link'] ?? null,
             'court_contacts' => $validated['court_contacts'] ?? null,
         ]);
-
+        $case = CaseModel::find($validated['case_id']);
+         if ($case) {
+             // Assuming you want to set the case status to "Scheduled" when a hearing is added
+             $case->case_status = $validated['sequence_number'].'-Mention'; // Change this as needed
+             $case->save();
+         }
+ 
         return response()->json(['message' => 'Mention added successfully.']);
 
     } catch (\Exception $e) {
@@ -647,6 +707,13 @@ public function addApplication(Request $request)
             'virtual_link' => $validated['virtual_link'] ?? null,
             'court_contacts' => $validated['court_contacts'] ?? null,
         ]);
+        $case = CaseModel::find($validated['case_id']);
+         if ($case) {
+             // Assuming you want to set the case status to "Scheduled" when a hearing is added
+             $case->case_status = $validated['sequence_number'].'-Application'; // Change this as needed
+             $case->save();
+         }
+ 
 
         return response()->json(['message' => 'Application added successfully.']);
 

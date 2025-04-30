@@ -13,6 +13,12 @@ class PaymentController extends Controller
     /**
      * Display a listing of the payments.
      */
+
+     public function __construct()
+    {
+        $this->middleware('auth'); // Applies to all methods in the controller
+    }
+
     public function index()
     {
         $payments = Payment::with('attachments')->get();

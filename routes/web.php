@@ -198,6 +198,8 @@ Route::get('/show/{user_id}', [UserController::class, 'show'])->name('users.show
 
 
 });
+// Define the login route
+Route::get('/login', [UserController::class, 'showLoginForm'])->name('login');
 
 Route::get('/login/v1', 'MainController@loginV1')->name('login-v1');
 Route::get('/login/v2', 'MainController@loginV2')->name('login-v2');
@@ -249,7 +251,7 @@ Route::get('/cases/{case_id}/check-assignment', [CaseController::class, 'checkAs
 Route::delete('/cases/{case_id}/remove-lawyer/{lawyer_id}', [CaseController::class, 'removeAssignedLawyer']);
 
 //Cases Route
-Route::prefix('cases')->group(function () {
+Route::middleware(['auth'])->prefix('cases')->group(function () {
 
     Route::post('/send-case-email/{case_id}', [CaseController::class, 'sendEmail'])->name('cases.sendEmail');
 

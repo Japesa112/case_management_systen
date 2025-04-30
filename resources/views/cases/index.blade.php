@@ -106,8 +106,13 @@
                                 @endphp
                             
                             <span style="{{ $bgColor }} padding: 5px 10px; border-radius: 5px;">
-                                {{ ucfirst($case->case_status) }}
+                                @if (!empty($case->seq_num) && !empty($case->seq_suffix))
+                                    {{ $case->seq_num }}<sup>{{ $case->seq_suffix }}</sup> {{ ucfirst($case->type)." ".$case->matter }} 
+                                @else
+                                    {{ ucfirst($case->case_status) }}
+                                @endif
                             </span>
+                            
                             
                             </td>
                             <td>{{ $case->first_hearing_date}}</td>

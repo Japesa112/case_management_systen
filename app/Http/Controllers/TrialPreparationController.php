@@ -7,12 +7,18 @@ use App\Models\TrialPreparation;
 use Illuminate\Support\Facades\Storage;
 use App\Models\TrialPreparationAttachment;
 use Illuminate\Support\Facades\Log;
-
+use App\Models\CaseModel;
 class TrialPreparationController extends Controller
 {
     /**
      * Display a listing of the trial preparations.
      */
+
+     public function __construct()
+    {
+        $this->middleware('auth'); // Applies to all methods in the controller
+    }
+
     public function index()
     {
         $trialPreparations = TrialPreparation::with(['case', 'lawyer'])->get();
@@ -87,6 +93,15 @@ class TrialPreparationController extends Controller
                 ]);
             }
         }
+
+        $case = CaseModel::find($request->case_id);
+        if ($case) {
+          
+ // Assuming you want to set the case status to "Scheduled" when a hearing is added
+            $case->case_status = "Under Panel Evaluation"; // Change this as needed
+            $case->save();
+        } 
+
 
         return redirect()->route('preparations.index', [
             'case_id' => $request->case_id,

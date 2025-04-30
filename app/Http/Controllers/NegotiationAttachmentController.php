@@ -10,6 +10,12 @@ class NegotiationAttachmentController extends Controller
     /**
      * Display a listing of negotiation attachments.
      */
+
+     public function __construct()
+    {
+        $this->middleware('auth'); // Applies to all methods in the controller
+    }
+
     public function index()
     {
         $attachments = NegotiationAttachment::all();

@@ -7,12 +7,18 @@ use App\Models\Adjourn;
 use App\Models\AdjournAttachment;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-
+use App\Models\CaseModel;
 class AdjournController extends Controller
 {
     /**
      * Display a list of adjournments.
      */
+
+     public function __construct()
+    {
+        $this->middleware('auth'); // Applies to all methods in the controller
+    }
+
     public function index()
     {
         $adjourns = Adjourn::with('attachments')->get();
@@ -84,7 +90,13 @@ class AdjournController extends Controller
                     ]);
                 }
             }
-    
+            $case = CaseModel::find($request->case_id);
+            if ($case) {
+              
+     // Assuming you want to set the case status to "Scheduled" when a hearing is added
+                $case->case_status = "Adjourned"; // Change this as needed
+                $case->save();
+            }
             return redirect()->route('adjourns.index', [
                 'case_id' => $request->case_id, 
                 'adjourn' => $adjourn->adjourn_id

@@ -12,6 +12,12 @@ class ForwardingController extends Controller
     /**
      * Display a listing of the resource.
      */
+
+     public function __construct()
+    {
+        $this->middleware('auth'); // Applies to all methods in the controller
+    }
+
     public function index()
     {
         $forwardings = Forwarding::with(['case', 'lawyer'])->get();
@@ -74,6 +80,14 @@ class ForwardingController extends Controller
                 'briefing_notes' => $validated['briefing_notes'] ?? null,
             ]);
         }
+
+        $case = CaseModel::find(  $validated['case_id']);
+        if ($case) {
+          
+ // Assuming you want to set the case status to "Scheduled" when a hearing is added
+            $case->case_status = "Forwarded to DVC/VC"; // Change this as needed
+            $case->save();
+        } 
 
         return redirect()->route('dvc_appointments.index', [
             'case_id' => $request->case_id,

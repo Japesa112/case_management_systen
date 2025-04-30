@@ -7,8 +7,15 @@ use App\Models\Appeal;
 use Illuminate\Support\Facades\Log;
 use App\Models\AppealAttachment;
 use Illuminate\Support\Facades\Storage;
+use App\Models\CaseModel;
 class AppealController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('auth'); // Applies to all methods in the controller
+    }
+
     public function index()
     {
         $appeals = Appeal::with(['case', 'attachments'])->get();
@@ -79,6 +86,15 @@ class AppealController extends Controller
                         ]);
                     }
                 }
+
+                $case = CaseModel::find( $request->case_id);
+            if ($case) {
+              
+     // Assuming you want to set the case status to "Scheduled" when a hearing is added
+                $case->case_status = "Appeal"; // Change this as needed
+                $case->save();
+            }
+        
         
                 return redirect()->route('appeals.index', [
                     'case_id' => $request->case_id, 

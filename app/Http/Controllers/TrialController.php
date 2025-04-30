@@ -7,12 +7,18 @@ use App\Models\Trial;
 use Illuminate\Support\Facades\Storage;
 use App\Models\TrialAttachment;
 use Illuminate\Support\Facades\Log;
-
+use App\Models\CaseModel;
 class TrialController extends Controller
 {
     /**
      * Display a listing of the trials.
      */
+
+     public function __construct()
+    {
+        $this->middleware('auth'); // Applies to all methods in the controller
+    }
+
     public function index()
     {
         $trials = Trial::with('case')->get();
@@ -95,6 +101,15 @@ class TrialController extends Controller
                 ]);
             }
         }
+
+       
+        $case = CaseModel::find($request->case_id);
+        if ($case) {
+          
+ // Assuming you want to set the case status to "Scheduled" when a hearing is added
+            $case->case_status = "Under Negotiation"; // Change this as needed
+            $case->save();
+        } 
 
         return redirect()->route('trials.index', ['case_id' => $request->case_id])
                          ->with('success', 'Trial created successfully.');

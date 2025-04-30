@@ -11,6 +11,12 @@ class AGAdviceController extends Controller
     /**
      * Display a listing of AG Advices.
      */
+
+     public function __construct()
+    {
+        $this->middleware('auth'); // Applies to all methods in the controller
+    }
+
     public function index()
     {
         $advices = AGAdvice::with('case', 'evaluation')->orderBy('created_at', 'asc')->get();
@@ -71,6 +77,13 @@ class AGAdviceController extends Controller
             }
         
             $advice = AGAdvice::create($validated);
+            $case = CaseModel::find($validated['case_id']);
+            if ($case) {
+              
+     // Assuming you want to set the case status to "Scheduled" when a hearing is added
+                $case->case_status = "AG Advice"; // Change this as needed
+                $case->save();
+            }
         
             return redirect()->route('ag_advice.index', [
                 'case_id' => $request->case_id, 

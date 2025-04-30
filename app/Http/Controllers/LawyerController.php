@@ -16,6 +16,12 @@ class LawyerController extends Controller
     /**
      * Show the list of lawyers.
      */
+
+     public function __construct()
+    {
+        $this->middleware('auth'); // Applies to all methods in the controller
+    }
+
     public function index()
     {
         $lawyers = Lawyer::paginate(10); // Instead of get(), use paginate()

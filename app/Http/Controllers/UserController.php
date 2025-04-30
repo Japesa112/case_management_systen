@@ -91,6 +91,9 @@ class UserController extends Controller
         
      
      }
+     public function showLoginForm(){
+        return view('pages.login-v2');
+     }
      public function show($user_id)
      {
          try{

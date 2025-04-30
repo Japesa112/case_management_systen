@@ -3,9 +3,12 @@
     $appHeaderMenu = $appHeaderMenu ?? '';
     $appHeaderMegaMenu = $appHeaderMegaMenu ?? '';
     $appHeaderTopMenu = $appHeaderTopMenu ?? '';
-    $full_name = Auth::user()->full_name;
-@endphp
+ 
+ 
 
+    $full_name = Auth::user()->full_name;
+
+@endphp
 
 
 

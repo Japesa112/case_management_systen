@@ -12,6 +12,12 @@ class AdjournAttachmentController extends Controller
     /**
      * Upload and store attachments for an adjournment.
      */
+
+     public function __construct()
+    {
+        $this->middleware('auth'); // Applies to all methods in the controller
+    }
+
     public function store(Request $request, $adjourns_id)
     {
         $request->validate([
