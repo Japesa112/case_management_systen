@@ -71,12 +71,48 @@
                 
                 >Assign Case</button>
             </div>
+            @if ($case->case_status != "Closed")
             <div class="col-md-2 mb-2">
-                <button class="btn btn-danger btn-sm w-100 text-start text-truncate" title="Close Case">Close Case</button>
+                <a href="{{ route("closed_cases.create", $case->case_id) }}" class="btn btn-danger btn-sm w-100 text-start text-truncate" title="Close Case">Close Case</a>
             </div>
+            @else
+            
             <div class="col-md-2 mb-2">
-                <button class="btn btn-primary btn-sm w-100 text-start text-truncate" title="Submit for Panel Evaluation">Submit for Panel Evaluation</button>
+                <a href="{{ route("closed_cases.create", $case->case_id) }}" class="btn btn-info btn-sm w-100 text-start text-truncate" title="Close Case"  style="pointer-events: none; color: gray;">Cased Closed</a>
             </div>
+            @endif
+            
+
+            @if ( $case->case_status == "Panel Evaluation")
+            <div class="col-md-2 mb-2">
+                <button id="submitEvaluationBtn"
+                        data-case-id="{{ $case->case_id }}"
+                        data-case-flag="{{ true }}"
+                        class="btn btn-secondary btn-sm w-100 text-start text-truncate"
+                        title="Submitted to Panel Evaluation"
+                        data-bs-toggle="modal"
+                        data-bs-target="#panelEvaluationModal">
+                        Message Lawyers
+                </button>
+
+            </div>
+            @else
+
+            <div class="col-md-2 mb-2">
+                <button id="submitEvaluationBtn"
+                        data-case-id="{{ $case->case_id }}"
+                        class="btn btn-primary btn-sm w-100 text-start text-truncate"
+                        title="Submit for Panel Evaluation"
+                        data-bs-toggle="modal"
+                        data-bs-target="#panelEvaluationModal">
+                    Submit for Panel Evaluation
+                </button>
+
+            </div>
+            
+            @endif
+            
+            
             <div class="col-md-2 mb-2">
                 
                  <a href="{{ route('negotiations.create', $case->case_id) }}" class="btn btn-warning btn-sm w-100 text-start text-truncate" title="Send to Negotiation">Send to Negotiation</a>
@@ -970,7 +1006,30 @@
 </div>
 
 
-
+<!-- Modal -->
+<div class="modal fade" id="panelEvaluationModal" tabindex="-1" aria-labelledby="panelEvaluationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="panelEvaluationForm">
+          <div class="modal-header">
+            <h5 class="modal-title" id="panelEvaluationModalLabel">Submit Case for Panel Evaluation</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="modalCaseId">
+            <div class="mb-3">
+              <label for="panelMessage" class="form-label">Message to Lawyers</label>
+              <textarea class="form-control" id="panelMessage" rows="4" placeholder="Enter message..."></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="sendPanelEvaluationBtn" class="btn btn-primary">Send</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
 
 @endsection
 
@@ -1916,7 +1975,70 @@ $('#deleteApplicationBtn').on('click', function (e) {
     });
 });
 
+
+
+
 </script>
+
+<script>
+    $(document).ready(function () {
+        // Store case_id in modal hidden field
+        $('#submitEvaluationBtn').on('click', function () {
+            const caseId = $(this).data('case-id');
+            const caseFlag = $(this).data('case-flag');
+            let message = "Send Message to Lawyers";
+            
+            if (caseFlag) {
+              
+                $('#panelEvaluationModalLabel').text(message);
+            }
+            $('#modalCaseId').text(caseId);
+            
+        });
+    
+        $('#sendPanelEvaluationBtn').on('click', function () {
+            const caseId = $('#modalCaseId').val();
+            const message = $('#panelMessage').val().trim();
+    
+            if (message === '') {
+                Swal.fire('Error', 'Please enter a message to send.', 'warning');
+                return;
+            }
+    
+            $.ajax({
+                url: `/cases/${caseId}/submit-panel-evaluation`,
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: { message: message },
+                success: function (response) {
+                    Swal.fire('Success', response.message, 'success');
+                    $('#panelEvaluationModal').modal('hide');
+                      // Update modal title
+                $('#panelEvaluationModalLabel').text('Message Sent to Lawyers');
+
+                    // Optionally clear the message textarea
+                    $('#panelMessage').val('');
+    
+                    $('#submitEvaluationBtn')
+                        .text('Submitted to Panel Evaluation')
+                        .removeClass('btn-primary')
+                        .addClass('btn-secondary')
+                        .prop('disabled', true);
+                },
+                error: function (xhr) {
+                    let message = 'Something went wrong.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        message = xhr.responseJSON.message;
+                    }
+                    Swal.fire('Error', message, 'error');
+                }
+            });
+        });
+    });
+    </script>
+    
 
 
 

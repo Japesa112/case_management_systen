@@ -17,20 +17,22 @@ class CaseNotification extends Mailable implements ShouldQueue
 
     public $case;
     public $isReminder;
+    public $customMessage; // 👈 Add this
 
-    public function __construct($case, $isReminder = false)
+    public function __construct($case, $isReminder = false, $customMessage = null)
     {
         $this->case = $case;
         $this->isReminder = $isReminder;
+        $this->customMessage = $customMessage; // 👈 Assign it
     }
 
     public function build()
     {
-
-
         Log::info('Building CaseNotification email', ['case_id' => $this->case->case_id ?? null]);
+
         return $this->subject($this->isReminder ? 'Hearing Date Reminder' : 'New Case Created')
                     ->markdown('emails.case-notification');
     }
 }
+
 

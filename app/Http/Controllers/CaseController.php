@@ -187,7 +187,13 @@ class CaseController extends Controller
                 'case_id' => $request->case_id,
                 'lawyer_id' => $request->lawyer_id,
             ]);
-    
+            $case = CaseModel::find($request->case_id);
+            if ($case) {
+            
+    // Assuming you want to set the case status to "Scheduled" when a hearing is added
+                $case->case_status = "Assigned to Lawyer(s)"; // Change this as needed
+                $case->save();
+            }
             return response()->json([
                 'success' => true,
                 'message' => 'Case assigned successfully!',
@@ -245,7 +251,7 @@ class CaseController extends Controller
                 'case_name'        => 'required|string|max:255',
                 'date_received' => 'required|date_format:Y-m-d\TH:i',
                 'case_description' => 'required|string',
-                'case_status'      => 'required|in:Waiting for First Hearing,Under Review,Waiting for Panel Evaluation,Waiting for AG Advice,Forwarded to DVC,Under Trial,Judgement Rendered,Closed',
+                'case_status'      => 'required|string|max:255',
                 'case_category'    => 'required|in:Academic,Disciplinary,Administrative,student,staff,supplier,staff union',
                 'initial_status'   => 'required|in:Under Review,Approved,Rejected,Needs Negotiation',
                 
@@ -300,7 +306,7 @@ class CaseController extends Controller
                     // Safely get recipients with case-insensitive check
                     $totalRecipients = 0;
 
-                    User::whereIn('role', ['Lawyer', 'Admin'])
+                    User::whereIn('role', ['Admin'])
                         ->whereNotNull('email')
                         ->chunkById(200, function ($users) use ($case, &$totalRecipients) {
                             $totalRecipients += $users->count();
@@ -1662,6 +1668,42 @@ public function getEvents()
         return response()->json(['error' => 'Could not fetch events.'], 500);
     }
 }
+
+public function submitToPanelEvaluation(Request $request, $case_id)
+{
+    $case = CaseModel::findOrFail($case_id);
+    $message = $request->input('message'); // 👈 capture the message
+
+    $totalRecipients = 0;
+    Log::info("The message is: ". $message);
+    User::whereIn('role', ['Lawyer'])
+        ->whereNotNull('email')
+        ->chunkById(200, function ($users) use ($case, $message, &$totalRecipients) {
+            $totalRecipients += $users->count();
+
+            foreach ($users as $user) {
+                try {
+                    $isReminder = false;
+                    Mail::to($user->email)->queue(new CaseNotification($case, $isReminder, $message));
+
+                    Log::debug('Queued case notification', [
+                        'user_id' => $user->user_id,
+                        'case_id' => $case->case_id
+                    ]);
+                } catch (\Throwable $e) {
+                    Log::error('Failed to queue case notification', [
+                        'user_id' => $user->user_id,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+        });
+
+    return response()->json([
+        'message' => "Notification queued to {$totalRecipients} lawyers."
+    ]);
+}
+
 
 
 

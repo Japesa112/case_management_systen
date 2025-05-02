@@ -111,13 +111,19 @@
             <div class="form-group mt-3 mb-2">
                 <label for="case_status" class="control-label">Case Status</label>
                 <select name="case_status" class="form-control">
-                    <option value="Waiting for First Hearing">Waiting for First Hearing</option>
-                    <option value="Under Review">Under Review</option>
+                    <option value="Hearing">Hearing</option>
+                    <option value="Application">Application</option>
+                    <option value="Mention">Mention</option>
+                    <option value="Review">Review</option>
+                    <option value="Panel Evaluation">Panel Evaluation</option>
                     <option value="Waiting for Panel Evaluation">Waiting for Panel Evaluation</option>
                     <option value="Waiting for AG Advice">Waiting for AG Advice</option>
                     <option value="Forwarded to DVC">Forwarded to DVC</option>
+                    <option value="Appeal">Appeal</option>
+                    <option value="Trial">Trial</option>
+                    <option value="Adjourned">Adjourned</option>
                     <option value="Under Trial">Under Trial</option>
-                    <option value="Judgement Rendered">Judgement Rendered</option>
+                    <option value="Negotiation">Negotiation</option>
                     <option value="Closed">Closed</option>
                 </select>
             </div>

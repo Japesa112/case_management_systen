@@ -47,17 +47,18 @@
 		<!-- BEGIN col-3 -->
 		<div class="col-xl-3 col-md-6">
 			<div class="widget widget-stats bg-teal">
-				<div class="stats-icon stats-icon-lg"><i class="fa fa-globe fa-fw"></i></div>
+				<div class="stats-icon stats-icon-lg"><i class="fa fa-balance-scale fa-fw"></i></div>
 				<div class="stats-content">
-					<div class="stats-title">TODAY'S VISITS</div>
-					<div class="stats-number">7,842,900</div>
-					<div class="stats-progress progress">
-						<div class="progress-bar" style="width: 70.1%;"></div>
+					<div class="stats-title me-5">CLOSED CASES</div>
+					<div class="stats-number">{{ $closedCases }}</div>
+					<div class="stats-desc">
+						<span class="me-3 text-dark"><strong>Won:</strong> {{ $wonCases }}</span>
+						<span class="text-white"><strong>Lost:</strong> {{ $lostCases }}</span>
 					</div>
-					<div class="stats-desc">Better than last week (70.1%)</div>
 				</div>
 			</div>
 		</div>
+		
 		<!-- END col-3 -->
 		<!-- BEGIN col-3 -->
 		<div class="col-xl-3 col-md-6">

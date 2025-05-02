@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
-
+use App\Models\CaseClosure;
+use Illuminate\Http\Request;
 
 class MainController extends Controller {
 
@@ -16,7 +17,15 @@ class MainController extends Controller {
         return view('pages/home');
     }
     public function dashboardV2() {
-        return view('pages/dashboard-v2');
+        $wonCases = CaseClosure::where('final_outcome', 'Win')->count();
+        $lostCases = CaseClosure::where('final_outcome', 'Loss')->count();
+        $closedCases = $wonCases + $lostCases;
+    
+        return view('pages/dashboard-v2', [
+            'wonCases' => $wonCases,
+            'lostCases' => $lostCases,
+            'closedCases' => $closedCases,
+        ]);
     }
     public function dashboardV3() {
         return view('pages/dashboard-v3');
