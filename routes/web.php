@@ -28,7 +28,7 @@ use App\Http\Controllers\AdjournController;
 use App\Http\Controllers\WitnessController;
 use App\Http\Controllers\TrialController;
 use App\Http\Controllers\TrialPreparationController;
-
+use App\Http\Controllers\MainController;
 
 use App\Http\Controllers\LawyerPaymentController;
 use App\Http\Controllers\PaymentController;
@@ -70,6 +70,13 @@ Route::get('/dashboard/lawyer', [LawyerController::class, 'dashboard'])->name('d
 Route::get('/dashboard/v1', 'MainController@dashboardV1')->name('dashboard-v1');
 Route::get('/dashboard/v2', 'MainController@dashboardV2')->name('dashboard-v2');
 Route::get('/dashboard/v3', 'MainController@dashboardV3')->name('dashboard-v3');
+
+Route::get('/case-status-data', [MainController::class, 'getCaseStatusData']);
+Route::get('/lawyer-case-distribution', [MainController::class, 'getLawyerCaseDistribution'])
+     ->name('lawyer.case.distribution');
+Route::get('/cases-by-lawyer/{lawyerId}', [MainController::class, 'getCasesByLawyer'])->name('cases.by.lawyer');
+
+
 
 Route::get('/email/inbox', 'MainController@emailInbox')->name('email-inbox');
 Route::get('/email/compose', 'MainController@emailCompose')->name('email-compose');

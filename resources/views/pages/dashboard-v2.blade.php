@@ -7,8 +7,18 @@
 	<link href="/assets/plugins/datepickk/dist/datepickk.min.css" rel="stylesheet" />
 	<link href="/assets/plugins/gritter/css/jquery.gritter.css" rel="stylesheet" />
 	<link href="/assets/plugins/nvd3/build/nv.d3.css" rel="stylesheet" />
+	
 @endpush
 
+@push('styles')
+<style>
+	.table tbody tr {
+	  border-bottom: 1px solid #fff; /* White border */
+	}
+  
+	
+  </style>
+@endpush
 @push('scripts')
 	<script src="/assets/plugins/d3/d3.min.js"></script>
 	<script src="/assets/plugins/nvd3/build/nv.d3.js"></script>
@@ -91,7 +101,7 @@
 		</div>
 		<!-- END col-3 -->
 		<!-- BEGIN col-3 -->
-		<div class="col-xl-3 col-md-6">
+		<div class="col-xl-3 col-md-9">
 			<div class="widget widget-stats bg-gray-900">
 				<div class="stats-icon stats-icon-lg"><i class="fa fa-comment-alt fa-fw"></i></div>
 				<div class="stats-content">
@@ -112,28 +122,52 @@
 		<!-- BEGIN col-8 -->
 		<div class="col-xl-8">
 			<div class="widget-chart with-sidebar" data-bs-theme="dark">
-				<div class="widget-chart-content bg-gray-800">
-					<h4 class="chart-title">
-						Visitors Analytics
-						<small>Where do our visitors come from</small>
-					</h4>
-					<div id="visitors-line-chart" class="widget-chart-full-width dark-mode" style="height: 257px;" ></div>
-				</div>
-				<div class="widget-chart-sidebar bg-gray-900">
-					<div class="chart-number">
-						1,225,729
-						<small>Total visitors</small>
-					</div>
-					<div class="flex-grow-1 d-flex align-items-center">
-						<div id="visitors-donut-chart" data-bs-theme="dark" style="height: 180px" ></div>
-					</div>
-					<ul class="chart-legend fs-11px">
-						<li><i class="fa fa-circle fa-fw text-blue fs-9px me-5px t-minus-1"></i> 34.0% <span>New Visitors</span></li>
-						<li><i class="fa fa-circle fa-fw text-teal fs-9px me-5px t-minus-1"></i> 56.0% <span>Return Visitors</span></li>
-					</ul>
-				</div>
+			  <div class="widget-chart-content bg-gray-800">
+				<h4 class="chart-title">
+				  Case Status Analytics
+				  <small>Distribution of Cases by Status</small>
+				</h4>
+				<!-- Insert Chart Here -->
+				<div id="case-status-bar-chart" class="widget-chart-full-width dark-mode" style="height: 500px;"></div>
+			  </div>
+			  <div class="widget-chart-sidebar bg-indigo-900" style="width: 300px">
+				<h4 class="chart-title">
+					Case Assignment Summary
+					<br/>
+					<small>Distribution of Cases by Lawyers</small>
+				  </h4>
+				  <table class="table table-sm table-borderless text-white mb-0">
+					<thead class="text-muted fs-11px text-uppercase border-bottom border-gray-700">
+					  <tr>
+						<th>Lawyer</th>
+						<th class="text-end">Cases</th>
+					  </tr>
+					</thead>
+					<tbody id="lawyer-case-table">
+						<tr id="loading-row">
+						  <td colspan="2" class="text-center text-muted">Loading...</td>
+						</tr>
+						<tr>
+						  <td>John Doe</td>
+						  <td class="text-end">
+							<button type="button" class="btn btn-info view-cases" data-lawyer-id="1">10</button>
+						  </td>
+						</tr>
+						<tr>
+						  <td>Jane Smith</td>
+						  <td class="text-end">
+							<button type="button" class="btn btn-info view-cases" data-lawyer-id="2">5</button>
+						  </td>
+						</tr>
+						<!-- Add more rows dynamically -->
+					  </tbody>
+					  
+					  
+				  </table>
+			  </div>
 			</div>
-		</div>
+		  </div>
+		  
 		<!-- END col-8 -->
 		<!-- BEGIN col-4 -->
 		<div class="col-xl-4">
@@ -320,4 +354,232 @@
 		<!-- END col-4 -->
 	</div>
 	<!-- END row -->
+
+
+	<!-- Modal for showing case names -->
+<!-- Modal for showing case names -->
+<div class="modal fade" id="lawyerCasesModal" tabindex="-1" aria-labelledby="lawyerCasesModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+	  <div class="modal-content">
+		<div class="modal-header">
+		  <h5 class="modal-title" id="lawyerCasesModalLabel">Cases Assigned to Lawyer</h5>
+		  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		</div>
+		<div class="modal-body">
+		  <ul id="lawyer-cases-list">
+			<!-- Cases will be dynamically inserted here -->
+		  </ul>
+		</div>
+		<div class="modal-footer">
+		  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+		</div>
+	  </div>
+	</div>
+</div>
+  
+  
 @endsection
+
+
+
+@push('scripts')
+<!-- Script for Apex Chart -->
+<script>
+
+
+
+	document.addEventListener("DOMContentLoaded", function () {
+  fetch('/case-status-data')
+    .then(response => response.json())
+    .then(data => {
+      const statuses = data.map(item => item.case_status);
+      const counts = data.map(item => item.total);
+
+      const colors = [
+        '#f39c12', '#e74c3c', '#8e44ad', '#3498db', '#1abc9c', '#2ecc71',
+        '#34495e', '#d35400', '#c0392b', '#2980b9', '#27ae60', '#7f8c8d',
+        '#9b59b6', '#95a5a6'
+      ];
+
+      const options = {
+        chart: {
+          height: 500,
+          type: 'bar',
+          toolbar: { show: false }
+        },
+        plotOptions: {
+          bar: {
+            horizontal: true,
+            distributed: true,
+            dataLabels: { position: 'top' }
+          }
+        },
+        dataLabels: {
+          enabled: true,
+          offsetX: -6
+        },
+        colors: colors,
+        series: [{
+          name: 'Number of Cases',
+          data: counts
+        }],
+        xaxis: {
+          categories: statuses,
+          labels: { style: { colors: '#ffffff' } }
+        },
+        yaxis: {
+          labels: { style: { colors: '#ffffff' } }
+        },
+        grid: {
+          borderColor: '#444'
+        },
+        tooltip: {
+          theme: 'dark'
+        },
+        legend: {
+          show: false
+        }
+      };
+
+      new ApexCharts(document.querySelector('#case-status-bar-chart'), options).render();
+    })
+    .catch(error => console.error('Error fetching case status data:', error));
+});
+  </script>
+
+
+<script>
+	document.addEventListener("DOMContentLoaded", function () {
+	  const labels = ['John Doe', 'Jane Smith', 'Alice Johnson', 'Bob Brown', 'Samuel Lee'];
+	  const seriesData = [15, 22, 8, 18, 10];
+	  const colors = ['#f39c12', '#e74c3c', '#8e44ad', '#3498db', '#1abc9c'];
+	
+	  const options = {
+		chart: {
+		  type: 'bar',
+		  height: 400,
+		  toolbar: { show: false }
+		},
+		plotOptions: {
+		  bar: {
+			horizontal: true,
+			distributed: true,
+			dataLabels: { position: 'top' }
+		  }
+		},
+		dataLabels: {
+		  enabled: true,
+		  offsetX: -6,
+		  style: { colors: ['#fff'] }
+		},
+		colors: colors,
+		series: [{
+		  data: seriesData
+		}],
+		xaxis: {
+		  categories: labels,
+		  labels: { style: { colors: '#fff' } }
+		},
+		yaxis: {
+		  labels: { style: { colors: '#fff' } }
+		},
+		tooltip: {
+		  theme: 'dark',
+		  y: {
+			formatter: function (val) {
+			  return `${val} Cases`;
+			}
+		  }
+		},
+		grid: {
+		  borderColor: '#444'
+		},
+		legend: { show: false }
+	  };
+	
+	  const chart = new ApexCharts(document.querySelector("#lawyer-bar-chart"), options);
+	  chart.render();
+	});
+
+
+	document.addEventListener('DOMContentLoaded', function () {
+    fetch("{{ route('lawyer.case.distribution') }}")
+      .then(response => response.json())
+      .then(data => {
+        const tableBody = document.getElementById('lawyer-case-table');
+        tableBody.innerHTML = '';
+
+        if (data.length === 0) {
+          tableBody.innerHTML = '<tr><td colspan="2" class="text-center text-muted">No data available</td></tr>';
+          return;
+        }
+
+        data.forEach(lawyer => {
+		
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${lawyer.full_name}</td>
+            <td class="text-end"> 
+			<button type="button" class="btn btn-info view-cases" data-lawyer-id="${lawyer.lawyer_id}">${lawyer.total_cases}</button>
+	
+			</td>
+          `;
+          tableBody.appendChild(row);
+        });
+      })
+      .catch(error => {
+        console.error("Error loading lawyer case data:", error);
+        document.getElementById('lawyer-case-table').innerHTML =
+          '<tr><td colspan="2" class="text-center text-danger">Failed to load data</td></tr>';
+      });
+  });
+
+
+  document.addEventListener('DOMContentLoaded', function () {
+        const tableBody = document.getElementById('lawyer-case-table');
+        
+        tableBody.addEventListener('click', function (e) {
+            if (e.target && e.target.classList.contains('view-cases')) {
+                const lawyerId = e.target.getAttribute('data-lawyer-id');
+				alert(lawyerId);
+                
+                // Generate the URL for the named route
+                const url = `{{ route('cases.by.lawyer', ':lawyerId') }}`.replace(':lawyerId', lawyerId);
+                
+                document.getElementById('loading-row').style.display = 'table-row';
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        const caseList = document.getElementById('lawyer-cases-list');
+                        caseList.innerHTML = '';
+                        document.getElementById('loading-row').style.display = 'none';
+
+                        if (data.length === 0) {
+							alert("No cases");
+                            caseList.innerHTML = '<li>No cases assigned</li>';
+                        } else {
+                            data.forEach(function (caseName) {
+								alert("Case Name is: "+caseName);
+                                const listItem = document.createElement('li');
+                                listItem.textContent = caseName;
+                                caseList.appendChild(listItem);
+                            });
+                        }
+
+                        const modal = new bootstrap.Modal(document.getElementById('lawyerCasesModal'));
+                        modal.show();
+                    })
+                    .catch(error => {
+                        console.error('Error fetching cases:', error);
+                        document.getElementById('loading-row').style.display = 'none';
+                        const caseList = document.getElementById('lawyer-cases-list');
+                        caseList.innerHTML = '<li>There was an error loading cases</li>';
+                    });
+            }
+        });
+    });
+
+ 
+	</script>
+@endpush

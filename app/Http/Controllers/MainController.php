@@ -2,9 +2,72 @@
 namespace App\Http\Controllers;
 use App\Models\CaseClosure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Models\CaseLawyer;
+use Illuminate\Support\Facades\Log;
 
 class MainController extends Controller {
 
+
+
+    public function getCasesByLawyer($lawyerId)
+{
+   Log::info("I am in getCases");
+    try{
+    $cases = CaseLawyer::where('lawyer_id', $lawyerId)
+        ->with('case')  // Assuming CaseLawyer has a relationship with Case model
+        ->get()
+        ->pluck('case.case_name'); // Adjust according to your case model field name
+        Log::info('Colected successfully for the lawyer'. $lawyerId .'');
+    return response()->json($cases);
+    }
+    catch(\Exception $e){
+        Log::error($e->getMessage());
+        return response()->json([
+            'error'=> $e->getMessage()
+            ], 500);
+        }
+}
+
+    public function getLawyerCaseDistribution(Request $request)
+    {
+        
+        try {
+        $lawyerStats = CaseLawyer::with('lawyer.user')
+            ->select('lawyer_id', DB::raw('COUNT(*) as total_cases'))
+            ->groupBy('lawyer_id')
+            ->orderByDesc('total_cases')
+            ->get()
+            ->map(function ($entry) {
+                return [
+                    'full_name' => optional($entry->lawyer->user)->full_name ?? 'Unknown',
+                    'total_cases' => $entry->total_cases,
+                    'lawyer_id' => $entry->lawyer->lawyer_id
+                ];
+            });
+            Log::info('Collected Successfully'. $lawyerStats);
+        return response()->json($lawyerStats);
+        }
+        catch (\Exception $e) {
+            Log::error('Error while retrieving data from Case Lawyer'. $e->getMessage());
+            return response()->json([   
+                'error'=> $e->getMessage(),
+                ],500);
+
+            }
+    }
+
+
+    public function getCaseStatusData()
+{
+    $data = DB::table('cases')
+        ->select('case_status', DB::raw('count(*) as total'))
+        ->groupBy('case_status')
+        ->orderBy('total', 'desc') // optional: order by count
+        ->get();
+
+    return response()->json($data);
+}
     public function __construct()
     {
         $this->middleware('auth'); // Applies to all methods in the controller
