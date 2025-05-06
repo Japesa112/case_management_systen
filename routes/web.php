@@ -75,7 +75,10 @@ Route::get('/case-status-data', [MainController::class, 'getCaseStatusData']);
 Route::get('/lawyer-case-distribution', [MainController::class, 'getLawyerCaseDistribution'])
      ->name('lawyer.case.distribution');
 Route::get('/cases-by-lawyer/{lawyerId}', [MainController::class, 'getCasesByLawyer'])->name('cases.by.lawyer');
+Route::get('/lawyers/case-distribution/all', [MainController::class, 'getAllLawyerCaseDistribution'])->name('lawyer.case.distribution.all');
+Route::get('/dashboard/upcoming-dates', [MainController::class, 'getUpcomingDates'])->name('dashboard.upcoming-dates');
 
+Route::get('/cases/by-status/{status}', [MainController::class, 'getCasesByStatus'])->name('cases.by.status');
 
 
 Route::get('/email/inbox', 'MainController@emailInbox')->name('email-inbox');
@@ -260,7 +263,7 @@ Route::delete('/cases/{case_id}/remove-lawyer/{lawyer_id}', [CaseController::cla
 //Cases Route
 Route::middleware(['auth'])->prefix('cases')->group(function () {
     Route::post('/{case_id}/submit-panel-evaluation', [CaseController::class, 'submitToPanelEvaluation'])->name('cases.submitToPanelEvaluation');
-
+    
     Route::post('/send-case-email/{case_id}', [CaseController::class, 'sendEmail'])->name('cases.sendEmail');
 
     Route::get('/update-form', [CaseController::class, 'showUpdateForm'])->name('cases.showUpdateForm');

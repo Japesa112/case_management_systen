@@ -4,11 +4,101 @@ use App\Models\CaseClosure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\CaseLawyer;
+use App\Models\CaseModel;
+use App\Models\Negotiation;
 use Illuminate\Support\Facades\Log;
-
+use Carbon\Carbon;  // Import Carbon for handling timestamps
+use App\Models\LawyerPayment;
 class MainController extends Controller {
 
+    public function getUpcomingDates()
+    {
+        try {
+            $now = Carbon::now();
+            $upcoming = collect();
+    
+            // Add Negotiations
+            $upcoming = $upcoming->merge(
+                Negotiation::all()->filter(fn($n) => Carbon::parse($n->initiation_datetime)->isFuture())
+                ->map(fn($n) => [
+                    'type' => 'Negotiation',
+                    'description' => $n->outcome,
+                    'datetime' => Carbon::parse($n->initiation_datetime)->toDateTimeString(),
+                    'badge_color' => 'rgb(6, 53, 80)' // green
+                ])
+                
+            );
+    
+            // Lawyer Payments
+            $upcoming = $upcoming->merge(
+                LawyerPayment::all()->filter(fn($p) => Carbon::parse($p->payment_date . ' ' . $p->payment_time)->isFuture())
+                    ->map(fn($p) => [
+                        'type' => 'Lawyer Payment',
+                        'description' => $p->transaction,
+                        'datetime' => Carbon::parse($p->payment_date . ' ' . $p->payment_time)->toDateTimeString(),
+                        
+                        'badge_color' => 'rgb(14, 168, 22)' // green
+                    ])
+            );
+    
+            // Add similar blocks for other models...
+    
+            // Sort by datetime ascending
+            $upcoming = $upcoming->sortBy('datetime')->values();
+    
+            return response()->json($upcoming);
+        } catch (\Exception $e) {
+            Log::error('Failed to get upcoming dates: ' . $e->getMessage());
+            return response()->json(['error' => 'Could not fetch upcoming dates'], 500);
+        }
+    }
+    
 
+    public function getCasesByStatus($status)
+{
+    Log::info("Fetching cases with status: $status");
+
+    try {
+        $cases = CaseModel::where('case_status', $status)
+            ->select('case_name') // or other relevant fields
+            ->get()
+            ->pluck('case_name');
+
+        Log::info("Successfully retrieved cases for status: $status");
+
+        return response()->json($cases);
+    } catch (\Exception $e) {
+        Log::error("Error retrieving cases: " . $e->getMessage());
+        return response()->json([
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
+    public function getAllLawyerCaseDistribution()
+    {
+        try {
+            $lawyerStats = CaseLawyer::with('lawyer.user')
+                ->select('lawyer_id', DB::raw('COUNT(*) as total_cases'))
+                ->groupBy('lawyer_id')
+                ->orderByDesc('total_cases')
+                ->get()
+                ->map(function ($entry) {
+                    return [
+                        'full_name' => optional($entry->lawyer->user)->full_name ?? 'Unknown',
+                        'total_cases' => $entry->total_cases,
+                        'lawyer_id' => $entry->lawyer->lawyer_id
+                    ];
+                });
+    
+            return response()->json($lawyerStats);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
 
     public function getCasesByLawyer($lawyerId)
 {
@@ -29,14 +119,14 @@ class MainController extends Controller {
         }
 }
 
-    public function getLawyerCaseDistribution(Request $request)
-    {
-        
-        try {
+public function getLawyerCaseDistribution(Request $request)
+{
+    try {
         $lawyerStats = CaseLawyer::with('lawyer.user')
             ->select('lawyer_id', DB::raw('COUNT(*) as total_cases'))
             ->groupBy('lawyer_id')
             ->orderByDesc('total_cases')
+            ->take(15) // <-- LIMIT to top 15
             ->get()
             ->map(function ($entry) {
                 return [
@@ -45,17 +135,18 @@ class MainController extends Controller {
                     'lawyer_id' => $entry->lawyer->lawyer_id
                 ];
             });
-            Log::info('Collected Successfully'. $lawyerStats);
-        return response()->json($lawyerStats);
-        }
-        catch (\Exception $e) {
-            Log::error('Error while retrieving data from Case Lawyer'. $e->getMessage());
-            return response()->json([   
-                'error'=> $e->getMessage(),
-                ],500);
 
-            }
+        Log::info('Collected Successfully: ' . json_encode($lawyerStats));
+
+        return response()->json($lawyerStats);
+    } catch (\Exception $e) {
+        Log::error('Error while retrieving data from Case Lawyer: ' . $e->getMessage());
+        return response()->json([
+            'error' => $e->getMessage(),
+        ], 500);
     }
+}
+
 
 
     public function getCaseStatusData()

@@ -147,53 +147,43 @@
 						<tr id="loading-row">
 						  <td colspan="2" class="text-center text-muted">Loading...</td>
 						</tr>
-						<tr>
-						  <td>John Doe</td>
-						  <td class="text-end">
-							<button type="button" class="btn btn-info view-cases" data-lawyer-id="1">10</button>
-						  </td>
-						</tr>
-						<tr>
-						  <td>Jane Smith</td>
-						  <td class="text-end">
-							<button type="button" class="btn btn-info view-cases" data-lawyer-id="2">5</button>
-						  </td>
-						</tr>
+						
 						<!-- Add more rows dynamically -->
 					  </tbody>
 					  
 					  
 				  </table>
+
+				  <div class="text-end mt-3">
+					<button type="button" id="viewAllLawyersBtn" class="btn btn-secondary">
+						All Lawyers - Case Distribution
+					</button>
+				  </div>
+				  
 			  </div>
 			</div>
 		  </div>
 		  
 		<!-- END col-8 -->
 		<!-- BEGIN col-4 -->
-		<div class="col-xl-4">
-			<div class="panel panel-inverse" data-sortable-id="index-1">
-				<div class="panel-heading">
-					<h4 class="panel-title">
-						Visitors Origin
-					</h4>
-				</div>
-				<div id="visitors-map" class="bg-gray-900" data-bs-theme="dark" style="height: 170px;" ></div>
-				<div class="list-group list-group-flush "  data-bs-theme="dark">
-					<a href="javascript:;" class="list-group-item list-group-item-action d-flex">
-						<span class="flex-1">1. United State</span>
-						<span class="badge bg-teal fs-10px">20.95%</span>
-					</a>
-					<a href="javascript:;" class="list-group-item list-group-item-action d-flex">
-						<span class="flex-1">2. India</span>
-						<span class="badge bg-blue fs-10px">16.12%</span>
-					</a>
-					<a href="javascript:;" class="list-group-item list-group-item-action d-flex rounded-bottom">
-						<span class="flex-1">3. Mongolia</span>
-						<span class="badge bg-gray-600 fs-10px">14.99%</span>
-					</a>
-				</div>
-			</div>
+		<div class="col-xl-4"> 
+	<div class="panel panel-inverse" data-sortable-id="upcoming-events">
+		<div class="panel-heading">
+			<h4 class="panel-title">
+				<i class="fa fa-calendar-alt me-2"></i>Upcoming Dates & Times
+			</h4>
 		</div>
+		<div class="list-group list-group-flush" style="max-height: 500px; overflow-y: auto;">
+			
+			<!-- Add more dynamically -->
+			<div class="list-group list-group-flush" id="upcoming-dates-list">
+				<!-- JS will populate here -->
+			</div>
+			
+		</div>
+	</div>
+</div>
+
 		<!-- END col-4 -->
 	</div>
 	<!-- END row -->
@@ -377,6 +367,61 @@
 	</div>
 </div>
   
+
+<!-- Modal for full lawyer list -->
+<div class="modal fade" id="allLawyersModal" tabindex="-1" aria-labelledby="allLawyersModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+	  <div class="modal-content">
+		<div class="modal-header">
+		  <h5 class="modal-title" id="allLawyersModalLabel">All Lawyers - Case Distribution</h5>
+		  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		</div>
+		<div class="modal-body">
+		  <table class="table table-sm table-borderless text-white mb-0">
+			<thead class="text-muted fs-11px text-uppercase border-bottom border-gray-700">
+			  <tr>
+				<th>Lawyer</th>
+				<th class="text-end">Cases</th>
+			  </tr>
+			</thead>
+			<tbody id="all-lawyer-case-table">
+			  <tr>
+				<td colspan="2" class="text-center text-muted">Loading...</td>
+			  </tr>
+			</tbody>
+		  </table>
+		</div>
+		<div class="modal-footer">
+		  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+		</div>
+	  </div>
+	</div>
+  </div>
+  
+
+  <div class="modal fade" id="caseStatusModal" tabindex="-1" aria-labelledby="caseStatusModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      
+	<div class="modal-header text-white rounded-top-4" id="caseStatusModalHeader">
+        <h5 class="modal-title" id="caseStatusModalLabel">Cases by Status</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      
+      <div class="modal-body p-4" style="max-height: 400px; overflow-y: auto;">
+        <ul id="case-status-list" class="list-group list-group-flush">
+          <!-- Case names will be inserted here -->
+        </ul>
+      </div>
+      
+      <div class="modal-footer bg-light rounded-bottom-4">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
   
 @endsection
 
@@ -388,7 +433,7 @@
 
 
 
-	document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {
   fetch('/case-status-data')
     .then(response => response.json())
     .then(data => {
@@ -413,7 +458,50 @@
             distributed: true,
             dataLabels: { position: 'top' }
           }
-        },
+        },		
+chart: {
+  height: 500,
+  type: 'bar',
+  toolbar: { show: false },
+  events: {
+	dataPointSelection: function(event, chartContext, config) {
+  const status = config.w.config.xaxis.categories[config.dataPointIndex];
+  const barColor = config.w.config.colors[config.dataPointIndex];
+
+  // Apply color to modal header
+  const header = document.getElementById('caseStatusModalHeader');
+  header.style.backgroundColor = barColor;
+
+  // Change modal title
+  document.getElementById('caseStatusModalLabel').textContent = `Cases with Status: ${status}`;
+
+  // Fetch and display case list
+  fetch(`/cases/by-status/${encodeURIComponent(status)}`)
+    .then(response => response.json())
+    .then(data => {
+      const list = document.getElementById('case-status-list');
+      list.innerHTML = '';
+
+      if (data.length === 0) {
+        list.innerHTML = '<li class="list-group-item">No cases with this status</li>';
+      } else {
+        data.forEach(caseName => {
+          const li = document.createElement('li');
+          li.classList.add('list-group-item');
+          li.textContent = caseName;
+          list.appendChild(li);
+        });
+      }
+
+      const modal = new bootstrap.Modal(document.getElementById('caseStatusModal'));
+      modal.show();
+    })
+    .catch(error => {
+      console.error('Error fetching case list:', error);
+    });
+}
+ }
+},
         dataLabels: {
           enabled: true,
           offsetX: -6
@@ -502,7 +590,7 @@
 	});
 
 
-	document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
     fetch("{{ route('lawyer.case.distribution') }}")
       .then(response => response.json())
       .then(data => {
@@ -514,15 +602,25 @@
           return;
         }
 
+        // Add the loading row (initially hidden)
+        const loadingRow = document.createElement('tr');
+        loadingRow.id = 'loading-row';
+        loadingRow.style.display = 'none';
+        loadingRow.innerHTML = `
+          <td colspan="2" class="text-center text-muted">Loading...</td>
+        `;
+        tableBody.appendChild(loadingRow);
+
+        // Populate lawyer rows
         data.forEach(lawyer => {
-		
           const row = document.createElement('tr');
           row.innerHTML = `
             <td>${lawyer.full_name}</td>
             <td class="text-end"> 
-			<button type="button" class="btn btn-info view-cases" data-lawyer-id="${lawyer.lawyer_id}">${lawyer.total_cases}</button>
-	
-			</td>
+              <button type="button" class="btn btn-info view-cases" data-lawyer-id="${lawyer.lawyer_id}"
+			   data-lawyer-name="${lawyer.full_name}"
+			  >${lawyer.total_cases}</button>
+            </td>
           `;
           tableBody.appendChild(row);
         });
@@ -532,54 +630,218 @@
         document.getElementById('lawyer-case-table').innerHTML =
           '<tr><td colspan="2" class="text-center text-danger">Failed to load data</td></tr>';
       });
+
+    // Delegate button click handling for "view-cases"
+    const tableBody = document.getElementById('lawyer-case-table');
+
+    tableBody.addEventListener('click', function (e) {
+        if (e.target && e.target.classList.contains('view-cases')) {
+            const lawyerId = e.target.getAttribute('data-lawyer-id');
+			const lawyerName = e.target.getAttribute('data-lawyer-name');
+			document.getElementById('lawyerCasesModalLabel').textContent = `Cases Assigned to ${lawyerName}`;
+
+
+            const url = `{{ route('cases.by.lawyer', ':lawyerId') }}`.replace(':lawyerId', lawyerId);
+
+            const loadingRow = document.getElementById('loading-row');
+            if (loadingRow) loadingRow.style.display = 'table-row';
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const caseList = document.getElementById('lawyer-cases-list');
+                    caseList.innerHTML = '';
+                    if (loadingRow) loadingRow.style.display = 'none';
+
+                    if (data.length === 0) {
+                        caseList.innerHTML = '<li>No cases assigned</li>';
+                    } else {
+                        data.forEach(function (caseName) {
+                            const listItem = document.createElement('li');
+                            listItem.textContent = caseName;
+                            caseList.appendChild(listItem);
+                        });
+                    }
+
+                    const modal = new bootstrap.Modal(document.getElementById('lawyerCasesModal'));
+                    modal.show();
+                })
+                .catch(error => {
+                    console.error('Error fetching cases:', error);
+                    if (loadingRow) loadingRow.style.display = 'none';
+                    const caseList = document.getElementById('lawyer-cases-list');
+                    caseList.innerHTML = '<li>There was an error loading cases</li>';
+                });
+        }
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+  document.getElementById('viewAllLawyersBtn').addEventListener('click', function () {
+    const tableBody = document.getElementById('all-lawyer-case-table');
+    tableBody.innerHTML = '<tr><td colspan="2" class="text-center text-muted">Loading...</td></tr>';
+
+    fetch("{{ route('lawyer.case.distribution.all') }}") // Create this route
+      .then(response => response.json())
+      .then(data => {
+        tableBody.innerHTML = '';
+
+        if (data.length === 0) {
+          tableBody.innerHTML = '<tr><td colspan="2" class="text-center text-muted">No data available</td></tr>';
+          return;
+        }
+
+        data.forEach(lawyer => {
+          const row = document.createElement('tr');
+		  
+          row.innerHTML = `
+            <td>${lawyer.full_name}</td>
+            <td class="text-end">
+			 <button type="button" class="btn btn-info view-cases" data-lawyer-id="${lawyer.lawyer_id}"
+			   data-lawyer-name="${lawyer.full_name}"
+			  >${lawyer.total_cases}</button>	
+			</td>
+          `;
+          tableBody.appendChild(row);
+        });
+
+        const modal = new bootstrap.Modal(document.getElementById('allLawyersModal'));
+        modal.show();
+      })
+      .catch(error => {
+        console.error("Error loading all lawyer data:", error);
+        tableBody.innerHTML = '<tr><td colspan="2" class="text-center text-danger">Failed to load data</td></tr>';
+      });
   });
 
 
-  document.addEventListener('DOMContentLoaded', function () {
-        const tableBody = document.getElementById('lawyer-case-table');
-        
-        tableBody.addEventListener('click', function (e) {
-            if (e.target && e.target.classList.contains('view-cases')) {
-                const lawyerId = e.target.getAttribute('data-lawyer-id');
-				alert(lawyerId);
-                
-                // Generate the URL for the named route
-                const url = `{{ route('cases.by.lawyer', ':lawyerId') }}`.replace(':lawyerId', lawyerId);
-                
-                document.getElementById('loading-row').style.display = 'table-row';
+  // Delegate button click handling for "view-cases"
+  const tableBody = document.getElementById('all-lawyer-case-table');
 
-                fetch(url)
-                    .then(response => response.json())
-                    .then(data => {
-                        const caseList = document.getElementById('lawyer-cases-list');
-                        caseList.innerHTML = '';
-                        document.getElementById('loading-row').style.display = 'none';
+tableBody.addEventListener('click', function (e) {
+	if (e.target && e.target.classList.contains('view-cases')) {
+		const lawyerId = e.target.getAttribute('data-lawyer-id');
+		const lawyerName = e.target.getAttribute('data-lawyer-name');
+		document.getElementById('lawyerCasesModalLabel').textContent = `Cases Assigned to ${lawyerName}`;
 
-                        if (data.length === 0) {
-							alert("No cases");
-                            caseList.innerHTML = '<li>No cases assigned</li>';
-                        } else {
-                            data.forEach(function (caseName) {
-								alert("Case Name is: "+caseName);
-                                const listItem = document.createElement('li');
-                                listItem.textContent = caseName;
-                                caseList.appendChild(listItem);
-                            });
-                        }
 
-                        const modal = new bootstrap.Modal(document.getElementById('lawyerCasesModal'));
-                        modal.show();
-                    })
-                    .catch(error => {
-                        console.error('Error fetching cases:', error);
-                        document.getElementById('loading-row').style.display = 'none';
-                        const caseList = document.getElementById('lawyer-cases-list');
-                        caseList.innerHTML = '<li>There was an error loading cases</li>';
-                    });
-            }
-        });
-    });
+		const url = `{{ route('cases.by.lawyer', ':lawyerId') }}`.replace(':lawyerId', lawyerId);
 
- 
+		const loadingRow = document.getElementById('loading-row');
+		if (loadingRow) loadingRow.style.display = 'table-row';
+
+		fetch(url)
+			.then(response => response.json())
+			.then(data => {
+				const caseList = document.getElementById('lawyer-cases-list');
+				caseList.innerHTML = '';
+				if (loadingRow) loadingRow.style.display = 'none';
+
+				if (data.length === 0) {
+					caseList.innerHTML = '<li>No cases assigned</li>';
+				} else {
+					data.forEach(function (caseName) {
+						const listItem = document.createElement('li');
+						listItem.textContent = caseName;
+						caseList.appendChild(listItem);
+					});
+				}
+
+				const allLawyersModalEl = document.getElementById('allLawyersModal');
+				const lawyerCasesModalEl = document.getElementById('lawyerCasesModal');
+
+// Get instance of already-shown modal
+			const allLawyersModalInstance = bootstrap.Modal.getInstance(allLawyersModalEl);
+			const lawyerCasesModalInstance = new bootstrap.Modal(lawyerCasesModalEl);
+
+			// Hide the currently open modal (if any)
+			if (allLawyersModalInstance) {
+				allLawyersModalInstance.hide();
+			}
+
+			// Show the target modal
+			lawyerCasesModalInstance.show();
+
+			})
+			.catch(error => {
+				console.error('Error fetching cases:', error);
+				if (loadingRow) loadingRow.style.display = 'none';
+				const caseList = document.getElementById('lawyer-cases-list');
+				caseList.innerHTML = '<li>There was an error loading cases</li>';
+			});
+	}
+});
+
+});
 	</script>
+
+
+<script>
+	document.addEventListener("DOMContentLoaded", function () {
+		fetchUpcomingDates();
+	
+		function fetchUpcomingDates() {
+			fetch("{{ route('dashboard.upcoming-dates') }}")
+				.then(response => response.json())
+				.then(data => {
+					const listContainer = document.getElementById('upcoming-dates-list');
+					listContainer.innerHTML = ''; // Clear old items
+	
+					if (Array.isArray(data) && data.length > 0) {
+						data.forEach(item => {
+
+							
+							const listItem = document.createElement('a');
+							listItem.href = "javascript:;";
+							listItem.className = "list-group-item list-group-item-action d-flex align-items-center";
+	
+							const contentDiv = document.createElement('div');
+							contentDiv.className = "flex-fill";
+	
+							const titleDiv = document.createElement('div');
+							titleDiv.className = "fw-bold";
+							titleDiv.textContent = `${item.type} - ${item.description}`;
+	
+							const dateSmall = document.createElement('small');
+							dateSmall.className = "text-muted";
+							const date = new Date(item.datetime);
+							const formattedDate = date.toLocaleString('en-US', {
+								month: 'short',
+								day: 'numeric',
+								year: 'numeric',
+								hour: 'numeric',
+								minute: '2-digit',
+								hour12: true
+							});
+							dateSmall.innerHTML = `<i class="far fa-clock me-1"></i>${formattedDate}`;
+	
+							contentDiv.appendChild(titleDiv);
+							contentDiv.appendChild(dateSmall);
+	
+							const badgeSpan = document.createElement('span');
+							badgeSpan.className = "badge text-white ms-2";
+							badgeSpan.style.backgroundColor = item.badge_color;
+							
+							badgeSpan.textContent = item.type;
+	
+							listItem.appendChild(contentDiv);
+							listItem.appendChild(badgeSpan);
+	
+							listContainer.appendChild(listItem);
+						});
+					} else {
+						const emptyItem = document.createElement('div');
+						emptyItem.className = "list-group-item text-muted";
+						emptyItem.textContent = "No upcoming events.";
+						listContainer.appendChild(emptyItem);
+					}
+				})
+				.catch(error => {
+					console.error("Error fetching upcoming dates:", error);
+				});
+		}
+	});
+</script>
+	
+	
 @endpush
