@@ -9,50 +9,156 @@ use App\Models\Negotiation;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;  // Import Carbon for handling timestamps
 use App\Models\LawyerPayment;
+use Illuminate\Support\Facades\Auth;
+use App\Models\CaseDocument;
+use App\Models\Complainant;
+use App\Models\CaseActivity;
+use App\Models\Lawyer;
+use App\Models\Payment;
+use App\Mail\TestEmail;
+use App\Models\Appeal;
+use App\Models\Forwarding;
+use App\Models\AGAdvice;
+use App\Models\Adjourn;
+
+use App\Models\TrialPreparation;
+use App\Models\Trial;
+use Illuminate\Support\Facades\Storage;
+use App\User;
+use App\Mail\NewCaseNotification;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 class MainController extends Controller {
 
     public function getUpcomingDates()
-    {
-        try {
-            $now = Carbon::now();
-            $upcoming = collect();
-    
-            // Add Negotiations
-            $upcoming = $upcoming->merge(
-                Negotiation::all()->filter(fn($n) => Carbon::parse($n->initiation_datetime)->isFuture())
+{
+    try {
+        $now = Carbon::now();
+        $upcoming = collect();
+
+        // Add Negotiations
+        $upcoming = $upcoming->merge(
+            Negotiation::all()
+                ->filter(fn($n) => Carbon::parse($n->initiation_datetime)->isFuture())
                 ->map(fn($n) => [
                     'type' => 'Negotiation',
                     'description' => $n->outcome,
                     'datetime' => Carbon::parse($n->initiation_datetime)->toDateTimeString(),
-                    'badge_color' => 'rgb(6, 53, 80)' // green
+                    'badge_color' => 'rgb(6, 53, 80)'
                 ])
-                
-            );
-    
-            // Lawyer Payments
-            $upcoming = $upcoming->merge(
-                LawyerPayment::all()->filter(fn($p) => Carbon::parse($p->payment_date . ' ' . $p->payment_time)->isFuture())
-                    ->map(fn($p) => [
-                        'type' => 'Lawyer Payment',
-                        'description' => $p->transaction,
-                        'datetime' => Carbon::parse($p->payment_date . ' ' . $p->payment_time)->toDateTimeString(),
-                        
-                        'badge_color' => 'rgb(14, 168, 22)' // green
-                    ])
-            );
-    
-            // Add similar blocks for other models...
-    
-            // Sort by datetime ascending
-            $upcoming = $upcoming->sortBy('datetime')->values();
-    
-            return response()->json($upcoming);
-        } catch (\Exception $e) {
-            Log::error('Failed to get upcoming dates: ' . $e->getMessage());
-            return response()->json(['error' => 'Could not fetch upcoming dates'], 500);
-        }
+        );
+
+        // Add Lawyer Payments
+        $upcoming = $upcoming->merge(
+            LawyerPayment::all()
+                ->filter(fn($p) => Carbon::parse($p->payment_date . ' ' . $p->payment_time)->isFuture())
+                ->map(fn($p) => [
+                    'type' => 'Lawyer Payment',
+                    'description' => $p->transaction,
+                    'datetime' => Carbon::parse($p->payment_date . ' ' . $p->payment_time)->toDateTimeString(),
+                    'badge_color' => 'rgb(14, 168, 22)'
+                ])
+        );
+
+        $upcoming = $upcoming->merge(
+            Payment::all()
+                ->filter(fn($p) => Carbon::parse($p->payment_date . ' ' . $p->payment_time)->isFuture())
+                ->map(fn($p) => [
+                    'type' => 'Payment',
+                    'description' => $p->transaction,
+                    'datetime' => Carbon::parse($p->payment_date . ' ' . $p->payment_time)->toDateTimeString(),
+                    'badge_color' => 'rgb(194, 15, 218)'
+                ])
+        );
+
+        $upcoming = $upcoming->merge(
+            AGAdvice::all()
+                ->filter(fn($p) => Carbon::parse($p->advice_date . ' ' . $p->advice_time)->isFuture())
+                ->map(fn($p) => [
+                    'type' => 'AG Advice',
+                    'description' => $p->transaction,
+                    'datetime' => Carbon::parse($p->advice_date . ' ' . $p->advice_time)->toDateTimeString(),
+                    'badge_color' => '#272838'
+                ])
+        );
+
+        $upcoming = $upcoming->merge(
+            Forwarding::all()
+                ->filter(fn($p) => Carbon::parse($p->dvc_appointment_date . ' ' . $p->dvc_appointment_time)->isFuture())
+                ->map(fn($p) => [
+                    'type' => 'DVC Forwarding',
+                    'description' => $p->transaction,
+                    'datetime' => Carbon::parse($p->dvc_appointment_date . ' ' . $p->dvc_appointment_time)->toDateTimeString(),
+                    'badge_color' => '#F2B418'
+                ])
+        );
+
+        $upcoming = $upcoming->merge(
+            Trial::all()
+                ->filter(fn($p) => Carbon::parse($p->trial_date . ' ' . $p->trial_time)->isFuture())
+                ->map(fn($p) => [
+                    'type' => 'Trial',
+                    'description' => $p->transaction,
+                    'datetime' => Carbon::parse($p->trial_date . ' ' . $p->trial_time)->toDateTimeString(),
+                    'badge_color' => '#F2B418'
+                ])
+        );
+
+         $upcoming = $upcoming->merge(
+            TrialPreparation::all()
+                ->filter(fn($p) => Carbon::parse($p->preparation_date . ' ' . $p->preparation_time)->isFuture())
+                ->map(fn($p) => [
+                    'type' => 'Preparation',
+                    'description' => $p->transaction,
+                    'datetime' => Carbon::parse($p->preparation_date . ' ' . $p->preparation_time)->toDateTimeString(),
+                    'badge_color' => '#445D48'
+                ])
+        );
+
+        $upcoming = $upcoming->merge(
+            Adjourn::all()
+                ->filter(fn($p) => Carbon::parse($p->next_hearing_date . ' ' . $p->next_hearing_time)->isFuture())
+                ->map(fn($p) => [
+                    'type' => 'Adjourn',
+                    'description' => $p->transaction,
+                    'datetime' => Carbon::parse($p->next_hearing_date . ' ' . $p->next_hearing_time)->toDateTimeString(),
+                    'badge_color' => '#F57251'
+                ])
+        );
+
+        $upcoming = $upcoming->merge(
+            Appeal::all()
+                ->filter(fn($p) => Carbon::parse($p->next_hearing_date . ' ' . $p->next_hearing_time)->isFuture())
+                ->map(fn($p) => [
+                    'type' => 'Appeal',
+                    'description' => $p->transaction,
+                    'datetime' => Carbon::parse($p->next_hearing_date . ' ' . $p->next_hearing_time)->toDateTimeString(),
+                    'badge_color' => '#C4AD9D'
+                ])
+        );
+
+        $upcoming = $upcoming->merge(
+            CaseActivity::all()
+                ->filter(fn($p) => Carbon::parse($p->date->format('Y-m-d'). ' ' . $p->time)->isFuture())
+                ->map(fn($p) => [
+                    'type' => 'Court Session',
+                    'description' => $p->transaction,
+                    'datetime' => Carbon::parse($p->date->format('Y-m-d') . ' ' . $p->time)->toDateTimeString(),
+                    'badge_color' => '#C4AD9D'
+                ])
+        );
+
+
+        // Sort and take only the first 10
+        $upcoming = $upcoming->sortBy('datetime')->take(10)->values();
+
+        return response()->json($upcoming);
+    } catch (\Exception $e) {
+        Log::error('Failed to get upcoming dates: ' . $e->getMessage());
+        return response()->json(['error' => 'Could not fetch upcoming dates'], 500);
     }
-    
+}
+
 
     public function getCasesByStatus($status)
 {
