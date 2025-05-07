@@ -117,7 +117,7 @@
 </div>
 
 @if(session('close_success'))
-<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
     <script>
         swal({
             title: "Case Closure submitted!",

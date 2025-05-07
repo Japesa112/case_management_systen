@@ -30,6 +30,118 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 class MainController extends Controller {
 
+
+public function getNewCasesStats()
+{
+    try {
+        $startOfMonth = Carbon::now()->startOfMonth();
+        $endOfMonth = Carbon::now()->endOfMonth();
+
+        $thisMonth = CaseModel::whereBetween('created_at', [$startOfMonth, $endOfMonth])->count();
+
+        $lastMonthStart = Carbon::now()->subMonth()->startOfMonth();
+        $lastMonthEnd = Carbon::now()->subMonth()->endOfMonth();
+
+        $lastMonth = CaseModel::whereBetween('created_at', [$lastMonthStart, $lastMonthEnd])->count();
+
+        $change = $lastMonth > 0 
+            ? round((($thisMonth - $lastMonth) / $lastMonth) * 100)
+            : 100;
+
+        $trend = $change >= 0 ? "Up" : "Down";
+
+        return response()->json([
+            'count' => $thisMonth,
+            'change' => abs($change),
+            'trend' => $trend
+        ]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+}
+
+    public function getUpcomingHearingsStats()
+{
+    try {
+        $today = Carbon::today();
+
+        // Get count of upcoming case activities with type 'mention' or 'hearing'
+        $currentCount = CaseActivity::whereDate('date', '>=', $today)
+            ->where(function ($query) {
+                $query->where('type', 'like', '%mention%')
+                      ->orWhere('type', 'like', '%hearing%');
+            })
+            ->count();
+
+        // Get count for the previous month for comparison
+        $lastMonthStart = Carbon::now()->subMonth()->startOfMonth();
+        $lastMonthEnd = Carbon::now()->subMonth()->endOfMonth();
+
+        $lastMonthCount = CaseActivity::whereBetween('date', [$lastMonthStart, $lastMonthEnd])
+            ->where(function ($query) {
+                $query->where('type', 'like', '%mention%')
+                      ->orWhere('type', 'like', '%hearing%');
+            })
+            ->count();
+
+        $change = $lastMonthCount > 0
+            ? round((($currentCount - $lastMonthCount) / $lastMonthCount) * 100)
+            : 100;
+
+        $trend = $change >= 0 ? "Up" : "Down";
+
+        return response()->json([
+            'count' => $currentCount,
+            'change' => abs($change),
+            'trend' => $trend
+        ]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+}
+    public function getActiveCasesStats()
+    {
+        try {
+            // Get current year and previous year
+            $currentYear = now()->year;
+            $lastYear = now()->subYear()->year;
+    
+
+            $active = CaseModel::where('case_status', '!=', 'Closed')
+                ->count();
+            // Get counts of active cases (not 'Closed') for both years
+            $activeThisYear = CaseModel::whereYear('created_at', $currentYear)
+                ->where('case_status', '!=', 'Closed')
+                ->count();
+    
+            $activeLastYear = CaseModel::whereYear('created_at', $lastYear)
+                ->where('case_status', '!=', 'Closed')
+                ->count();
+    
+            // Calculate percentage difference
+            if ($activeLastYear > 0) {
+                $percentChange = round((($activeThisYear - $activeLastYear) / $activeLastYear) * 100);
+            } else {
+                $percentChange = 100; // Assume 100% if no cases last year
+            }
+    
+            $trend = $percentChange >= 0
+                ? "Up from last year ({$percentChange}%)"
+                : "Down from last year (" . abs($percentChange) . "%)";
+    
+            return response()->json([
+                'count' => $active,
+                'trend' => $trend
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Error retrieving active case stats: " . $e->getMessage());
+    
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
     public function getUpcomingDates()
 {
     try {
@@ -42,7 +154,7 @@ class MainController extends Controller {
                 ->filter(fn($n) => Carbon::parse($n->initiation_datetime)->isFuture())
                 ->map(fn($n) => [
                     'type' => 'Negotiation',
-                    'description' => $n->outcome,
+                    'description' => $n->subject,
                     'datetime' => Carbon::parse($n->initiation_datetime)->toDateTimeString(),
                     'badge_color' => 'rgb(6, 53, 80)'
                 ])
@@ -76,7 +188,7 @@ class MainController extends Controller {
                 ->filter(fn($p) => Carbon::parse($p->advice_date . ' ' . $p->advice_time)->isFuture())
                 ->map(fn($p) => [
                     'type' => 'AG Advice',
-                    'description' => $p->transaction,
+                    'description' => $p->ag_advice,
                     'datetime' => Carbon::parse($p->advice_date . ' ' . $p->advice_time)->toDateTimeString(),
                     'badge_color' => '#272838'
                 ])
@@ -87,7 +199,7 @@ class MainController extends Controller {
                 ->filter(fn($p) => Carbon::parse($p->dvc_appointment_date . ' ' . $p->dvc_appointment_time)->isFuture())
                 ->map(fn($p) => [
                     'type' => 'DVC Forwarding',
-                    'description' => $p->transaction,
+                    'description' => $p->briefing_notes,
                     'datetime' => Carbon::parse($p->dvc_appointment_date . ' ' . $p->dvc_appointment_time)->toDateTimeString(),
                     'badge_color' => '#F2B418'
                 ])
@@ -98,7 +210,7 @@ class MainController extends Controller {
                 ->filter(fn($p) => Carbon::parse($p->trial_date . ' ' . $p->trial_time)->isFuture())
                 ->map(fn($p) => [
                     'type' => 'Trial',
-                    'description' => $p->transaction,
+                    'description' => $p->judgement_details,
                     'datetime' => Carbon::parse($p->trial_date . ' ' . $p->trial_time)->toDateTimeString(),
                     'badge_color' => '#F2B418'
                 ])
@@ -109,7 +221,7 @@ class MainController extends Controller {
                 ->filter(fn($p) => Carbon::parse($p->preparation_date . ' ' . $p->preparation_time)->isFuture())
                 ->map(fn($p) => [
                     'type' => 'Preparation',
-                    'description' => $p->transaction,
+                    'description' => $p->briefing_notes,
                     'datetime' => Carbon::parse($p->preparation_date . ' ' . $p->preparation_time)->toDateTimeString(),
                     'badge_color' => '#445D48'
                 ])
@@ -120,7 +232,7 @@ class MainController extends Controller {
                 ->filter(fn($p) => Carbon::parse($p->next_hearing_date . ' ' . $p->next_hearing_time)->isFuture())
                 ->map(fn($p) => [
                     'type' => 'Adjourn',
-                    'description' => $p->transaction,
+                    'description' => $p->adjourn_comments,
                     'datetime' => Carbon::parse($p->next_hearing_date . ' ' . $p->next_hearing_time)->toDateTimeString(),
                     'badge_color' => '#F57251'
                 ])
@@ -131,7 +243,7 @@ class MainController extends Controller {
                 ->filter(fn($p) => Carbon::parse($p->next_hearing_date . ' ' . $p->next_hearing_time)->isFuture())
                 ->map(fn($p) => [
                     'type' => 'Appeal',
-                    'description' => $p->transaction,
+                    'description' => $p->appeal_comments,
                     'datetime' => Carbon::parse($p->next_hearing_date . ' ' . $p->next_hearing_time)->toDateTimeString(),
                     'badge_color' => '#C4AD9D'
                 ])
@@ -142,7 +254,7 @@ class MainController extends Controller {
                 ->filter(fn($p) => Carbon::parse($p->date->format('Y-m-d'). ' ' . $p->time)->isFuture())
                 ->map(fn($p) => [
                     'type' => 'Court Session',
-                    'description' => $p->transaction,
+                    'description' => $p->type,
                     'datetime' => Carbon::parse($p->date->format('Y-m-d') . ' ' . $p->time)->toDateTimeString(),
                     'badge_color' => '#C4AD9D'
                 ])

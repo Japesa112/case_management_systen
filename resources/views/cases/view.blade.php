@@ -2040,6 +2040,19 @@ $('#deleteApplicationBtn').on('click', function (e) {
     </script>
     
 
-
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".card").forEach(function(card) {
+                const assignButton = card.querySelector(".assign-case");
+                if (assignButton) {
+                    const status = assignButton.getAttribute("data-case-status");
+                    if (status && status.toLowerCase() === "closed") {
+                        card.style.display = "none";
+                    }
+                }
+            });
+        });
+        </script>
+        
 
 @endpush

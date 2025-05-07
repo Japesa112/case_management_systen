@@ -4,7 +4,7 @@
 
 @push('css')
 	<link href="/assets/plugins/jvectormap-next/jquery-jvectormap.css" rel="stylesheet" />
-	<link href="/assets/plugins/datepickk/dist/datepickk.min.css" rel="stylesheet" />
+	
 	<link href="/assets/plugins/gritter/css/jquery.gritter.css" rel="stylesheet" />
 	<link href="/assets/plugins/nvd3/build/nv.d3.css" rel="stylesheet" />
 	
@@ -24,7 +24,7 @@
 	<script src="/assets/plugins/nvd3/build/nv.d3.js"></script>
 	<script src="/assets/plugins/jvectormap-next/jquery-jvectormap.min.js"></script>
 	<script src="/assets/plugins/jvectormap-content/world-mill.js"></script>
-	<script src="/assets/plugins/datepickk/dist/datepickk.min.js"></script>
+	
 	<script src="/assets/plugins/gritter/js/jquery.gritter.js"></script>
 	<script src="/assets/js/demo/dashboard-v2.js"></script>
 	<script>
@@ -41,79 +41,85 @@
 
 @section('content')
 	<!-- BEGIN breadcrumb -->
-	<div style="margin-top: 20px">
-		<ol class="breadcrumb float-xl">
-			<li class="breadcrumb-item"><a href="javascript:;">Home</a></li>
-			<li class="breadcrumb-item"><a href="javascript:;">Dashboard</a></li>
-			<li class="breadcrumb-item active">Dashboard v2</li>
-		</ol>
-	</div>
+	
 	<!-- END breadcrumb -->
 	<!-- BEGIN page-header -->
-	<h1 class="page-header">Dashboard v2 <small>header small text goes here...</small></h1>
+	<div class="d-flex justify-content-between align-items-center mb-4">
+		<h1 class="page-header mb-0" style="color:#073766;">Admin Dashboard <small style="color:#2b3131; font-size: 60%; display: inline-block; margin-left: 10px;">Case Management and Tracking Made Easier</small></h1>
+
+	  </div>
 	<!-- END page-header -->
 	<!-- BEGIN row -->
 	<div class="row">
 		<!-- BEGIN col-3 -->
 		<div class="col-xl-3 col-md-6">
-			<div class="widget widget-stats bg-teal">
-				<div class="stats-icon stats-icon-lg"><i class="fa fa-balance-scale fa-fw"></i></div>
-				<div class="stats-content">
-					<div class="stats-title me-5">CLOSED CASES</div>
-					<div class="stats-number">{{ $closedCases }}</div>
-					<div class="stats-desc">
-						<span class="me-3 text-dark"><strong>Won:</strong> {{ $wonCases }}</span>
-						<span class="text-white"><strong>Lost:</strong> {{ $lostCases }}</span>
-					</div>
-				</div>
-			</div>
+	<div class="widget widget-stats bg-teal">
+		<div class="stats-icon stats-icon-lg"><i class="fa fa-balance-scale fa-fw"></i></div>
+		<div class="stats-content">
+		<div class="stats-title">CLOSED CASES</div>
+		<div class="stats-number">{{ $closedCases }}</div>
+		<div class="stats-progress progress">
+			<div class="progress-bar" style="width: {{ $closedCases > 0 ? round(($wonCases / $closedCases) * 100) : 0 }}%;"></div>
 		</div>
+		<div class="stats-desc">
+			Won: {{ $wonCases }} | Lost: {{ $lostCases }}
+		</div>
+		</div>
+	</div>
+	</div>
+
+
 		
 		<!-- END col-3 -->
 		<!-- BEGIN col-3 -->
 		<div class="col-xl-3 col-md-6">
-			<div class="widget widget-stats bg-blue">
-				<div class="stats-icon stats-icon-lg"><i class="fa fa-dollar-sign fa-fw"></i></div>
-				<div class="stats-content">
-					<div class="stats-title">TODAY'S PROFIT</div>
-					<div class="stats-number">180,200</div>
-					<div class="stats-progress progress">
-						<div class="progress-bar" style="width: 40.5%;"></div>
-					</div>
-					<div class="stats-desc">Better than last week (40.5%)</div>
-				</div>
+		<div class="widget widget-stats bg-blue">
+			<div class="stats-icon stats-icon-lg"><i class="fa fa-briefcase fa-fw"></i></div>
+			<div class="stats-content">
+			<div class="stats-title">ACTIVE CASES</div>
+			<div class="stats-number" id="active-cases-count">...</div>
+			<div class="stats-progress progress">
+				<div class="progress-bar" id="active-cases-bar" style="width: 0%;"></div>
+			</div>
+			<div class="stats-desc" id="active-cases-trend">Loading...</div>
 			</div>
 		</div>
+		</div>
+
 		<!-- END col-3 -->
 		<!-- BEGIN col-3 -->
 		<div class="col-xl-3 col-md-6">
 			<div class="widget widget-stats bg-indigo">
-				<div class="stats-icon stats-icon-lg"><i class="fa fa-archive fa-fw"></i></div>
+				<div class="stats-icon stats-icon-lg"><i class="fa fa-calendar-alt fa-fw"></i></div>
 				<div class="stats-content">
-					<div class="stats-title">NEW ORDERS</div>
-					<div class="stats-number">38,900</div>
+					<div class="stats-title">UPCOMING HEARINGS</div>
+					<div id="upcoming-hearings-number" class="stats-number">0</div>
 					<div class="stats-progress progress">
-						<div class="progress-bar" style="width: 76.3%;"></div>
+						<div id="upcoming-hearings-bar" class="progress-bar" style="width: 0%;"></div>
 					</div>
-					<div class="stats-desc">Better than last week (76.3%)</div>
+					<div id="upcoming-hearings-desc" class="stats-desc">Loading...</div>
 				</div>
 			</div>
 		</div>
+		
+
 		<!-- END col-3 -->
 		<!-- BEGIN col-3 -->
-		<div class="col-xl-3 col-md-9">
-			<div class="widget widget-stats bg-gray-900">
-				<div class="stats-icon stats-icon-lg"><i class="fa fa-comment-alt fa-fw"></i></div>
+		<div class="col-xl-3 col-md-6">
+			<div class="widget widget-stats bg-success">
+				<div class="stats-icon stats-icon-lg"><i class="fa fa-folder-plus fa-fw"></i></div>
 				<div class="stats-content">
-					<div class="stats-title">NEW COMMENTS</div>
-					<div class="stats-number">3,988</div>
+					<div class="stats-title">NEW CASES</div>
+					<div id="new-cases-number" class="stats-number">0</div>
 					<div class="stats-progress progress">
-						<div class="progress-bar" style="width: 54.9%;"></div>
+						<div id="new-cases-bar" class="progress-bar" style="width: 0%;"></div>
 					</div>
-					<div class="stats-desc">Better than last week (54.9%)</div>
+					<div id="new-cases-desc" class="stats-desc">Loading...</div>
 				</div>
 			</div>
 		</div>
+		
+
 		<!-- END col-3 -->
 	</div>
 	<!-- END row -->
@@ -184,163 +190,6 @@
 	</div>
 </div>
 
-		<!-- END col-4 -->
-	</div>
-	<!-- END row -->
-	<!-- BEGIN row -->
-	<div class="row">
-		<!-- BEGIN col-4 -->
-		<div class="col-xl-4 col-lg-6">
-			<!-- BEGIN panel -->
-			<div class="panel panel-inverse" data-sortable-id="index-2">
-				<div class="panel-heading">
-					<h4 class="panel-title">Chat History</h4>
-					<span class="badge bg-teal">4 message</span>
-				</div>
-				<div class="panel-body bg-light">
-					<div class="chats" data-scrollbar="true" data-height="225px">
-						<div class="chats-item start">
-							<span class="date-time">yesterday 11:23pm</span>
-							<a href="javascript:;" class="name">Sowse Bawdy</a>
-							<a href="javascript:;" class="image"><img alt="" src="/assets/img/user/user-12.jpg" /></a>
-							<div class="message">
-								Lorem ipsum dolor sit amet, consectetuer adipiscing elit volutpat. Praesent mattis interdum arcu eu feugiat.
-							</div>
-						</div>
-						<div class="chats-item end">
-							<span class="date-time">08:12am</span>
-							<a href="javascript:;" class="name"><span class="badge bg-blue">ADMIN</span> Me</a>
-							<a href="javascript:;" class="image"><img alt="" src="/assets/img/user/user-13.jpg" /></a>
-							<div class="message">
-								Nullam posuere, nisl a varius rhoncus, risus tellus hendrerit neque.
-							</div>
-						</div>
-						<div class="chats-item start">
-							<span class="date-time">09:20am</span>
-							<a href="javascript:;" class="name">Neck Jolly</a>
-							<a href="javascript:;" class="image"><img alt="" src="/assets/img/user/user-10.jpg" /></a>
-							<div class="message">
-								Euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.
-							</div>
-						</div>
-						<div class="chats-item start">
-							<span class="date-time">11:15am</span>
-							<a href="javascript:;" class="name">Shag Strap</a>
-							<a href="javascript:;" class="image"><img alt="" src="/assets/img/user/user-14.jpg" /></a>
-							<div class="message">
-								Nullam iaculis pharetra pharetra. Proin sodales tristique sapien mattis placerat.
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="panel-footer">
-					<form name="send_message_form" data-id="message-form">
-						<div class="input-group">
-							<input type="text" class="form-control" name="message" placeholder="Enter your message here.">
-							<button class="btn btn-primary" type="button"><i class="fa fa-camera"></i></button>
-							<button class="btn btn-primary" type="button"><i class="fa fa-link"></i></button>
-						</div>
-					</form>
-				</div>
-			</div>
-			<!-- END panel -->
-		</div>
-		<!-- END col-4 -->
-		<!-- BEGIN col-4 -->
-		<div class="col-xl-4 col-lg-6">
-			<!-- BEGIN panel -->
-			<div class="panel panel-inverse" data-sortable-id="index-3">
-				<div class="panel-heading">
-					<h4 class="panel-title">Today's Schedule</h4>
-				</div>
-				<div id="schedule-calendar" class="datepickk"></div>
-				<hr class="m-0 bg-gray-500" />
-				<div class="list-group list-group-flush">
-					<a href="javascript:;" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-ellipsis">
-						Sales Reporting
-						<span class="badge bg-teal fs-10px">9:00 am</span>
-					</a> 
-					<a href="javascript:;" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-ellipsis rounded-bottom">
-						Have a meeting with sales team
-						<span class="badge bg-blue fs-10px">2:45 pm</span>
-					</a>
-				</div>
-			</div>
-			<!-- END panel -->
-		</div>
-		<!-- END col-4 -->
-		<!-- BEGIN col-4 -->
-		<div class="col-xl-4 col-lg-6">
-			<!-- BEGIN panel -->
-			<div class="panel panel-inverse" data-sortable-id="index-4">
-				<div class="panel-heading">
-					<h4 class="panel-title">New Registered Users</h4>
-					<span class="badge bg-teal">24 new users</span>
-				</div>
-				<ul class="registered-users-list">
-					<li>
-						<a href="javascript:;"><img src="/assets/img/user/user-5.jpg" alt="" /></a>
-						<h4 class="username text-ellipsis">
-							Savory Posh
-							<small>Algerian</small>
-						</h4>
-					</li>
-					<li>
-						<a href="javascript:;"><img src="/assets/img/user/user-3.jpg" alt="" /></a>
-						<h4 class="username text-ellipsis">
-							Ancient Caviar
-							<small>Korean</small>
-						</h4>
-					</li>
-					<li>
-						<a href="javascript:;"><img src="/assets/img/user/user-1.jpg" alt="" /></a>
-						<h4 class="username text-ellipsis">
-							Marble Lungs
-							<small>Indian</small>
-						</h4>
-					</li>
-					<li>
-						<a href="javascript:;"><img src="/assets/img/user/user-8.jpg" alt="" /></a>
-						<h4 class="username text-ellipsis">
-							Blank Bloke
-							<small>Japanese</small>
-						</h4>
-					</li>
-					<li>
-						<a href="javascript:;"><img src="/assets/img/user/user-2.jpg" alt="" /></a>
-						<h4 class="username text-ellipsis">
-							Hip Sculling
-							<small>Cuban</small>
-						</h4>
-					</li>
-					<li>
-						<a href="javascript:;"><img src="/assets/img/user/user-6.jpg" alt="" /></a>
-						<h4 class="username text-ellipsis">
-							Flat Moon
-							<small>Nepalese</small>
-						</h4>
-					</li>
-					<li>
-						<a href="javascript:;"><img src="/assets/img/user/user-4.jpg" alt="" /></a>
-						<h4 class="username text-ellipsis">
-							Packed Puffs
-							<small>Malaysian</small>
-						</h4>
-					</li>
-					<li>
-						<a href="javascript:;"><img src="/assets/img/user/user-9.jpg" alt="" /></a>
-						<h4 class="username text-ellipsis">
-							Clay Hike
-							<small>Swedish</small>
-						</h4>
-					</li>
-				</ul>
-				<div class="panel-footer text-center">
-					<a href="javascript:;" class="text-decoration-none text-dark">View All</a>
-				</div>
-			</div>
-			<!-- END panel -->
-		</div>
 		<!-- END col-4 -->
 	</div>
 	<!-- END row -->
@@ -842,6 +691,68 @@ tableBody.addEventListener('click', function (e) {
 		}
 	});
 </script>
+
+<script>
+	document.addEventListener("DOMContentLoaded", function () {
+		fetch("{{ route('stats.active.cases') }}")
+			.then(response => response.json())
+			.then(data => {
+				if (data.count !== undefined && data.trend !== undefined) {
+					document.getElementById('active-cases-count').textContent = data.count;
+	
+					const match = data.trend.match(/\((\d+)%\)/);
+					const percentage = match ? parseInt(match[1]) : 0;
+	
+					document.getElementById('active-cases-bar').style.width = percentage + '%';
+					document.getElementById('active-cases-trend').textContent = data.trend;
+				}
+			})
+			.catch(error => {
+				console.error('Error fetching active case stats:', error);
+				document.getElementById('active-cases-trend').textContent = 'Error loading data';
+			});
+	});
+</script>
+	
+<script>
+	document.addEventListener("DOMContentLoaded", function () {
+		fetch("{{ route('stats.upcoming.hearings') }}")
+			.then(response => response.json())
+			.then(data => {
+				if (data.error) {
+					console.error("Error:", data.error);
+					return;
+				}
+	
+				const numberEl = document.getElementById("upcoming-hearings-number");
+				const barEl = document.getElementById("upcoming-hearings-bar");
+				const descEl = document.getElementById("upcoming-hearings-desc");
+	
+				numberEl.textContent = data.count;
+				barEl.style.width = data.change + "%";
+				descEl.textContent = `${data.trend} from last month (${data.change}%)`;
+			})
+			.catch(error => console.error("Failed to fetch upcoming hearings stats:", error));
+	});
+	</script>
+
+<script>
+	document.addEventListener("DOMContentLoaded", function () {
+		fetch("{{ route('stats.new.cases') }}")
+			.then(response => response.json())
+			.then(data => {
+				if (data.error) {
+					console.error("Error:", data.error);
+					return;
+				}
+	
+				document.getElementById("new-cases-number").textContent = data.count;
+				document.getElementById("new-cases-bar").style.width = data.change + "%";
+				document.getElementById("new-cases-desc").textContent = `${data.trend} from last month (${data.change}%)`;
+			})
+			.catch(error => console.error("Failed to fetch new cases stats:", error));
+	});
+	</script>
 	
 	
 @endpush
