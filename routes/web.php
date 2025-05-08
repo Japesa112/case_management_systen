@@ -82,6 +82,9 @@ Route::get('/cases/by-status/{status}', [MainController::class, 'getCasesByStatu
 Route::get('/stats/active-cases', [MainController::class, 'getActiveCasesStats'])->name('stats.active.cases');
 Route::get('/stats/upcoming-hearings', [MainController::class, 'getUpcomingHearingsStats'])->name('stats.upcoming.hearings');
 Route::get('/stats/new-cases', [MainController::class, 'getNewCasesStats'])->name('stats.new.cases');
+Route::get('/lawyer/compliance-stats', [LawyerController::class, 'getComplianceStats'])->name('lawyer.compliance.stats');
+Route::get('/lawyer/cases-awaiting-actions', [LawyerController::class, 'getCasesAwaitingAction'])
+    ->name('lawyer.cases.awaiting.actions');
 
 
 Route::get('/email/inbox', 'MainController@emailInbox')->name('email-inbox');

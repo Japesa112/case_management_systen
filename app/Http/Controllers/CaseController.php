@@ -191,7 +191,7 @@ class CaseController extends Controller
             if ($case) {
             
     // Assuming you want to set the case status to "Scheduled" when a hearing is added
-                $case->case_status = "Assigned to Lawyer(s)"; // Change this as needed
+                $case->case_status = "Assigned"; // Change this as needed
                 $case->save();
             }
             return response()->json([
@@ -200,6 +200,11 @@ class CaseController extends Controller
                 'data' => $caseLawyer
             ]);
         } catch (\Exception $e) {
+
+            Log::error('Error assigning case: ' . $e->getMessage(), [
+                'case_id' => $request->case_id,
+                'lawyer_id' => $request->lawyer_id,
+            ]);
             return response()->json([
                 'success' => false,
                 'message' => 'Something went wrong: ' . $e->getMessage()

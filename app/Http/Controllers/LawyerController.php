@@ -9,8 +9,9 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Models\CaseModel;
 use Illuminate\Support\Facades\Hash;
-
-
+use App\Models\CaseLawyer;
+use App\Models\PanelEvaluation; // Assuming you have a PanelEvaluation model
+use App\Models\CaseClosure;
 class LawyerController extends Controller
 {
     /**
@@ -22,15 +23,136 @@ class LawyerController extends Controller
         $this->middleware('auth'); // Applies to all methods in the controller
     }
 
+public function getCasesAwaitingEvaluationStats()
+{
+    try {
+        $count = 0;
+        $change = 0;
+        $trend = 'Stable';
+
+        if (Auth::check() && Auth::user()->role === 'Lawyer') {
+            $lawyerId = Auth::user()->lawyer->lawyer_id;
+
+            
+
+            // Filter cases that are not closed
+            $openCases = CaseModel::where('case_status', '!=', 'Closed')
+                ->pluck('case_id');
+
+            // Get cases the lawyer has already evaluated
+            $evaluatedCaseIds = PanelEvaluation::where('lawyer_id', $lawyerId)->pluck('case_id');
+
+            // Subtract to find cases awaiting evaluation
+            $awaitingCases = $openCases->diff($evaluatedCaseIds);
+
+            $count = $awaitingCases->count();
+        }
+
+        return response()->json([
+            'count' => $count,
+            'change' => $change, // Optional: you can calculate trend later
+            'trend' => $trend
+        ]);
+    } catch (\Exception $e) {
+        Log::error("Error fetching cases awaiting evaluation: " . $e->getMessage());
+        return response()->json([
+            'error' => 'Failed to fetch data'
+        ], 500);
+    }
+}
+
+public function getCasesAwaitingAction()
+{
+    try {
+        $isLawyer = Auth::check() && Auth::user()->role === 'Lawyer';
+
+        if ($isLawyer) {
+            $lawyerId = Auth::user()->lawyer->lawyer_id;
+
+            // Get evaluated case IDs
+            $evaluatedCaseIds = PanelEvaluation::where('lawyer_id', $lawyerId)->pluck('case_id');
+
+            // Count cases assigned to lawyer that are not closed and not yet evaluated
+            $awaitingCount = CaseModel::whereNotIn('case_id', $evaluatedCaseIds)
+                ->where('case_status', '!=', 'Closed')
+                ->count();
+
+            return response()->json(['count' => $awaitingCount]);
+        }
+
+        return response()->json(['count' => 0]);
+    } catch (\Exception $e) {
+        \Log::error("Error fetching awaiting cases: " . $e->getMessage());
+        return response()->json(['count' => 0], 500);
+    }
+}
+    public function getComplianceStats()
+{
+    try {
+        $user = Auth::user();
+
+        if ($user && $user->role === 'Lawyer') {
+            $lawyer = $user->lawyer;
+
+            $defaultPassword = $lawyer->phone;
+
+            $isUsingDefaultPassword = Hash::check($defaultPassword, $user->password);
+
+            $complianceIssues = [];
+
+            if ($isUsingDefaultPassword) {
+                $complianceIssues[] = 'Password has not been updated from default.';
+            }
+
+            return response()->json([
+                'issues' => $complianceIssues,
+                'compliant' => empty($complianceIssues)
+            ]);
+        }
+
+        return response()->json(['error' => 'Unauthorized or not a lawyer.'], 403);
+    } catch (\Exception $e) {
+        Log::error('Error checking compliance: ' . $e->getMessage());
+
+        return response()->json(['error' => 'Internal Server Error'], 500);
+    }
+}
+
     public function index()
     {
         $lawyers = Lawyer::paginate(10); // Instead of get(), use paginate()
         return view('lawyers.index', compact('lawyers')); // Direct to lawyers listing page
     }
 
-        public function dashboard()
+    public function dashboard()
     {
-        return view('lawyers.dashboard');
+        $wonCases = 0;
+        $lostCases = 0;
+        $closedCases = 0;
+    
+        if (Auth::check() && Auth::user()->role === 'Lawyer') {
+            $lawyerId = Auth::user()->lawyer->lawyer_id;
+    
+            // Get case IDs assigned to this lawyer
+            $caseIds = CaseLawyer::where('lawyer_id', $lawyerId)->pluck('case_id');
+    
+            // Count wins and losses for those cases only
+            $wonCases = CaseClosure::whereIn('case_id', $caseIds)
+                            ->where('final_outcome', 'Win')
+                            ->count();
+    
+            $lostCases = CaseClosure::whereIn('case_id', $caseIds)
+                            ->where('final_outcome', 'Loss')
+                            ->count();
+    
+            $closedCases = $wonCases + $lostCases;
+        }
+    
+        return view('lawyers.dashboard', [
+            'wonCases' => $wonCases,
+            'lostCases' => $lostCases,
+            'closedCases' => $closedCases,
+        ]);
     }
 
 

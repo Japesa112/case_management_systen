@@ -23,7 +23,7 @@ class PanelEvaluationController extends Controller
     if ($isLawyer) {
         // Fetch evaluations for the logged-in lawyer
         $evaluations = PanelEvaluation::with(['case', 'user'])
-                                      ->where('user_id', Auth::id())  // Filter by lawyer_id
+                                      ->where('lawyer_id', Auth::id())  // Filter by lawyer_id
                                       ->paginate(5);
                                     
     } else {

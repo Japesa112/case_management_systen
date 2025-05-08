@@ -34,27 +34,63 @@ class MainController extends Controller {
 public function getNewCasesStats()
 {
     try {
-        $startOfMonth = Carbon::now()->startOfMonth();
-        $endOfMonth = Carbon::now()->endOfMonth();
 
-        $thisMonth = CaseModel::whereBetween('created_at', [$startOfMonth, $endOfMonth])->count();
+        $isLawyer = Auth::user() && Auth::user()->role === 'Lawyer'; 
+            if ($isLawyer) {
+                $lawyerId = Auth::user()->lawyer->lawyer_id;
+                $caseIds = CaseLawyer::where('lawyer_id', $lawyerId)->pluck('case_id');
+                $startOfMonth = Carbon::now()->startOfMonth();
+            $endOfMonth = Carbon::now()->endOfMonth();
 
-        $lastMonthStart = Carbon::now()->subMonth()->startOfMonth();
-        $lastMonthEnd = Carbon::now()->subMonth()->endOfMonth();
+            // This month's new cases for the lawyer
+            $thisMonth = CaseModel::whereIn('case_id', $caseIds)
+                ->whereBetween('updated_at', [$startOfMonth, $endOfMonth])
+                ->count();
 
-        $lastMonth = CaseModel::whereBetween('created_at', [$lastMonthStart, $lastMonthEnd])->count();
+            $lastMonthStart = Carbon::now()->subMonth()->startOfMonth();
+            $lastMonthEnd = Carbon::now()->subMonth()->endOfMonth();
 
-        $change = $lastMonth > 0 
-            ? round((($thisMonth - $lastMonth) / $lastMonth) * 100)
-            : 100;
+            // Last month's new cases for the lawyer
+            $lastMonth = CaseModel::whereIn('case_id', $caseIds)
+                ->whereBetween('updated_at', [$lastMonthStart, $lastMonthEnd])
+                ->count();
 
-        $trend = $change >= 0 ? "Up" : "Down";
+            $change = $lastMonth > 0
+                ? round((($thisMonth - $lastMonth) / $lastMonth) * 100)
+                : 100;
 
-        return response()->json([
-            'count' => $thisMonth,
-            'change' => abs($change),
-            'trend' => $trend
-        ]);
+            $trend = $change >= 0 ? "Up" : "Down";
+
+            return response()->json([
+                'count' => $thisMonth,
+                'change' => abs($change),
+                'trend' => $trend
+            ]);
+            }
+            else {
+                        $startOfMonth = Carbon::now()->startOfMonth();
+                $endOfMonth = Carbon::now()->endOfMonth();
+
+                $thisMonth = CaseModel::whereBetween('created_at', [$startOfMonth, $endOfMonth])->count();
+
+                $lastMonthStart = Carbon::now()->subMonth()->startOfMonth();
+                $lastMonthEnd = Carbon::now()->subMonth()->endOfMonth();
+
+                $lastMonth = CaseModel::whereBetween('created_at', [$lastMonthStart, $lastMonthEnd])->count();
+
+                $change = $lastMonth > 0 
+                    ? round((($thisMonth - $lastMonth) / $lastMonth) * 100)
+                    : 100;
+
+                $trend = $change >= 0 ? "Up" : "Down";
+
+                return response()->json([
+                    'count' => $thisMonth,
+                    'change' => abs($change),
+                    'trend' => $trend
+                ]); // Get all case IDs if not a lawyer
+            }
+        
     } catch (\Exception $e) {
         return response()->json(['error' => $e->getMessage()], 500);
     }
@@ -63,7 +99,49 @@ public function getNewCasesStats()
     public function getUpcomingHearingsStats()
 {
     try {
-        $today = Carbon::today();
+
+        $isLawyer = Auth::user() && Auth::user()->role === 'Lawyer'; 
+            if ($isLawyer) {
+                $lawyerId = Auth::user()->lawyer->lawyer_id;
+                $caseIds = CaseLawyer::where('lawyer_id', $lawyerId)->pluck('case_id');
+                $today = Carbon::today();
+
+            // Upcoming case activities (mentions/hearings) from today onward
+            $currentCount = CaseActivity::whereIn('case_id', $caseIds)
+                ->whereDate('date', '>=', $today)
+                ->where(function ($query) {
+                    $query->where('type', 'like', '%mention%')
+                          ->orWhere('type', 'like', '%hearing%');
+                })
+                ->count();
+
+            // Last month's mentions/hearings
+            $lastMonthStart = Carbon::now()->subMonth()->startOfMonth();
+            $lastMonthEnd = Carbon::now()->subMonth()->endOfMonth();
+
+            $lastMonthCount = CaseActivity::whereIn('case_id', $caseIds)
+                ->whereBetween('date', [$lastMonthStart, $lastMonthEnd])
+                ->where(function ($query) {
+                    $query->where('type', 'like', '%mention%')
+                          ->orWhere('type', 'like', '%hearing%');
+                })
+                ->count();
+
+            $change = $lastMonthCount > 0
+                ? round((($currentCount - $lastMonthCount) / $lastMonthCount) * 100)
+                : 100;
+
+            $trend = $change >= 0 ? "Up" : "Down";
+
+            return response()->json([
+                'count' => $currentCount,
+                'change' => abs($change),
+                'trend' => $trend
+            ]);
+            }
+            // If not a lawyer, get all upcoming case activities
+            else {
+                $today = Carbon::today();
 
         // Get count of upcoming case activities with type 'mention' or 'hearing'
         $currentCount = CaseActivity::whereDate('date', '>=', $today)
@@ -95,6 +173,9 @@ public function getNewCasesStats()
             'change' => abs($change),
             'trend' => $trend
         ]);
+            }
+
+        
     } catch (\Exception $e) {
         return response()->json(['error' => $e->getMessage()], 500);
     }
@@ -103,6 +184,49 @@ public function getNewCasesStats()
     {
         try {
             // Get current year and previous year
+            $isLawyer = Auth::user() && Auth::user()->role === 'Lawyer'; 
+            if ($isLawyer) {
+                $lawyerId = Auth::user()->lawyer->lawyer_id;
+                $caseIds = CaseLawyer::where('lawyer_id', $lawyerId)->pluck('case_id');
+                $currentYear = now()->year;
+            $lastYear = now()->subYear()->year;
+
+            // Filter active cases (not closed) for the assigned cases
+            $active = CaseModel::whereIn('case_id', $caseIds)
+                ->where('case_status', '!=', 'Closed')
+                ->count();
+
+            // Active this year
+            $activeThisYear = CaseModel::whereIn('case_id', $caseIds)
+                ->whereYear('created_at', $currentYear)
+                ->where('case_status', '!=', 'Closed')
+                ->count();
+
+            // Active last year
+            $activeLastYear = CaseModel::whereIn('case_id', $caseIds)
+                ->whereYear('created_at', $lastYear)
+                ->where('case_status', '!=', 'Closed')
+                ->count();
+
+            // Calculate percentage difference
+            if ($activeLastYear > 0) {
+                $percentChange = round((($activeThisYear - $activeLastYear) / $activeLastYear) * 100);
+            } else {
+                $percentChange = 100; // Assume 100% if no cases last year
+            }
+
+            $trend = $percentChange >= 0
+                ? "Up from last year ({$percentChange}%)"
+                : "Down from last year (" . abs($percentChange) . "%)";
+
+            return response()->json([
+                'count' => $active,
+                'trend' => $trend
+            ]);
+
+            } else {
+                
+                
             $currentYear = now()->year;
             $lastYear = now()->subYear()->year;
     
@@ -133,6 +257,9 @@ public function getNewCasesStats()
                 'count' => $active,
                 'trend' => $trend
             ]);
+
+            }
+            
         } catch (\Exception $e) {
             Log::error("Error retrieving active case stats: " . $e->getMessage());
     
