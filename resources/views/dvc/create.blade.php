@@ -13,16 +13,16 @@
 </style>
 @endpush
 
-@section('title', 'Forwarding')
+@section('title', 'Create Appeal')
 
 @section('content')
 <div class="container-fluid">
     <div class="row mt-4" style="margin-left: 20%; margin-right: 10%;">
         <div class="col-md-12 mt-4">
-            <h1 class="page-header mt-4">Forwarding </h1>
+            <h1 class="page-header mt-4">Create Appeal</h1>
             <div class="panel panel-inverse">
                 <div class="panel-heading">
-                    <h4 class="panel-title">Forward Form</h4>
+                    <h4 class="panel-title">Appeal Form</h4>
                     <div class="panel-heading-btn">
                         <a href="javascript:;" class="btn btn-xs btn-icon btn-circle btn-default" data-click="panel-expand">
                             <i class="fa fa-expand"></i>
@@ -46,19 +46,15 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('dvc_appointments.store') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('appeals.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group mt-2">
-                                    <label for="case_id">Case Number <span class="text-danger">*</span></label>
-                                    <input type="hidden" name="case_id" id="case_id" class="form-control" value="{{ $case_id }}" disabled>
+                                    <label for="case_id">Case ID <span class="text-danger">*</span></label>
+                                    <input type="text" name="case_id" id="case_id" class="form-control" value="{{ $case_id }}" disabled>
                                     <input type="hidden" name="case_id" value="{{ $case_id }}">
-                                    <input type="text" name="case_id" id="case_id" class="form-control" value="{{ $case_number }}" disabled>
-                                    <input type="hidden" name="evaluation_id" value="{{ $evaluation_id }}">
                                 </div>
-
-                               
 
                                 <div class="form-group mt-2">
                                     <label for="case_id">Case Name <span class="text-danger">*</span></label>
@@ -71,31 +67,27 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group mt-2">
-
-
-                                    <label for="next_hearing_date">Appointment Date & Time <span class="text-danger">*</span></label>
-                                    <input type="datetime-local" name="dvc_appointment_date" id="dvc_appointment_date" class="form-control" required>
-
-                                  <!---  <input type="date" name="dvc_appointment_date" id="dvc_appointment_date" class="form-control" required> --->
+                                    <label for="next_hearing_date">Next Hearing Date <span class="text-danger">*</span></label>
+                                    <input type="datetime-local" name="next_hearing_date" id="next_hearing_date" class="form-control" required>
                                 </div>
                                 <div class="form-group mt-2">
-                                    <label for="adjourn_comments">Briefing Notes <span class="text-danger">*</span></label>
-                                    <textarea name="briefing_notes" id="briefing_notes" class="form-control" rows="2" placeholder="Enter briefing notes" required></textarea>
+                                    <label for="appeal_comments">Appeal Comments</label>
+                                    <textarea name="appeal_comments" id="appeal_comments" class="form-control" rows="2" placeholder="Enter appeal comments"></textarea>
                                 </div>
+                                <div class="form-group">
+                                    <label for="modalAttachments">Select Files</label>
+                                    <input type="file" name="modalAttachments[]" id="modalAttachments" class="form-control" multiple>
+                                </div>
+                                <ul id="fileList" class="list-group mt-2"></ul>
                                 
                               
                             </div>
                         </div>
-                        <div class="form-group mt-3 d-flex justify-content-between">
-                            <a href="{{ url()->previous() }}" class="btn btn-secondary">
-                                <i class="fa fa-arrow-left"></i> Back
-                            </a>
-                        
+                        <div class="form-group text-center mt-2">
                             <button type="submit" class="btn btn-primary">
-                                <i class="fa fa-share"></i> Forward
+                                <i class="fa fa-paper-plane"></i> Submit Appeal
                             </button>
                         </div>
-                        
                     </form>
                 </div>
             </div>
@@ -103,12 +95,12 @@
     </div>
 </div>
 
-@if(session('adjourn_success'))
+@if(session('appeal_success'))
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script>
         swal({
-            title: "Adjourn submitted!",
-            text: "Do you have adjourn documents to upload?",
+            title: "Appeal submitted!",
+            text: "Do you have appeal documents to upload?",
             icon: "info",
             buttons: ["No", "Yes"]
         }).then((willUpload) => {
@@ -116,7 +108,7 @@
                 $('#addDocumentModal').modal('show');
                 
             } else {
-                window.location.href = "{{ route('dvc_appointments.index') }}?message=Adjourn+added+successfully";
+                window.location.href = "{{ route('appeals.index') }}?message=Appeal+added+successfully";
             }
         });
     </script>
@@ -126,7 +118,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addDocumentModalLabel">Add Appointment Document  </h5>
+                <h5 class="modal-title" id="addDocumentModalLabel">Add Appeal Document  </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">

@@ -92,8 +92,8 @@
                                 <th>Lawyer</th>
                                 <th>Evaluation Date</th>
                                 <th>Comments</th>
-                                <th>Quote</th>
                                 <th>Outcome</th>
+                                <th>Forward</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -105,9 +105,20 @@
                                 <td>{{ $evaluation->user->full_name ?? 'N/A' }}
                                 </td>
                                 <td>{{ $evaluation->evaluation_date }}</td>
-                                <td>{{ Str::limit($evaluation->comments, 50) }}</td>
-                                <td>{{ $evaluation->quote }}</td>
+                                <td>{{ Str::limit($evaluation->comments, 30) }}</td>
+                                
                                 <td>{{ $evaluation->outcome }}</td>
+
+                                <td>
+                                    @if(strtolower($evaluation->outcome) === 'no')
+                                        <span class="text-muted">Cannot be forwarded to DVC</span>
+                                    @else
+                                        <a href="{{ route('dvc_appointments.create',  [$evaluation->case->case_id, $evaluation->evaluation_id]) }}" title="Forward to DVC" class="text-decoration-none text-purple">
+                                            <i class="fa fa-edit me-1"></i> Forward to DVC
+                                        </a>
+                                    @endif
+                                </td>
+                                
                                 
                                 <td>
                                     <button class="btn btn-info btn-sm view-evaluation" data-bs-target="#viewEvaluationModal" data-id="{{ $evaluation->evaluation_id }}" title="View Details">
@@ -116,6 +127,7 @@
                                     <a href="{{ route('evaluations.edit', $evaluation) }}" class="btn btn-warning btn-sm" title="Edit">
                                         <i class="fa fa-edit"></i> Edit
                                     </a>
+
                                 </td>
                             </tr>
                             @endforeach

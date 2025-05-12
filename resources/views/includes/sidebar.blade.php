@@ -1,7 +1,22 @@
+
+
+@stack('styles')
+
 @php
 	$appSidebarClass = (!empty($appSidebarTransparent)) ? 'app-sidebar-transparent' : '';
 	$appSidebarAttr  = (!empty($appSidebarLight)) ? '' : ' data-bs-theme=dark';
 @endphp
+@push('styles')
+<style>
+	.menu-chevron .collapse-chevron {
+		transition: transform 0.3s ease;
+	}
+	.menu-link[aria-expanded="true"] .collapse-chevron {
+		transform: rotate(90deg);
+	}
+</style>
+@endpush
+
 <!-- BEGIN #sidebar -->
 <div id="sidebar" class="app-sidebar {{ $appSidebarClass }}" {{ $appSidebarAttr }}>
 	<!-- BEGIN scrollbar -->
@@ -26,6 +41,8 @@
 				</a>
 			</div>
 			<div id="appSidebarProfileMenu" class="collapse">
+				
+				
 				<div class="menu-item pt-5px">
 					<a href="/users" class="menu-link">
 						<div class="menu-icon"><i class="fa fa-users"></i></div>
@@ -38,18 +55,38 @@
 						<div class="menu-text"> Add User</div>
 					</a>
 				</div>
+				
+
+
 				<div class="menu-item">
-					<a href="javascript:;" class="menu-link" id="change-password-trigger">
-						<div class="menu-icon"><i class="fa fa-pencil-alt"></i></div>
-						<div class="menu-text">Change Password</div>
+					<a href="javascript:;" class="menu-link collapsed" 
+					   data-bs-toggle="collapse" 
+					   data-bs-target="#lawyerSubMenu"
+					   aria-expanded="false">
+						<div class="menu-icon"><i class="fa-solid fa-gavel"></i></div>
+						<div class="menu-text">Lawyer Management</div>
+						
+							<i class="collapse-chevron fa fa-chevron-down"></i>
+						
+						
+						
 					</a>
+					<div class="sub-menu collapse" id="lawyerSubMenu">
+						<div class="menu-item">
+							<a href="/lawyers" class="menu-link">
+								<div class="menu-icon"><i class="fa-solid fa-list"></i></div>
+								<div class="menu-text">View All Lawyers</div>
+							</a>
+						</div>
+						<div class="menu-item">
+							<a href="/lawyers/add" class="menu-link">
+								<div class="menu-icon"><i class="fa-solid fa-user-plus"></i></div>
+								<div class="menu-text">Add New Lawyer</div>
+							</a>
+						</div>
+					</div>
 				</div>
-				<div class="menu-item pb-5px">
-					<a href="javascript:;" class="menu-link" id="help-trigger">
-						<div class="menu-icon"><i class="fa fa-question-circle"></i></div>
-						<div class="menu-text"> Helps</div>
-					</a>
-				</div>
+				
 				<div class="menu-divider m-0"></div>
 			</div>
 			@endif
@@ -271,4 +308,28 @@
 
 
 </script>
+<script>
+	document.addEventListener('DOMContentLoaded', function () {
+		// Get all collapsible elements
+		document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(link => {
+			const targetSelector = link.getAttribute('data-bs-target');
+			const target = document.querySelector(targetSelector);
+			const icon = link.querySelector('.collapse-chevron');
+
+			if (!target || !icon) return;
+
+			target.addEventListener('shown.bs.collapse', () => {
+				icon.classList.remove('fa-chevron-right');
+				icon.classList.add('fa-chevron-down');
+			});
+
+			target.addEventListener('hidden.bs.collapse', () => {
+				icon.classList.remove('fa-chevron-down');
+				icon.classList.add('fa-chevron-right');
+			});
+		});
+	});
+</script>
+
+
 @endpush

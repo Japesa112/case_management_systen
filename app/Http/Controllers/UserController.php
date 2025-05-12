@@ -29,6 +29,17 @@ class UserController extends Controller
     {
         return view('users.create');
     }
+    public function change_password()
+    {
+        return view('users.change');
+    }
+
+    public function help()
+    {
+        return view('users.help');
+    }
+
+
 
     /**
      * Store a newly created user in storage.

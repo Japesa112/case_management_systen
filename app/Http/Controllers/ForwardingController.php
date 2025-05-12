@@ -24,24 +24,28 @@ class ForwardingController extends Controller
         
         return view('dvc_appointments.index', compact('forwardings'));
     }
-    public function create($case_id) {
+    public function create($case_id, $evaluation_id)
+    {
         $case_name = null;
         $case_number = null;
         $forwarding = null;
-
-        if ($case_id) {
-            // Retrieve the case record based on the provided case_id
-            $caseRecord = \App\Models\CaseModel::find($case_id);
-            if ($caseRecord) {
-                $case_name = $caseRecord->case_name;
-                $case_number = $caseRecord->case_number;
-               // $negotiation = $caseRecord->negotiations()->latest()->with('attachments')->first();
     
-            }
+        // Retrieve the case record
+        $caseRecord = \App\Models\CaseModel::find($case_id);
+        if ($caseRecord) {
+            $case_name = $caseRecord->case_name;
+            $case_number = $caseRecord->case_number;
         }
-
-        return view('dvc_appointments.create', compact('case_id', 'case_name', 'case_number', 'forwarding'));
+    
+        // Retrieve the evaluation if needed
+        $evaluation = \App\Models\PanelEvaluation::find($evaluation_id);
+        if ($evaluation) {
+            $forwarding = $evaluation;
+        }
+    
+        return view('dvc_appointments.create', compact('case_id', 'case_name', 'case_number', 'forwarding', 'evaluation_id'));
     }
+    
     
     /**
      * Store a newly created resource in storage.

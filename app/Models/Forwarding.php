@@ -33,4 +33,10 @@ class Forwarding extends Model
     {
         return $this->belongsTo(Lawyer::class, 'lawyer_id', 'id');
     }
+
+
+    public function dvcAppointment()
+    {
+        return $this->hasOne(DvcAppointment::class);
+    }
 }

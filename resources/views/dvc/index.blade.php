@@ -1,6 +1,6 @@
 @extends('layouts.default')
 
-@section('title', 'Manage Forwardings')
+@section('title', 'Manage Appointment')
 
 @push('styles')
 <style>
@@ -25,16 +25,12 @@
 
 @section('content')
 <div class="container-fluid mt-4">
-    @php
-    use Illuminate\Support\Str;
-    @endphp
-
     <div class="panel panel-inverse">
         <div class="panel-heading">
-            <h4 class="panel-title">List of Forwardings</h4>
+            <h4 class="panel-title">List of Appointment</h4>
             <div class="panel-heading-btn">
                 <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addEvaluationModal">
-                    <i class="fa fa-plus"></i> Add New Forwarding
+                    <i class="fa fa-plus"></i> Add New Appointment
                 </button>
             </div>
         </div>
@@ -86,24 +82,25 @@
                         <tr>
                             <th>ID</th>
                             <th>Case Name</th>
-                            <th>Appointment Date</th>
-                            <th>Briefing Notes</th>
+                            <th>Appointment Date & Time</th>
+                            <th>Comments</th>
                             <th>Actions</th>
                         </tr>
+                        
                     </thead>
                     <tbody>
-                        @foreach($forwardings as $appointment)
+                        @foreach($appointments as $appointment)
                             <tr>
-                                <td class="text-center">{{ $appointment->forwarding_id}}</td>
+                                <td class="text-center">{{ $appointment->appointment_id }}</td>
                                 <td class="text-center">{{ $appointment->case->case_name }}</td>
-                                <td class="text-center">{{ $appointment->dvc_appointment_date ?? 'N/A' }}</td>
-                                <td>{{ Str::limit($appointment->briefing_notes, 50) }}  </td>
+                                <td class="text-center">{{ $appointment->next_hearing_date ?? 'N/A' }}</td>
+                                <td>{{ $appointment->comments ?? 'No comments' }}</td>
                                 <td class="text-center action-buttons">
-                                    <button class="btn btn-warning btn-sm edit-appointment" data-id="{{ $appointment->forwarding_id }}">
+                                    <button class="btn btn-warning btn-sm edit-appointment" data-id="{{ $appointment->appointment_id }}">
                                         <i class="fa fa-edit"></i> Edit
                                     </button>
 
-                                    <button class="btn btn-info btn-sm view-appointment" data-id="{{ $appointment->forwarding_id }}">
+                                    <button class="btn btn-info btn-sm view-appointment" data-id="{{ $appointment->appointment_id }}">
                                         <i class="fa fa-eye"></i> View
                                     </button>
                                 </td>
@@ -120,12 +117,12 @@
 
 
 
-<!-- View   appointmentce Modal -->
-<div class="modal fade" id="viewAppointmentModal" tabindex="-1" aria-labelledby="viewaAppointmentModalLabel" aria-hidden="true">
+<!-- View Appointment Modal -->
+<div class="modal fade" id="viewAppointmentModal" tabindex="-1" aria-labelledby="viewAppointmentModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="viewAppointmentModalLabel">Briefing Notes</h5>
+                <h5 class="modal-title" id="viewAppointmentModalLabel">Appointment Details</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -143,7 +140,7 @@
 </div>
 
 
-<!-- Edit AppointmentModal -->
+<!-- Edit Appointment Modal -->
 <div class="modal fade" id="editAppointmentModal" tabindex="-1" aria-labelledby="editAppointmentModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -153,53 +150,53 @@
             </div>
             <div class="modal-body">
                 <div class="row">
-                  
-                    <form id="editAppointmentForm" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        @method('PUT')
-                    
-                        <input type="hidden" id="edit_appointment_id" name="ag_appointment_id">
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <!-- Case Number -->
-                                <div class="form-group mt-2">
-                                    <label for="edit_case_id">Case Number <span class="text-danger">*</span></label>
-                                    <input type="hidden" name="case_id" id="edit_case_id" class="form-control">
-                                    <input type="text" id="edit_case_number" class="form-control" disabled>
-                                </div>
-                    
-                                <!-- Case Name -->
-                                <div class="form-group mt-2">
-                                    <label for="edit_case_name">Case Name <span class="text-danger">*</span></label>
-                                    <input type="text" id="edit_case_name" class="form-control" disabled>
-                                    <input type="hidden" name="case_name" id="hidden_case_name">
-                                </div>
+                    <!-- Left Section: Document List -->
+                    <div class="col-md-5 border-end">
+                        <h5>Existing Attachments</h5>
+                        <ul id="documentList" class="list-group mb-3">
+                            <!-- Documents will be loaded here dynamically -->
+                        </ul>
+                        <button type="button" class="btn btn-success btn-sm"  id="openUploadModalBtn">
+                            <i class="fa fa-plus"></i> Add Attachment
+                        </button>
+                    </div>
+
+                    <!-- Right Section: Edit Appointment Form -->
+                    <div class="col-md-7">
+                        <form id="editAppointmentForm" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            @method('PUT')
+
+                            <input type="hidden" id="edit_appointment_id" name="appointment_id">
+                            <input type="hidden" class="form-control" id="edit_case_id" name="case_id" readonly>
+                           
+                            <div class="mb-3">
+                                <label for="edit_case_id" class="form-label">Case Name</label>
+                                <input type="text" class="form-control" id="edit_case_name" name="case_name" readonly disabled>
                             </div>
-                    
-                            <div class="col-md-6">
-                                <!-- Appointment Date & Time -->
-                                <div class="form-group mt-2">
-                                    <label for="edit_appointment_date">Appointment Date & Time <span class="text-danger">*</span></label>
-                                    <input type="datetime-local" name="dvc_appointment_date" id="edit_appointment_date" class="form-control" required>
-                                </div>
-                    
-                                <!-- Briefing Notes -->
-                                <div class="form-group mt-2">
-                                    <label for="edit_briefing_notes">Briefing Notes <span class="text-danger">*</span></label>
-                                    <textarea class="form-control" id="edit_briefing_notes" name="briefing_notes" rows="2" placeholder="Enter briefing notes" required></textarea>
-                                </div>
+
+                            <div class="mb-3">
+                                <label for="edit_next_hearing_date" class="form-label">Next Hearing Date</label>
+                                <input type="datetime-local" class="form-control" id="edit_next_hearing_date" name="next_hearing_date">
                             </div>
-                        </div>
-                    
-                        <div class="form-group text-center mt-2">
+
+                            <div class="mb-3">
+                                <label for="edit_appointment_comments" class="form-label">Appointment Comments</label>
+                                <textarea class="form-control" id="edit_appointment_comments" name="comments" rows="3"></textarea>
+                            </div>
+                            <!--
+                            <div class="mb-3">
+                                <label for="editAttachments" class="form-label">Upload New Attachments</label>
+                                <input type="file" class="form-control" id="editAttachments" name="attachments[]" multiple>
+                            </div>
+                        -->
+
                             <button type="submit" class="btn btn-primary" id="updateAppointmentBtn">
-                                <i class="fa fa-save"></i> Update Appointment
+                                Update Appointment
                             </button>
-                        </div>
-                    </form>
-                    
-                
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -237,9 +234,7 @@
 <script>
     $(document).ready(function () {
         $(document).on('click', '.view-appointment', function () {
-            let forwarding_id = $(this).data('id');
-
-            console.log("The AG Appointment: "+forwarding_id);
+            let appointmentId = $(this).data('id');
 
             // Show the modal
             $('#viewAppointmentModal').modal('show');
@@ -249,19 +244,20 @@
 
             // Fetch appointment details
             $.ajax({
-                url: "{{ route('dvc_appointments.show', ':id') }}".replace(':id', forwarding_id),
+                url: "{{ route('dvc.show', ':id') }}".replace(':id', appointmentId),
                 type: "GET",
                 success: function (response) {
-                    let appointment = response.forwarding;
+                    let appointment = response.appointment;
+                    let attachments = response.attachments;
                     let case_name = response.case_name;
 
                     let content = `
                         <div class="row">
                             <div class="col-md-6">
                               <strong>Case Name:</strong> ${case_name ?? 'N/A'}<br>
-                                <strong>Appointment Date:</strong> ${appointment.dvc_appointment_date ?? 'N/A'}<br>
-                                 <strong>Appointment Date:</strong> ${appointment.dvc_appointment_time ?? 'N/A'}<br>
-                                <strong>Appointment Comments:</strong> <p>${appointment.briefing_notes ?? 'N/A'}</p>
+                                <strong>Next Hearing Date:</strong> ${appointment.next_hearing_date ?? 'N/A'}<br>
+                                 <strong>Next Hearing Time:</strong> ${appointment.next_hearing_time ?? 'N/A'}<br>
+                                <strong>Appointment Comments:</strong> <p>${appointment.appointment_comments ?? 'N/A'}</p>
                             </div>
                             <div class="col-md-6">
                                 <strong>Created At:</strong> ${appointment.created_at ?? 'N/A'}<br>
@@ -269,10 +265,22 @@
                             </div>
                         </div>
                         <hr>
-                      
+                        <h5>Attachments</h5>
+                        <ul class="list-group">
                     `;
 
-                    
+                    if (attachments.length > 0) {
+                        attachments.forEach(file => {
+                            content += `
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <a href="${file.file_path}" target="_blank">${file.file_name}</a>
+                                    <span class="badge bg-primary">${file.file_type ?? 'Unknown'}</span>
+                                </li>
+                            `;
+                        });
+                    } else {
+                        content += `<li class="list-group-item text-muted">No attachments found.</li>`;
+                    }
 
                     content += `</ul>`;
 
@@ -286,28 +294,44 @@
 
         $(document).ready(function () {
     $(document).on('click', '.edit-appointment', function () {
-        let forwarding_id = $(this).data('id');
-      alert(forwarding_id);
+        let appointmentId = $(this).data('id');
+    
         // Fetch appointment details using AJAX
         $.ajax({
-            url: `dvc_appointments/show/${forwarding_id}`, // Make sure this route exists in your Laravel routes
+            url: `dvc/show/${appointmentId}`, // Make sure this route exists in your Laravel routes
             type: "GET",
             success: function (response) {
-                let appointment = response.forwarding;
+                let appointment = response.appointment;
+                let attachments = response.attachments; // Get attachments correctly
                 let case_name = response.case_name;
-                let case_number = response.case_number;
-
+                let formattedDateTime = response.formattedDateTime
                 // Populate form fields with fetched data
-                $('#edit_appointment_id').val(appointment.forwarding_id);
+                $('#edit_appointment_id').val(appointment.appointment_id);
                 $('#edit_case_id').val(appointment.case_id);
-                $('#edit_case_number').val(case_number); // or appointment.case_number if available
                 $('#edit_case_name').val(case_name);
-                $('#hidden_case_name').val(case_name);
-                $('#edit_appointment_date').val(appointment.dvc_appointment_date + 'T' + appointment.dvc_appointment_time); // make sure time is included
-                $('#edit_briefing_notes').val(appointment.briefing_notes);
+                $('#edit_next_hearing_date').val(formattedDateTime);
+                $('#edit_appointment_comments').val(appointment.comments);
 
 
-               
+
+
+                 // Clear and populate document list
+                 $('#documentList').empty();
+                if (attachments.length > 0) {
+                    attachments.forEach(doc => {
+                        $('#documentList').append(`
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                               <a href="${doc.file_path}" target="_blank">${doc.file_name}</a>
+                                <button class="btn btn-danger btn-sm delete-document" data-id="${doc.attachment_id}">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </li>
+                        `);
+                    });
+                } else {
+                    $('#documentList').append('<li class="list-group-item no-documents">No documents uploaded.</li>');
+                }
+
 
                 // Show the modal
                 $('#editAppointmentModal').modal('show');
@@ -341,7 +365,7 @@
     }).then((result) => {
         if (result.isConfirmed) {
             $.ajax({
-                url: `/dvc_appointments/deleteDocuments/${documentId}`,
+                url: `/dvc/deleteDocuments/${documentId}`,
                 method: "DELETE",
                 headers: {
                     "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
@@ -360,19 +384,16 @@
 });
 
 $(document).ready(function () {
-    // Open modal and set briefing_notes ID
+    // Open modal and set appointment ID
     $("#openUploadModalBtn").click(function () {
-        let forwarding_id = $("#edit_appointment_id").val(); // Ensure the appointment ID is available
-        console.log("Appointment ID: "+forwarding_id);
-        $("#modal_appointment_id").val(forwarding_id);
+        let appointmentId = $("#edit_appointment_id").val(); // Ensure the appointment ID is available
+        $("#modal_appointment_id").val(appointmentId);
         $("#uploadAttachmentModal").modal("show");
     });
 
     // Upload file when clicking "Upload" in the modal
     $("#modal_uploadAttachmentBtn").click(function () {
-        let forwarding_id = $("#modal_appointment_id").val();
-        console.log("Appointment ID: "+forwarding_id);
-
+        let appointmentId = $("#modal_appointment_id").val();
         let fileInput = $("#modal_attachmentFile")[0].files[0];
 
         if (!fileInput) {
@@ -387,12 +408,12 @@ $(document).ready(function () {
         }
 
         let formData = new FormData();
-        formData.append("forwarding_id", forwarding_id);
+        formData.append("appointment_id", appointmentId);
         formData.append("attachment", fileInput);
         formData.append("_token", $('meta[name="csrf-token"]').attr("content"));
 
         $.ajax({
-            url: "/dvc_appointments/uploadAttachment",
+            url: "/dvc/uploadAttachment",
             type: "POST",
             data: formData,
             contentType: false,
@@ -430,15 +451,15 @@ $(document).ready(function () {
     });
 });
 
-//Updating the appointment
+//Updating the Appointment
 $(document).ready(function () {
     $("#editAppointmentForm").on("submit", function (e) {
         e.preventDefault(); // Prevent default form submission
 
         let formData = new FormData(this);
-        let forwarding_id = $("#edit_appointment_id").val(); // Get appointment ID
-        let url = `/dvc_appointments/update/${forwarding_id}`; // Construct the update route URL
-        console.log("AppointmentID:", $("#edit_appointment_id").val());
+        let appointmentId = $("#edit_appointment_id").val(); // Get appointment ID
+        let url = `/dvc/update/${appointmentId}`; // Construct the update route URL
+        console.log("Appointment ID:", $("#edit_appointment_id").val());
         console.log("Form Data:", Object.fromEntries(new FormData($("#editAppointmentForm")[0])));
         
         $.ajax({
@@ -456,7 +477,7 @@ $(document).ready(function () {
                     title: "Updated Successfully",
                     text: "Appointment has been updated successfully!",
                 }).then(() => {
-                    window.location.href = "/dvc_appointments"; // Redirect after success
+                    window.location.href = "/dvc"; // Redirect after success
                 });
             },
             error: function (xhr) {
@@ -489,7 +510,7 @@ $(document).ready(function () {
             let caseNumber = $('#case_number').val();
     
             $.ajax({
-                url: "{{ route('dvc_appointments.checkCase') }}", 
+                url: "{{ route('dvc.checkCase') }}", 
                 type: "GET", 
                 data: { case_number: caseNumber }, 
                 success: function (response) {
@@ -500,7 +521,9 @@ $(document).ready(function () {
                         } else {
                             console.log(response);
                             // Redirect to evaluations.create if no evaluation exists
-                            window.location.href = "/evaluations";
+                            window.location.href = "{{ route('dvc.create', ':case_id') }}"
+                                .replace(':case_id', response.case_id) + 
+                                "?case_name=" + encodeURIComponent(response.case_name);
                         }
                     } else {
                         // Show error message inside modal

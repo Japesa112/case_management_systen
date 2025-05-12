@@ -23,42 +23,7 @@ return [
 			
 		],
 	
-		[
-			'icon' => 'fa-solid fa-gavel',
-			'title' => 'Lawyer Management',
-			'url' => 'javascript:;',
-			'caret' => true,
-			'sub_menu' => [
-				[
-					'url' => '/lawyers',
-					'title' => 'View All Lawyers',
-					'icon' => 'fa-solid fa-user-plus', // User add icon
-					'route-name' => 'lawyers.add',
-					'permission' => 'create-lawyer' // Example permission
-				],
-				[
-					'url' => '/lawyers/add',
-					'title' => 'Add New Lawyer',
-					'icon' => 'fa-solid fa-user-plus', // User add icon
-					'route-name' => 'lawyers.add',
-					'permission' => 'create-lawyer' // Example permission
-				],
-				[
-					'url' => '/lawyers/edit_',
-					'title' => 'Edit Lawyer Details',
-					'icon' => 'fa fa-user-edit', // User edit icon
-					'route-name' => 'lawyers.update',
-					'permission' => 'edit-lawyer' // Example permission
-				],
-				[
-					'url' => '/lawyers/delete',
-					'title' => 'Remove Lawyer',
-					'icon' => 'fa fa-user-times', // User remove icon
-					'route-name' => 'lawyers.delete',
-					'permission' => 'delete-lawyer' // Example permission
-				]
-			]
-		],
+		
 		[
 			'icon' => 'fa-solid fa-briefcase', // Case-related icon
 			'title' => 'Case Management',
@@ -72,13 +37,7 @@ return [
 					'route-name' => 'cases.add',
 					'permission' => 'create-case'
 				],
-				[
-					'url' => '/negotiations',
-					'title' => 'Negotiations',
-					'icon' => 'fa-solid fa-folder-open', // Icon for editing cases
-					'route-name' => 'cases.update',
-					'permission' => 'edit-case'
-				],
+				
 				[
 					'url' => '/cases/matter',
 					'title' => 'Hearings/Mentions',
@@ -95,6 +54,65 @@ return [
 				]
 			]
 		],
+		[
+			'url' => '/negotiations',
+			'title' => 'Negotiations',
+			'icon' => 'fa-solid fa-folder-open', // Icon for editing cases
+			'route-name' => 'cases.update',
+			'permission' => 'edit-case'
+		],
+		[
+			'icon' => 'fa-solid fa-balance-scale', // Case-related icon
+			'title' => 'Panel Evaluation',
+			'url' => 'javascript:;',
+			'caret' => true,
+			'sub_menu' => [
+				
+				[
+					'url' => '/evaluations',
+					'title' => 'All Evaluations',
+					'icon' => 'fa-solid fa-folder-minus', // Icon for deleting cases
+					'route-name' =>'all_payments.index',
+					
+				]
+				
+			]
+		],
+
+				[
+					'url' => '/ag_advice',
+					'title' => 'Ag Advice',
+					'icon' => 'fa-solid fa-folder-minus', // Icon for deleting cases
+					'route-name' =>'lawyer_payments.index',
+					
+				],
+				[
+					'url' => '/dvc_appointments',
+					'title' => 'DVC Appointments',
+					'icon' => 'fa-solid fa-user-clock', // Icon for deleting cases
+					'route-name' =>'lawyer_payments.index',
+					'caret' => true,
+					'sub_menu' => [
+				
+							[
+								'url' => '/dvc_appointments',
+								'title' => 'Forwardings',
+								'icon' => 'fa-solid fa-folder-minus', // Icon for deleting cases
+								
+								
+							],
+							[
+								'url' => '/dvc',
+								'title' => 'Appointments',
+								'icon' => 'fa-solid fa-folder-minus', // Icon for deleting cases
+								
+								
+							],
+
+				
+			]
+					
+				],
 
 		[
 			'icon' => 'fas fa-money-check-alt', // Case-related icon
@@ -121,37 +139,9 @@ return [
 			]
 		],
 
-		[
-			'icon' => 'fa-solid fa-balance-scale', // Case-related icon
-			'title' => 'Panel Management',
-			'url' => 'javascript:;',
-			'caret' => true,
-			'sub_menu' => [
-				
-				[
-					'url' => '/evaluations',
-					'title' => 'All Evaluations',
-					'icon' => 'fa-solid fa-folder-minus', // Icon for deleting cases
-					'route-name' =>'all_payments.index',
-					
-				],
+		
 
-				[
-					'url' => '/ag_advice',
-					'title' => 'Ag Advice',
-					'icon' => 'fa-solid fa-folder-minus', // Icon for deleting cases
-					'route-name' =>'lawyer_payments.index',
-					
-				],
-				[
-					'url' => '/dvc_appointments',
-					'title' => 'DVC Appointments',
-					'icon' => 'fa-solid fa-folder-minus', // Icon for deleting cases
-					'route-name' =>'lawyer_payments.index',
-					
-				],
-			]
-		],
+		
 
 
 

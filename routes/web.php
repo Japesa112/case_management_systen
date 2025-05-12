@@ -34,7 +34,8 @@ use App\Http\Controllers\LawyerPaymentController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\CaseClosureController;
 use \App\Http\Controllers\ForwardingController;
-
+use \App\Http\Controllers\DvcAppointmentController;
+;
 use App\Http\Controllers\AGAdviceController;
 use Illuminate\Support\Facades\Log;
 
@@ -206,6 +207,9 @@ Route::get('/home', 'MainController@home')->name('home');
 //Users route and controller
 Route::prefix('users')->group(function () {
 Route::get('/',[UserController::class, 'index'])->name('users.index');
+Route::get('/change-password',[UserController::class, 'change_password'])->name('users.change');
+Route::get('/help',[UserController::class, 'help'])->name('users.help');
+
 Route::post('/store', [UserController::class, 'store'])->name('users.store');
 Route::get('/add', [UserController::class, 'create'])->name('users.create');
 Route::get('/edit/{user}', [UserController::class, 'edit'])->name('users.edit');
@@ -505,11 +509,28 @@ Route::prefix('ag_advice')->group(function () {
 Route::prefix('dvc_appointments')->group(function () { 
     Route::get('/', [  ForwardingController::class,'index'])->name('dvc_appointments.index');
     Route::get('/check-case', [ForwardingController::class, 'checkCase'])->name('dvc_appointments.checkCase');
-    Route::get('/create/{case_id}', [ForwardingController::class, 'create'])->name('dvc_appointments.create');
     Route::post('/store', [ForwardingController::class, 'store'])->name('dvc_appointments.store');
     Route::get('/show/{forwarding_id}', [ForwardingController::class, 'show'])->name('dvc_appointments.show');
     Route::get('/edit/{appointment}', [ForwardingController::class, 'edit'])->name('dvc_appointments.edit');
     Route::put('/update/{appointment}', [ForwardingController::class, 'update'])->name('dvc_appointments.update');
-    
+    Route::get('/create/{case}/{evaluation}', [ForwardingController::class, 'create'])->name('dvc_appointments.create');
+
 });
 
+Route::prefix('dvc')->group(function () { 
+
+
+    Route::get('/', [  DvcAppointmentController::class,'index'])->name('dvc.index');
+    
+    Route::get('/edit/{appointment}', [DvcAppointmentController::class, 'edit'])->name('dvc.edit');
+    Route::get('/check-case', [DvcAppointmentController::class, 'checkCase'])->name('dvc.checkCase');
+    Route::get('/create/{case_id}', [DvcAppointmentController::class, 'create'])->name('dvc.create');
+    Route::post('/store', [DvcAppointmentController::class, 'store'])->name('dvc.store');
+    Route::get('/show/{appointment_id}', [DvcAppointmentController::class, 'show'])->name('dvc.show');
+    Route::delete('/deleteDocuments/{documentId}', [DvcAppointmentController::class, 'deleteDocument'])->name('dvc.deleteDocument');
+    Route::put('/update/{appointment}', [DvcAppointmentController::class, 'update'])->name('dvc.update');
+    Route::post('/uploadAttachment', [DvcAppointmentController::class, 'uploadAttachment'])->name('dvc.uploadAttachment');
+
+
+
+});
