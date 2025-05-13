@@ -102,6 +102,7 @@
                             <th>Number</th>
                             <th>Name</th>
                             <th>Description</th>
+                            <th>Registered At</th>
                             <th>Status</th>
                             <th>View</th>
                             <th>Next Step</th>
@@ -114,6 +115,7 @@
                             <td>{{ $case->case_number}}</td>
                             <td>{{ $case->case_name }}</td>
                             <td>{{ Str::limit($case->case_description, 50) }}</td>
+                            <td>{{ $case->created_at }}</td>
                             <td>
                                 
 
