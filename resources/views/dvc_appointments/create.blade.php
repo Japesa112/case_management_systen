@@ -73,7 +73,7 @@
                                 <div class="form-group mt-2">
 
 
-                                    <label for="next_hearing_date">Appointment Date & Time <span class="text-danger">*</span></label>
+                                    <label for="next_hearing_date">Forward Date & Time <span class="text-danger">*</span></label>
                                     <input type="datetime-local" name="dvc_appointment_date" id="dvc_appointment_date" class="form-control" required>
 
                                   <!---  <input type="date" name="dvc_appointment_date" id="dvc_appointment_date" class="form-control" required> --->

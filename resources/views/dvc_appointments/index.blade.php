@@ -86,8 +86,9 @@
                         <tr>
                             <th>ID</th>
                             <th>Case Name</th>
-                            <th>Appointment Date</th>
+                            <th>Forwarding Date</th>
                             <th>Briefing Notes</th>
+                            <th>Assign</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -97,7 +98,28 @@
                                 <td class="text-center">{{ $appointment->forwarding_id}}</td>
                                 <td class="text-center">{{ $appointment->case->case_name }}</td>
                                 <td class="text-center">{{ $appointment->dvc_appointment_date ?? 'N/A' }}</td>
+                                
                                 <td>{{ Str::limit($appointment->briefing_notes, 50) }}  </td>
+                               <td class="text-center">
+                                @php
+                                    // Check if a DVC appointment already exists for this forwarding_id
+                                    $hasDvc = \App\Models\DvcAppointment::where('forwarding_id', $appointment->forwarding_id)->exists();
+                                @endphp
+
+                                @if ($hasDvc)
+                                    <span class="text-muted">Already Assigned</span>
+                                @else
+                                    <a href="{{ route('dvc.create', [
+                                        'case_id' => $appointment->case_id,
+                                        'forwarding_id' => $appointment->forwarding_id,
+                                        'evaluation_id' => $appointment->evaluation_id
+                                    ]) }}?case_name={{ urlencode($appointment->case_name) }}"
+                                    class="btn btn-sm btn-outline-primary">
+                                        Assign
+                                    </a>
+                                @endif
+                            </td>
+
                                 <td class="text-center action-buttons">
                                     <button class="btn btn-warning btn-sm edit-appointment" data-id="{{ $appointment->forwarding_id }}">
                                         <i class="fa fa-edit"></i> Edit

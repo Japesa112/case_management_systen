@@ -92,8 +92,8 @@
                         @foreach($appointments as $appointment)
                             <tr>
                                 <td class="text-center">{{ $appointment->appointment_id }}</td>
-                                <td class="text-center">{{ $appointment->case->case_name }}</td>
-                                <td class="text-center">{{ $appointment->next_hearing_date ?? 'N/A' }}</td>
+                                <td class="text-center">{{ $appointment->evaluation->case->case_name }}</td>
+                                <td class="text-center">{{ $appointment->appointment_date ?? 'N/A' }} {{ $appointment->appointment_time ?? 'N/A' }}</td>
                                 <td>{{ $appointment->comments ?? 'No comments' }}</td>
                                 <td class="text-center action-buttons">
                                     <button class="btn btn-warning btn-sm edit-appointment" data-id="{{ $appointment->appointment_id }}">
@@ -169,6 +169,9 @@
 
                             <input type="hidden" id="edit_appointment_id" name="appointment_id">
                             <input type="hidden" class="form-control" id="edit_case_id" name="case_id" readonly>
+                            <input type="hidden" name="forwarding_id" id="edit_forwarding_id">
+                            <input type="hidden" name="evaluation_id" id="edit_evaluation_id">
+                               
                            
                             <div class="mb-3">
                                 <label for="edit_case_id" class="form-label">Case Name</label>
@@ -255,9 +258,9 @@
                         <div class="row">
                             <div class="col-md-6">
                               <strong>Case Name:</strong> ${case_name ?? 'N/A'}<br>
-                                <strong>Next Hearing Date:</strong> ${appointment.next_hearing_date ?? 'N/A'}<br>
-                                 <strong>Next Hearing Time:</strong> ${appointment.next_hearing_time ?? 'N/A'}<br>
-                                <strong>Appointment Comments:</strong> <p>${appointment.appointment_comments ?? 'N/A'}</p>
+                                <strong>Next Hearing Date:</strong> ${appointment.appointment_date ?? 'N/A'}<br>
+                                 <strong>Next Hearing Time:</strong> ${appointment.appointment_time ?? 'N/A'}<br>
+                                <strong>Appointment Comments:</strong> <p>${appointment.comments ?? 'N/A'}</p>
                             </div>
                             <div class="col-md-6">
                                 <strong>Created At:</strong> ${appointment.created_at ?? 'N/A'}<br>
@@ -307,7 +310,9 @@
                 let formattedDateTime = response.formattedDateTime
                 // Populate form fields with fetched data
                 $('#edit_appointment_id').val(appointment.appointment_id);
-                $('#edit_case_id').val(appointment.case_id);
+                $('#edit_case_id').val(response.case_id);
+                $('#edit_forwarding_id').val(appointment.forwarding_id);
+                $('#edit_evaluation_id').val(appointment.evaluation_id);
                 $('#edit_case_name').val(case_name);
                 $('#edit_next_hearing_date').val(formattedDateTime);
                 $('#edit_appointment_comments').val(appointment.comments);
@@ -521,9 +526,12 @@ $(document).ready(function () {
                         } else {
                             console.log(response);
                             // Redirect to evaluations.create if no evaluation exists
-                            window.location.href = "{{ route('dvc.create', ':case_id') }}"
-                                .replace(':case_id', response.case_id) + 
-                                "?case_name=" + encodeURIComponent(response.case_name);
+                        window.location.href = "{{ route('dvc.create', [':case_id', ':forwarding_id', ':evaluation_id']) }}"
+                        .replace(':case_id', response.case_id)
+                        .replace(':forwarding_id', response.forwarding_id)
+                        .replace(':evaluation_id', response.evaluation_id) + 
+                        "?case_name=" + encodeURIComponent(response.case_name);
+
                         }
                     } else {
                         // Show error message inside modal

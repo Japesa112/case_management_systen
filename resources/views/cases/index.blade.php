@@ -1,5 +1,34 @@
 @extends('layouts.default')
 @section('title', 'Case')
+@push('styles')
+<style>
+    /* Add margin to DataTables search bar */
+    .dataTables_filter {
+        margin-bottom: 20px; /* Adjust this value as needed */
+        margin-right: 20px;
+       
+    }
+     /* Make the search input rounded */
+    .dataTables_filter input {
+        border-radius: 20px;
+        padding: 8px 16px;
+        border: 5px solid #d109d8;
+        box-shadow: none;
+        outline: none;
+        transition: border-color 0.3s ease-in-out;
+        width: 250px; /* 👈 You can increase this */
+        max-width: 100%; /* Make sure it doesn’t overflow on smaller screens */
+    }
+
+    /* Optional: Highlight on focus */
+    .dataTables_filter input:focus {
+        border-color: #0db1fd;
+    }
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
+
+</style>
+@endpush
 
 @section('content')
 <div class="container">
@@ -53,7 +82,7 @@
                     </script>
             @endif
         
-
+         
             <div class="table-responsive">
 
                 <!--
@@ -74,7 +103,6 @@
                             <th>Name</th>
                             <th>Description</th>
                             <th>Status</th>
-                            <th>Hearing Date</th>
                             <th>View</th>
                             <th>Next Step</th>
                         </tr>
@@ -115,7 +143,7 @@
                             
                             
                             </td>
-                            <td>{{ $case->first_hearing_date}}</td>
+                           
                             <td>
                                 <a href="{{ route('cases.show', $case) }}" class="btn btn-info btn-sm">
                                     <i class="fa fa-eye"></i>
@@ -131,25 +159,56 @@
                     </tbody>
                 </table>
             </div>
-            {{-- Pagination --}}
-            <!-- Pagination -->
-            <div class="d-flex justify-content-center">
-                <nav aria-label="Page navigation">
-                    <ul class="pagination">
-                        {{ $cases->links('vendor.pagination.bootstrap-4') }}
-                    </ul>
-                </nav>
-            </div>
+           
 
         </div>
     </div>
 </div>
 @endsection
 
+@section('styles')
+<style>
+    /* Add margin to DataTables search bar */
+    .dataTables_filter {
+        margin-bottom: 20px; /* Adjust this value as needed */
+    }
+</style>
+@endsection
+@push('scripts')
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#data-table').DataTable(
+            {
+            dom: 'Bfrtip',
+            buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
+        }
+        );
+         // Custom search box
+        $('#customSearchBox').on('keyup', function () {
+            table.search(this.value).draw();
+        });
+    });
+</script>
+
+@endpush
 @section('scripts')
 <script>
     $(document).ready(function() {
-        $('#data-table').DataTable();
+        $('#data-table').DataTable(
+            {
+            pageLength: 5,
+            dom: 'Bfrtip',
+            buttons: ['copy', 'csv', 'excel', 'pdf', 'print'],
+            
+        }
+        );
     });
 </script>
 @endsection

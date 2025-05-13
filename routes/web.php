@@ -524,7 +524,7 @@ Route::prefix('dvc')->group(function () {
     
     Route::get('/edit/{appointment}', [DvcAppointmentController::class, 'edit'])->name('dvc.edit');
     Route::get('/check-case', [DvcAppointmentController::class, 'checkCase'])->name('dvc.checkCase');
-    Route::get('/create/{case_id}', [DvcAppointmentController::class, 'create'])->name('dvc.create');
+    Route::get('/create/{case_id}/{forwarding_id}/{evaluation_id}', [DvcAppointmentController::class, 'create'])->name('dvc.create');
     Route::post('/store', [DvcAppointmentController::class, 'store'])->name('dvc.store');
     Route::get('/show/{appointment_id}', [DvcAppointmentController::class, 'show'])->name('dvc.show');
     Route::delete('/deleteDocuments/{documentId}', [DvcAppointmentController::class, 'deleteDocument'])->name('dvc.deleteDocument');

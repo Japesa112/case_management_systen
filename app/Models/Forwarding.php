@@ -16,8 +16,8 @@ class Forwarding extends Model
     public $timestamps = true; // Enables created_at & updated_at
 
     protected $fillable = [
+        'evaluation_id',
         'case_id',
-        'lawyer_id',
         'dvc_appointment_date',
         'dvc_appointment_time',
         'briefing_notes',
@@ -39,4 +39,10 @@ class Forwarding extends Model
     {
         return $this->hasOne(DvcAppointment::class);
     }
+
+    // In Forwarding model
+public function evaluation()
+{
+    return $this->belongsTo(PanelEvaluation::class, 'evaluation_id', 'evaluation_id');
+}
 }

@@ -3,6 +3,8 @@
 
 @section('content')
 @push('styles')
+
+<style>
 /* CSS for Text Truncation */
 .btn.text-truncate {
     white-space: nowrap; 
@@ -16,7 +18,7 @@
     overflow: visible;   /* Make sure text can be shown */
     text-overflow: unset; /* Remove ellipsis */
 }
-
+</style>
 @endpush
 
 @push('scripts')
@@ -117,9 +119,7 @@
                 
                  <a href="{{ route('negotiations.create', $case->case_id) }}" class="btn btn-warning btn-sm w-100 text-start text-truncate" title="Send to Negotiation">Send to Negotiation</a>
             </div>
-            <div class="col-md-2 mb-2">
-                <a href="{{ route('dvc_appointments.create', $case->case_id) }}" class="btn btn-secondary btn-sm w-100 text-start text-truncate" title="Forward to DVC/VC">Forward to DVC/VC</a>
-            </div>
+           
             <div class="col-md-2 mb-2">
                 <button class="btn btn-dark btn-sm w-100 text-start text-truncate" title="More Actions" data-bs-toggle="modal"
                 id="actionCaseModal"

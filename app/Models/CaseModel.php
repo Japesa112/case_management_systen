@@ -68,6 +68,11 @@ public function lawyers1()
     return $this->belongsToMany(Lawyer::class, 'case_lawyer', 'case_id', 'lawyer_id');
 }
 
+public function forwardings()
+{
+    return $this->hasMany(Forwarding::class, 'case_id', 'case_id');
+}
+
 
 
 }

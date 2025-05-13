@@ -54,6 +54,7 @@ class ForwardingController extends Controller
 {
     try {
         $validated = $request->validate([
+            'evaluation_id' =>'required|exists:evaluations,evaluation_id',
             'case_id' => 'required|exists:cases,case_id',
             'dvc_appointment_date' =>  'required|date_format:Y-m-d\TH:i',
             'briefing_notes' => 'nullable|string',
@@ -68,8 +69,8 @@ class ForwardingController extends Controller
         if ($case && $case->lawyers1->isNotEmpty()) {
             foreach ($case->lawyers1 as $lawyer) {
                 Forwarding::create([
+                    'evaluation_id'=> $validated['evaluation_id'],
                     'case_id' => $validated['case_id'],
-                    'lawyer_id' => $lawyer->lawyer_id,
                     'dvc_appointment_date' => $validated['dvc_appointment_date'],
                     'dvc_appointment_time' => $validated['dvc_appointment_time'],
                     'briefing_notes' => $validated['briefing_notes'] ?? null,
@@ -77,8 +78,8 @@ class ForwardingController extends Controller
             }
         } else {
             Forwarding::create([
+                'evaluation_id'=> $validated['evaluation_id'],
                 'case_id' => $validated['case_id'],
-                'lawyer_id' => null,
                 'dvc_appointment_date' => $validated['dvc_appointment_date'],
                 'dvc_appointment_time' => $validated['dvc_appointment_time'],
                 'briefing_notes' => $validated['briefing_notes'] ?? null,

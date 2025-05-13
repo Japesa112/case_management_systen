@@ -48,7 +48,8 @@ class CaseController extends Controller
     public function index()
     {
         //
-        $cases = CaseModel::orderBy('created_at', 'desc')->paginate(10);
+      $cases = CaseModel::orderBy('created_at', 'desc')->get(); // No paginate()
+
         foreach ($cases as $case) {
             if (Str::contains($case->case_status, '-')) {
                 $parts = explode('-', $case->case_status);

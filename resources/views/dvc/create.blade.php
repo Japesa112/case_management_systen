@@ -13,16 +13,16 @@
 </style>
 @endpush
 
-@section('title', 'Create Appeal')
+@section('title', 'Create Appointment')
 
 @section('content')
 <div class="container-fluid">
     <div class="row mt-4" style="margin-left: 20%; margin-right: 10%;">
         <div class="col-md-12 mt-4">
-            <h1 class="page-header mt-4">Create Appeal</h1>
+            <h1 class="page-header mt-4">Create Appointment</h1>
             <div class="panel panel-inverse">
                 <div class="panel-heading">
-                    <h4 class="panel-title">Appeal Form</h4>
+                    <h4 class="panel-title">Appointment Form</h4>
                     <div class="panel-heading-btn">
                         <a href="javascript:;" class="btn btn-xs btn-icon btn-circle btn-default" data-click="panel-expand">
                             <i class="fa fa-expand"></i>
@@ -46,7 +46,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('appeals.store') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('dvc.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="row">
                             <div class="col-md-6">
@@ -54,6 +54,8 @@
                                     <label for="case_id">Case ID <span class="text-danger">*</span></label>
                                     <input type="text" name="case_id" id="case_id" class="form-control" value="{{ $case_id }}" disabled>
                                     <input type="hidden" name="case_id" value="{{ $case_id }}">
+                                    <input type="hidden" name="forwarding_id" value="{{ $forwarding_id }}">
+                                    <input type="hidden" name="evaluation_id" value="{{ $evaluation_id }}">
                                 </div>
 
                                 <div class="form-group mt-2">
@@ -67,12 +69,12 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group mt-2">
-                                    <label for="next_hearing_date">Next Hearing Date <span class="text-danger">*</span></label>
+                                    <label for="next_hearing_date">Appointment Date and Date <span class="text-danger">*</span></label>
                                     <input type="datetime-local" name="next_hearing_date" id="next_hearing_date" class="form-control" required>
                                 </div>
                                 <div class="form-group mt-2">
-                                    <label for="appeal_comments">Appeal Comments</label>
-                                    <textarea name="appeal_comments" id="appeal_comments" class="form-control" rows="2" placeholder="Enter appeal comments"></textarea>
+                                    <label for="appointment_comments">Appointment Comments</label>
+                                    <textarea name="comments" id="appointment_comments" class="form-control" rows="2" placeholder="Enter appointment comments"></textarea>
                                 </div>
                                 <div class="form-group">
                                     <label for="modalAttachments">Select Files</label>
@@ -85,7 +87,7 @@
                         </div>
                         <div class="form-group text-center mt-2">
                             <button type="submit" class="btn btn-primary">
-                                <i class="fa fa-paper-plane"></i> Submit Appeal
+                                <i class="fa fa-paper-plane"></i> Submit Appointment
                             </button>
                         </div>
                     </form>
@@ -95,12 +97,12 @@
     </div>
 </div>
 
-@if(session('appeal_success'))
+@if(session('appointment_success'))
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script>
         swal({
-            title: "Appeal submitted!",
-            text: "Do you have appeal documents to upload?",
+            title: "Appointment submitted!",
+            text: "Do you have appointment documents to upload?",
             icon: "info",
             buttons: ["No", "Yes"]
         }).then((willUpload) => {
@@ -108,7 +110,7 @@
                 $('#addDocumentModal').modal('show');
                 
             } else {
-                window.location.href = "{{ route('appeals.index') }}?message=Appeal+added+successfully";
+                window.location.href = "{{ route('dvc.index') }}?message=Appointment+sent+successfully";
             }
         });
     </script>
@@ -118,7 +120,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addDocumentModalLabel">Add Appeal Document  </h5>
+                <h5 class="modal-title" id="addDocumentModalLabel">Add Appointment Document  </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
