@@ -142,6 +142,7 @@
                             <th>Amount Paid</th>                            
                             <th>Payment Method</th>
                             <th>Payment Date</th>
+                             <th>Next Step</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -149,12 +150,31 @@
                         @foreach($payments as $payment)
                             <tr>
                                 <td class="text-center">{{ $payment->payment_id }}</td>
-                                <td class="text-center">{{ $payment->case->case_name }}</td>
+                                
+                                <td class="text-center">
+                                 @if($payment->case)
+                                    <a href="{{ route('cases.show', $payment->case->case_id) }}" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center" title="View Case">
+                                        <i class="fa fa-eye me-1"></i> {{ $payment->case->case_name }}
+                                    </a>
+                                @else
+                                    <span class="text-muted">N/A</span>
+                                @endif
+                                 </td>
                                 <td class="text-center">{{ $payment->lawyer->license_number.'-'. $payment->lawyer->user->full_name }}</td>
                                 <td class="text-center">{{ $payment->amount_paid }}</td>
                                 <td class="text-center">{{ $payment->payment_method }}</td>
                                 <td class="text-center">{{ $payment->payment_date ?? 'N/A' }}</td>
-                           
+                                <td>
+                                @if($payment->case)
+                                 <a href="{{ route('closed_cases.create', $payment->case->case_id) }}" 
+                                       class="btn btn-sm btn-outline-success d-inline-flex align-items-center" 
+                                       title="Close this case">
+                                        <i class="fa fa-gavel me-1"></i> Close Case
+                                    </a>
+                                @else
+                                    <span class="text-muted">N/A</span>
+                                @endif
+                            </td>
                                 <td class="text-center action-buttons">
                                     <button class="btn btn-warning btn-sm edit-payment" data-id="{{ $payment->payment_id }}">
                                         <i class="fa fa-edit"></i> Edit

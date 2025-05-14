@@ -131,7 +131,18 @@
                             @foreach($evaluations as $evaluation)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
-                                <td>{{ $evaluation->case->case_name ?? 'N/A' }}</td>
+                               
+
+                                <td>
+                                @if($evaluation->case)
+                                    <a href="{{ route('cases.show', $evaluation->case->case_name) }}" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center" title="View Case">
+                                        <i class="fa fa-eye me-1"></i> {{ $evaluation->case->case_name }}
+                                    </a>
+                                @else
+                                    <span class="text-muted">N/A</span>
+                                @endif
+                                 </td>
+
                                 <td>{{ $evaluation->user->full_name ?? 'N/A' }}
                                 </td>
                                 <td>{{ $evaluation->evaluation_date }}</td>

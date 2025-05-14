@@ -111,6 +111,7 @@
                             <th>Judgement Date</th>
                             <th>Outcome</th>
                             <th>Judgement Details</th>
+                            <th>Next Step</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -120,11 +121,33 @@
                         @foreach($trials as $trial)
                             <tr>
                                 <td class="text-center">{{ $trial->trial_id }}</td>
-                                <td class="text-center">{{ $trial->case->case_name }}</td>
+                                
+                                 <td class="text-center">
+                                 @if($trial->case)
+                                    <a href="{{ route('cases.show', $trial->case->case_id) }}" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center" title="View Case">
+                                        <i class="fa fa-eye me-1"></i> {{ $trial->case->case_name }}
+                                    </a>
+                                @else
+                                    <span class="text-muted">N/A</span>
+                                @endif
+                                 </td>
+
                                 <td class="text-center">{{ $trial->trial_date}}</td>
                                 <td class="text-center">{{ $trial->judgement_date}}</td>
                                 <td class="text-center">{{ $trial->outcome}}</td>
                                 <td> {{ Str::limit($trial->judgement_details ?? 'No comments', 30) }}  </td>
+                                <td>
+                                @if($trial->case)
+                                 <a href="{{ route('lawyer_payments.create', $trial->case->case_id) }}" 
+                                       class="btn btn-sm btn-outline-success d-inline-flex align-items-center" 
+                                       title="Lawyer Payment">
+                                        <i class="fa fa-gavel me-1"></i> Lawyer Payment
+                                    </a>
+                                @else
+                                    <span class="text-muted">N/A</span>
+                                @endif
+                            </td>
+
                                 <td class="text-center action-buttons">
                                     <button class="btn btn-warning btn-sm edit-trial" data-id="{{ $trial->trial_id }}">
                                         <i class="fa fa-edit"></i> Edit

@@ -112,6 +112,7 @@
                             <th>Case Name</th>
                             <th>Next Hearing Date</th>
                             <th>Comments</th>
+                            <th>Next Step</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -119,10 +120,32 @@
                         @foreach($adjourns as $adjourn)
                             <tr>
                                 <td class="text-center">{{ $adjourn->adjourns_id }}</td>
-                                <td class="text-center">{{ $adjourn->case->case_name }}</td>
+                                
+                                <td class="text-center">
+                                 @if($adjourn->case)
+                                    <a href="{{ route('cases.show', $adjourn->case->case_id) }}" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center" title="View Case">
+                                        <i class="fa fa-eye me-1"></i> {{ $adjourn->case->case_name }}
+                                    </a>
+                                @else
+                                    <span class="text-muted">N/A</span>
+                                @endif
+                                 </td>
+
                                 <td class="text-center">{{ $adjourn->next_hearing_date ?? 'N/A' }}</td>
                                 <td>{{ $adjourn->adjourn_comments ?? 'No comments' }}</td>
+                                <td>
+                                @if($adjourn->case)
+                                 <a href="{{ route('preparations.create', $adjourn->case->case_id) }}" 
+                                       class="btn btn-sm btn-outline-success d-inline-flex align-items-center" 
+                                       title="Trial Preparation">
+                                        <i class="fa fa-gavel me-1"></i> Trial Preparation
+                                    </a>
+                                @else
+                                    <span class="text-muted">N/A</span>
+                                @endif
+                            </td>
                                 <td class="text-center action-buttons">
+
                                     <button class="btn btn-warning btn-sm edit-adjourn" data-id="{{ $adjourn->adjourns_id }}">
                                         <i class="fa fa-edit"></i> Edit
                                     </button>

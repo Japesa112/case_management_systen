@@ -112,6 +112,7 @@
                             <th>Case Name</th>
                             <th>Next Hearing Date</th>
                             <th>Comments</th>
+                            <th>Next Step</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -119,9 +120,30 @@
                         @foreach($appeals as $appeal)
                             <tr>
                                 <td class="text-center">{{ $appeal->appeal_id }}</td>
-                                <td class="text-center">{{ $appeal->case->case_name }}</td>
+                               
+                                <td class="text-center">
+                                 @if($appeal->case)
+                                    <a href="{{ route('cases.show', $appeal->case->case_id) }}" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center" title="View Case">
+                                        <i class="fa fa-eye me-1"></i> {{ $appeal->case->case_name }}
+                                    </a>
+                                @else
+                                    <span class="text-muted">N/A</span>
+                                @endif
+                                 </td>
+
                                 <td class="text-center">{{ $appeal->next_hearing_date ?? 'N/A' }}</td>
                                 <td>{{ $appeal->appeal_comments ?? 'No comments' }}</td>
+                                <td>
+                                @if($appeal->case)
+                                 <a href="{{ route('preparations.create', $appeal->case->case_id) }}" 
+                                       class="btn btn-sm btn-outline-success d-inline-flex align-items-center" 
+                                       title="Trial Preparation">
+                                        <i class="fa fa-gavel me-1"></i> Trial Preparation
+                                    </a>
+                                @else
+                                    <span class="text-muted">N/A</span>
+                                @endif
+                            </td>
                                 <td class="text-center action-buttons">
                                     <button class="btn btn-warning btn-sm edit-appeal" data-id="{{ $appeal->appeal_id }}">
                                         <i class="fa fa-edit"></i> Edit

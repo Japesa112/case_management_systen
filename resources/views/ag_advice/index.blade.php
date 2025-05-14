@@ -118,6 +118,7 @@
                             <th>Case Name</th>
                             <th>Advice Date</th>
                             <th>Advice Details</th>
+                            <th>Next Step</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -125,9 +126,33 @@
                         @foreach($advices as $advice)
                             <tr>
                                 <td class="text-center">{{ $advice->ag_advice_id}}</td>
-                                <td class="text-center">{{ $advice->case->case_name }}</td>
+                                
+
+                                <td>
+                                @if($advice->case)
+                                    <a href="{{ route('cases.show', $advice->case->case_id) }}" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center" title="View Case">
+                                        <i class="fa fa-eye me-1"></i> {{ $advice->case->case_name }}
+                                    </a>
+                                @else
+                                    <span class="text-muted">N/A</span>
+                                @endif
+                                 </td>
+
                                 <td class="text-center">{{ $advice->advice_date ?? 'N/A' }}</td>
                                 <td>{{ Str::limit($advice->ag_advice, 50) }}  </td>
+
+                                <td>
+                                @if($advice->case)
+                                 <a href="{{route('cases.panelEvaluation', $advice->case->case_id) }}" 
+                                       class="btn btn-sm btn-outline-success d-inline-flex align-items-center" 
+                                       title="Submit for Panel Evaluation">
+                                        <i class="fa fa-gavel me-1"></i> Panel Evaluation
+                                    </a>
+                                @else
+                                    <span class="text-muted">N/A</span>
+                                @endif
+                            </td>
+
                                 <td class="text-center action-buttons">
                                     <button class="btn btn-warning btn-sm edit-advice" data-id="{{ $advice->ag_advice_id }}">
                                         <i class="fa fa-edit"></i> Edit

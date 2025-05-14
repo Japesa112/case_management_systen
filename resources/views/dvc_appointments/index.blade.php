@@ -122,7 +122,16 @@
                         @foreach($forwardings as $appointment)
                             <tr>
                                 <td class="text-center">{{ $appointment->forwarding_id}}</td>
-                                <td class="text-center">{{ $appointment->case->case_name }}</td>
+                                <td class="text-center">
+                                 @if($appointment->case)
+                                    <a href="{{ route('cases.show', $appointment->case->case_id) }}" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center" title="View Case">
+                                        <i class="fa fa-eye me-1"></i> {{ $appointment->case->case_name }}
+                                    </a>
+                                @else
+                                    <span class="text-muted">N/A</span>
+                                @endif
+                                 </td>
+
                                 <td class="text-center">{{ $appointment->dvc_appointment_date ?? 'N/A' }}</td>
                                 
                                 <td>{{ Str::limit($appointment->briefing_notes, 50) }}  </td>

@@ -105,6 +105,7 @@
                             <th>Case Name</th>
                             <th>Time</th>
                             <th>Number</th>
+                            <th>Next Action</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -127,6 +128,20 @@
                                 <td class="text-center">{{ $activity->formatted_date }} at {{ $activity->formatted_time }}</td>
                                 <td>{{ $activity->seq_num }}<sup>{{ $activity->seq_suffix }}</sup>
                                     {{ ucfirst($activity->type )  }}</td>
+
+
+                                <td>
+                                @if($activity->case)
+                                 <a href="{{ route('preparations.create', $activity->case->case_id) }}" 
+                                       class="btn btn-sm btn-outline-success d-inline-flex align-items-center" 
+                                       title="Trial Preparation">
+                                        <i class="fa fa-gavel me-1"></i> Trial Preparation
+                                    </a>
+                                @else
+                                    <span class="text-muted">N/A</span>
+                                @endif
+                            </td>
+
                                 <td class="text-center action-buttons">
                                     <button class="btn btn-warning btn-sm edit-activity" data-id="{{ $activity->id }}">
                                         <i class="fa fa-edit"></i> Edit

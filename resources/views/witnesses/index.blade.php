@@ -109,6 +109,7 @@
                             <th>Witness Name</th>
                             <th>Phone</th>
                             <th>witness_statement</th>
+                            <th>Next Step</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -116,10 +117,31 @@
                         @foreach($witnesses as $witness)
                             <tr>
                                 <td class="text-center">{{ $witness->witness_id }}</td>
-                                <td class="text-center">{{ $witness->case->case_name }}</td>
+                                
+                                <td class="text-center">
+                                 @if($witness->case)
+                                    <a href="{{ route('cases.show', $witness->case->case_id) }}" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center" title="View Case">
+                                        <i class="fa fa-eye me-1"></i> {{ $witness->case->case_name }}
+                                    </a>
+                                @else
+                                    <span class="text-muted">N/A</span>
+                                @endif
+                                 </td>
+
                                 <td class="text-center">{{ $witness->witness_name}}</td>
                                 <td class="text-center">{{ $witness->phone}}</td>
                                 <td> {{ Str::limit($witness->witness_statement ?? 'No comments', 30) }}  </td>
+                                <td>
+                                @if($witness->case)
+                                 <a href="{{ route('preparations.create', $witness->case->case_id) }}" 
+                                       class="btn btn-sm btn-outline-success d-inline-flex align-items-center" 
+                                       title="Trial Preparation">
+                                        <i class="fa fa-gavel me-1"></i> Trial Preparation
+                                    </a>
+                                @else
+                                    <span class="text-muted">N/A</span>
+                                @endif
+                            </td>
                                 <td class="text-center action-buttons">
                                     <button class="btn btn-warning btn-sm edit-witness" data-id="{{ $witness->witness_id }}">
                                         <i class="fa fa-edit"></i> Edit

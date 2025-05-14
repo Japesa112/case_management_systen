@@ -73,16 +73,7 @@
                 
                 >Assign Case</button>
             </div>
-            @if ($case->case_status != "Closed")
-            <div class="col-md-2 mb-2">
-                <a href="{{ route("closed_cases.create", $case->case_id) }}" class="btn btn-danger btn-sm w-100 text-start text-truncate" title="Close Case">Close Case</a>
-            </div>
-            @else
             
-            <div class="col-md-2 mb-2">
-                <a href="{{ route("closed_cases.create", $case->case_id) }}" class="btn btn-info btn-sm w-100 text-start text-truncate" title="Close Case"  style="pointer-events: none; color: gray;">Cased Closed</a>
-            </div>
-            @endif
             
 
            

@@ -109,7 +109,7 @@
                             <th>Preparation Date</th>
                             <th>Preparation Status	</th>
                             <th>Briefing Notes</th>
-                            
+                            <th>Next Step</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -117,10 +117,31 @@
                         @foreach($trialPreparations as $preparation)
                             <tr>
                                 <td class="text-center">{{ $preparation->preparation_id }}</td>
-                                <td class="text-center">{{ $preparation->case->case_name }}</td>
+                                
+                                <td class="text-center">
+                                 @if($preparation->case)
+                                    <a href="{{ route('cases.show', $preparation->case->case_id) }}" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center" title="View Case">
+                                        <i class="fa fa-eye me-1"></i> {{ $preparation->case->case_name }}
+                                    </a>
+                                @else
+                                    <span class="text-muted">N/A</span>
+                                @endif
+                                 </td>
+
                                 <td class="text-center">{{ $preparation->preparation_date}}</td>
                                 <td class="text-center">{{ $preparation->preparation_status}}</td>
                                 <td> {{ Str::limit($preparation->briefing_notes ?? 'No comments', 30) }}  </td>
+                                <td>
+                                @if($preparation->case)
+                                 <a href="{{ route('trials.create', $preparation->case->case_id) }}" 
+                                       class="btn btn-sm btn-outline-success d-inline-flex align-items-center" 
+                                       title="Trial">
+                                        <i class="fa fa-gavel me-1"></i> Trial
+                                    </a>
+                                @else
+                                    <span class="text-muted">N/A</span>
+                                @endif
+                            </td>
                                 <td class="text-center action-buttons">
                                     <button class="btn btn-warning btn-sm edit-preparation" data-id="{{ $preparation->preparation_id }}">
                                         <i class="fa fa-edit"></i> Edit
