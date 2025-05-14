@@ -273,7 +273,8 @@ Route::delete('/cases/{case_id}/remove-lawyer/{lawyer_id}', [CaseController::cla
 //Cases Route
 Route::middleware(['auth'])->prefix('cases')->group(function () {
     Route::post('/{case_id}/submit-panel-evaluation', [CaseController::class, 'submitToPanelEvaluation'])->name('cases.submitToPanelEvaluation');
-    
+    Route::get('/{case_id}/panel-evaluation', [CaseController::class, 'showPanelEvaluation'])->name('cases.panelEvaluation');
+
     Route::post('/send-case-email/{case_id}', [CaseController::class, 'sendEmail'])->name('cases.sendEmail');
 
     Route::get('/update-form', [CaseController::class, 'showUpdateForm'])->name('cases.showUpdateForm');

@@ -8,6 +8,48 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 @endpush
+@push('styles')
+<style>
+    .panel-title {
+        font-size: 18px;
+        font-weight: bold;
+    }
+    .table thead th {
+        background-color: #3c3440;
+        color: white;
+        text-align: center;
+    }
+    .table tbody td {
+        vertical-align: middle;
+    }
+    .action-buttons a, .action-buttons form {
+        display: inline-block;
+        margin-right: 5px;
+    }
+ .dataTables_filter input {
+        border-radius: 20px;
+        padding: 8px 16px;
+        border: 5px solid #d109d8;
+        box-shadow: none;
+        outline: none;
+        transition: border-color 0.3s ease-in-out;
+        width: 250px; /* 👈 You can increase this */
+        max-width: 100%; /* Make sure it doesn’t overflow on smaller screens */
+    }
+
+    /* Optional: Highlight on focus */
+    .dataTables_filter input:focus {
+        border-color: #0db1fd;
+    }
+
+
+</style>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
+
+@endpush
+
+
 @section('content')
 <div class="container-fluid">
     @php
@@ -90,7 +132,7 @@
                     </script>
             @endif
             <div class="table-responsive">
-                <table class="table table-bordered table-striped">
+                <table id="data-table" class="table table-bordered table-striped">
                     <thead>
                         <tr>
                             <tr>
@@ -99,7 +141,8 @@
                                 <th>Method</th>
                                 <th>Subject</th>
                                 <th>Outcome</th>
-                                <th>Initiation Date &amp; Time</th>
+                                <th>Initiation Date</th>
+                                <th>Panel Evaluation</th>
                                 <th>Action</th>
                             </tr>
                         </tr>
@@ -108,11 +151,32 @@
                         @foreach($negotiations as $negotiation)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
-                            <td>{{ $negotiation->caseRecord->case_name ?? 'N/A' }}</td>
+                            <td>
+                                @if($negotiation->caseRecord)
+                                    <a href="{{ route('cases.show', $negotiation->caseRecord->case_id) }}" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center" title="View Case">
+                                        <i class="fa fa-eye me-1"></i> {{ $negotiation->caseRecord->case_name }}
+                                    </a>
+                                @else
+                                    <span class="text-muted">N/A</span>
+                                @endif
+                            </td>
+
                             <td>{{ $negotiation->negotiation_method }}</td>
                             <td>{{ $negotiation->subject }}</td>
                             <td>{{ $negotiation->outcome }}</td>
                             <td>{{ $negotiation->initiation_datetime }}</td>
+                            <td>
+                                @if($negotiation->caseRecord)
+                                 <a href="{{ route('cases.panelEvaluation', $negotiation->caseRecord->case_id) }}" 
+                                       class="btn btn-sm btn-outline-success d-inline-flex align-items-center" 
+                                       title="Submit for Panel Evaluation">
+                                        <i class="fa fa-gavel me-1"></i> Panel Evaluation
+                                    </a>
+                                @else
+                                    <span class="text-muted">N/A</span>
+                                @endif
+                            </td>
+
                             <td>
                                 <a href="{{ route('negotiations.show', $negotiation) }}" class="btn btn-info btn-sm" title="View Details">
                                     <i class="fa fa-eye"></i> View
@@ -130,14 +194,7 @@
                     </tbody>
                 </table>
             </div>
-             <!-- Pagination -->
-             <div class="d-flex justify-content-center">
-                <nav aria-label="Page navigation">
-                    <ul class="pagination">
-                        {{ $negotiations->links('vendor.pagination.bootstrap-4') }}
-                    </ul>
-                </nav>
-            </div>
+             
         </div>
     </div>
 </div>
@@ -194,6 +251,25 @@
     });
     </script>
     
-  
+     
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#data-table').DataTable(
+            {
+            pageLength: 5,
+            dom: 'Bfrtip',
+            buttons: ['copy', 'csv', 'excel', 'pdf', 'print'],
+            
+        }
+        );
+    });
+</script> 
+    
     
 @endpush

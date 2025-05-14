@@ -20,7 +20,27 @@
         display: inline-block;
         margin-right: 5px;
     }
+ .dataTables_filter input {
+        border-radius: 20px;
+        padding: 8px 16px;
+        border: 5px solid #d109d8;
+        box-shadow: none;
+        outline: none;
+        transition: border-color 0.3s ease-in-out;
+        width: 250px; /* 👈 You can increase this */
+        max-width: 100%; /* Make sure it doesn’t overflow on smaller screens */
+    }
+
+    /* Optional: Highlight on focus */
+    .dataTables_filter input:focus {
+        border-color: #0db1fd;
+    }
+
+
 </style>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
+
 @endpush
 
 @section('content')
@@ -77,7 +97,7 @@
             
             
             <div class="table-responsive">
-                <table class="table table-bordered table-striped">
+                <table  id="data-table" class="table table-bordered table-striped">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -93,7 +113,17 @@
                             <tr>
                                 <td class="text-center">{{ $activity->id }}</td>
                                 <td class="text-center">{{ $case_name ?? $activity->case->case_number }}</td>
-                                <td class="text-center">{{ $case_name ?? $activity->case->case_name }}</td>
+                                
+                                  <td>
+                                @if($activity->case)
+                                    <a href="{{ route('cases.show', $activity->case->case_id) }}" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center" title="View Case">
+                                        <i class="fa fa-eye me-1"></i> {{ $activity->case->case_name }}
+                                    </a>
+                                @else
+                                    <span class="text-muted">N/A</span>
+                                @endif
+                                 </td>
+
                                 <td class="text-center">{{ $activity->formatted_date }} at {{ $activity->formatted_time }}</td>
                                 <td>{{ $activity->seq_num }}<sup>{{ $activity->seq_suffix }}</sup>
                                     {{ ucfirst($activity->type )  }}</td>
@@ -944,4 +974,22 @@ $(document).ready(function() {
 
 </script>
     
+   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#data-table').DataTable(
+            {
+            pageLength: 5,
+            dom: 'Bfrtip',
+            buttons: ['copy', 'csv', 'excel', 'pdf', 'print'],
+            
+        }
+        );
+    });
+</script>
 @endpush

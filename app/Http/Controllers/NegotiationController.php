@@ -20,7 +20,7 @@ class NegotiationController extends Controller
 
     public function index()
     {
-        $negotiations = Negotiation::with(['attachments', 'caseRecord'])->orderBy('created_at', 'desc')->paginate(5);
+        $negotiations = Negotiation::with(['attachments', 'caseRecord'])->orderBy('created_at', 'desc')->get();
 
         return view('negotiations.index', compact('negotiations'));
     }

@@ -1677,6 +1677,8 @@ public function getEvents()
 
 public function submitToPanelEvaluation(Request $request, $case_id)
 {
+   
+   try{
     $case = CaseModel::findOrFail($case_id);
     $message = $request->input('message'); // 👈 capture the message
 
@@ -1706,11 +1708,24 @@ public function submitToPanelEvaluation(Request $request, $case_id)
         });
 
     return response()->json([
+
         'message' => "Notification queued to {$totalRecipients} lawyers."
     ]);
+   }
+   catch (\Throwable $e) {
+
+    Log::error("Error", [$e->getMessage()]);
+    return response()->json(["Error while sending to panel"]);
+   }
+    
 }
 
 
 
+public function showPanelEvaluation($case_id)
+{
+    $case = CaseModel::findOrFail($case_id); // adjust model name if different
+    return view('evaluations.panel-evaluation', ['caseId' => $case->case_id, 'case' => $case]);
+}
 
 }

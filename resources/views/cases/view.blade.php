@@ -85,34 +85,7 @@
             @endif
             
 
-            @if ( $case->case_status == "Panel Evaluation")
-            <div class="col-md-2 mb-2">
-                <button id="submitEvaluationBtn"
-                        data-case-id="{{ $case->case_id }}"
-                        data-case-flag="{{ true }}"
-                        class="btn btn-secondary btn-sm w-100 text-start text-truncate"
-                        title="Submitted to Panel Evaluation"
-                        data-bs-toggle="modal"
-                        data-bs-target="#panelEvaluationModal">
-                        Message Lawyers
-                </button>
-
-            </div>
-            @else
-
-            <div class="col-md-2 mb-2">
-                <button id="submitEvaluationBtn"
-                        data-case-id="{{ $case->case_id }}"
-                        class="btn btn-primary btn-sm w-100 text-start text-truncate"
-                        title="Submit for Panel Evaluation"
-                        data-bs-toggle="modal"
-                        data-bs-target="#panelEvaluationModal">
-                    Submit for Panel Evaluation
-                </button>
-
-            </div>
-            
-            @endif
+           
             
             
             <div class="col-md-2 mb-2">
@@ -1987,17 +1960,18 @@ $('#deleteApplicationBtn').on('click', function (e) {
             const caseId = $(this).data('case-id');
             const caseFlag = $(this).data('case-flag');
             let message = "Send Message to Lawyers";
-            
+          
             if (caseFlag) {
               
                 $('#panelEvaluationModalLabel').text(message);
             }
-            $('#modalCaseId').text(caseId);
+            $('#modalCaseId').val(caseId);
             
         });
     
         $('#sendPanelEvaluationBtn').on('click', function () {
             const caseId = $('#modalCaseId').val();
+           
             const message = $('#panelMessage').val().trim();
     
             if (message === '') {

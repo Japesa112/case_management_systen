@@ -1,15 +1,26 @@
 @extends('layouts.default')
 @section('title', 'Case')
+
+
 @push('styles')
 <style>
-    /* Add margin to DataTables search bar */
-    .dataTables_filter {
-        margin-bottom: 20px; /* Adjust this value as needed */
-        margin-right: 20px;
-       
+    .panel-title {
+        font-size: 18px;
+        font-weight: bold;
     }
-     /* Make the search input rounded */
-    .dataTables_filter input {
+    .table thead th {
+        background-color: #3c3440;
+        color: white;
+        text-align: center;
+    }
+    .table tbody td {
+        vertical-align: middle;
+    }
+    .action-buttons a, .action-buttons form {
+        display: inline-block;
+        margin-right: 5px;
+    }
+ .dataTables_filter input {
         border-radius: 20px;
         padding: 8px 16px;
         border: 5px solid #d109d8;
@@ -24,11 +35,14 @@
     .dataTables_filter input:focus {
         border-color: #0db1fd;
     }
+
+
+</style>
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
 
-</style>
 @endpush
+
 
 @section('content')
 <div class="container">

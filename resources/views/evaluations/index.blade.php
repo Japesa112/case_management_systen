@@ -7,6 +7,36 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 @endpush
 
+@push('styles')
+<style>
+.dataTables_filter {
+        margin-bottom: 20px; /* Adjust this value as needed */
+        margin-right: 20px;
+       
+    }
+     /* Make the search input rounded */
+    .dataTables_filter input {
+        border-radius: 20px;
+        padding: 8px 16px;
+        border: 5px solid #d109d8;
+        box-shadow: none;
+        outline: none;
+        transition: border-color 0.3s ease-in-out;
+        width: 250px; /* 👈 You can increase this */
+        max-width: 100%; /* Make sure it doesn’t overflow on smaller screens */
+    }
+
+    /* Optional: Highlight on focus */
+    .dataTables_filter input:focus {
+        border-color: #0db1fd;
+    }
+
+
+</style>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
+
+@endpush
 @section('content')
 <div class="container-fluid">
     @php
@@ -84,7 +114,7 @@
                 
 
                 <div class="table-responsive">
-                    <table class="table table-bordered table-striped">
+                    <table id="data-table" class="table table-bordered table-striped">
                         <thead>
                             <tr>
                                 <th>Number</th>
@@ -105,7 +135,7 @@
                                 <td>{{ $evaluation->user->full_name ?? 'N/A' }}
                                 </td>
                                 <td>{{ $evaluation->evaluation_date }}</td>
-                                <td>{{ Str::limit($evaluation->comments, 30) }}</td>
+                                <td>{{ Str::limit($evaluation->comments, 20) }}</td>
                                 
                                 <td>{{ $evaluation->outcome }}</td>
 
@@ -273,4 +303,24 @@
         });
     });
 </script>
+
+     
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#data-table').DataTable(
+            {
+            pageLength: 5,
+            dom: 'Bfrtip',
+            buttons: ['copy', 'csv', 'excel', 'pdf', 'print'],
+            
+        }
+        );
+    });
+</script> 
 @endpush
