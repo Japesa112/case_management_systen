@@ -11,6 +11,37 @@
         align-items: center;
     }
 </style>
+<style>
+  .btn-custom {
+    border-radius: 6px;
+    font-weight: 600;
+    padding: 0.5rem 1.25rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+  }
+  .btn-custom i {
+    font-size: 1.1rem;
+  }
+  .btn-secondary:hover {
+    background-color: #5a6268;
+    color: #fff;
+  }
+  .btn-info:hover {
+    background-color: #2176bd;
+    color: #fff;
+  }
+  .btn-primary:hover {
+    background-color: #004085;
+    color: #fff;
+  }
+  @media (max-width: 575.98px) {
+    .form-group.d-flex {
+      flex-direction: column;
+      gap: 0.75rem;
+      align-items: stretch;
+    }
+  }
+</style>
 @endpush
 
 @section('title', 'Create Appointment')
@@ -85,11 +116,37 @@
                               
                             </div>
                         </div>
-                        <div class="form-group text-center mt-2">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fa fa-paper-plane"></i> Submit Appointment
-                            </button>
-                        </div>
+                        <div class="form-group d-flex justify-content-between align-items-center mt-3 px-3">
+
+                                <!-- Back Button (Left) -->
+                                <button 
+                                  type="button" 
+                                  onclick="window.history.back();" 
+                                  class="btn btn-secondary btn-custom d-inline-flex align-items-center gap-2"
+                                  title="Go back"
+                                  >
+                                    <i class="fa fa-arrow-left"></i> <span>Back</span>
+                                </button>
+
+                                <!-- Go to Appointments Button (Center) -->
+                                <a 
+                                  href="/dvc" 
+                                  class="btn btn-info btn-custom d-inline-flex align-items-center gap-2"
+                                  title="View all appointments"
+                                  >
+                                    <i class="fa fa-calendar-check"></i> <span>View Appointments</span>
+                                </a>
+
+                                <!-- Submit Appointment Button (Right) -->
+                                <button 
+                                  type="submit" 
+                                  class="btn btn-primary btn-custom d-inline-flex align-items-center gap-2"
+                                  title="Submit appointment"
+                                  >
+                                    <i class="fa fa-paper-plane"></i> <span>Submit Appointment</span>
+                                </button>
+
+                            </div>
                     </form>
                 </div>
             </div>

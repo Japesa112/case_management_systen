@@ -104,15 +104,23 @@
                             </div>
                         </div>
                                     <!-- Submit and Back Buttons -->
-                <!-- Submit and Back Buttons -->
-                    <div class="form-group d-flex justify-content-between mt-4 ml-5">
-                        <div class="ml-4" style="margin-left: 5%; margin-bottom: 5%;">
-                            <a href="{{ route("cases.index") }}" class="btn btn-secondary">Back to Cases</a> <!-- Back Button (Left) -->
-                        </div>
-                        <div style="margin-right: 5%; margin-bottom: 5%;">
-                            <button type="submit" class="btn btn-primary">Submit Evaluation</button> <!-- Submit Button (Right) -->
-                        </div>
-                        
+               
+            <div class="form-group d-flex justify-content-between align-items-center mt-4 px-4">
+                
+                <!-- Back to Cases (Left) -->
+                <a href="{{ route('cases.index') }}" class="btn btn-secondary d-flex align-items-center">
+                    <i class="fa fa-arrow-left me-1"></i> Back to Cases
+                </a>
+                
+                <!-- View Evaluations (Middle) -->
+                <a href="{{ route('evaluations.index') }}" class="btn btn-info d-flex align-items-center">
+                    <i class="fa fa-list me-1"></i> View Evaluations
+                </a>
+
+                <!-- Submit Evaluation (Right) -->
+                <button type="submit" class="btn btn-primary d-flex align-items-center">
+                    <i class="fa fa-paper-plane me-1"></i> Submit Evaluation
+                </button>
             </div>
 
 

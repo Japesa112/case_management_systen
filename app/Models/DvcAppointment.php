@@ -34,8 +34,10 @@ class DvcAppointment extends Model
         return $this->hasMany(DvcAppointmentAttachment::class, 'appointment_id');
     }
 
+    // DVCAppointment.php
     public function forwarding()
     {
-        return $this->belongsTo(Forwarding::class);
+        return $this->belongsTo(Forwarding::class, 'forwarding_id', 'forwarding_id');
     }
+
 }

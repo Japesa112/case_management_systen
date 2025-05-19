@@ -165,11 +165,21 @@
                                     <i class="fa fa-eye"></i>
                                 </a>
                             </td>
-                            <td>
-                                <a href="{{ route('negotiations.create', $case->case_id) }}" class="btn btn-primary btn-sm" title="Negotiation">
-                                    <i class="fa fa-handshake"></i>
+                            <td class="text-nowrap">
+                            <div class="d-flex flex-column gap-1">
+                                <a href="{{ route('negotiations.create', $case->case_id) }}" 
+                                   class="btn btn-outline-success btn-sm d-flex align-items-center gap-2" 
+                                   title="Start Negotiation">
+                                    <i class="fa fa-handshake"></i> <span>Negotiation</span>
                                 </a>
-                            </td>
+                                
+                                <a href="{{ route('cases.panelEvaluation', $case->case_id) }}" 
+                                   class="btn btn-outline-primary btn-sm d-flex align-items-center gap-2" 
+                                   title="Evaluate this case">
+                                    <i class="fa fa-star"></i> <span>Send to Evaluation</span>
+                                </a>
+                            </div>
+                        </td>
                              </tr>
                         @endforeach
                     </tbody>

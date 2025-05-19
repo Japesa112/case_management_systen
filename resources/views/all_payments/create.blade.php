@@ -108,11 +108,25 @@
                             </div>
                         </div>
                     
-                        <div class="form-group text-center mt-2">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fa fa-paper-plane"></i> Submit Payment
+                        <div class="form-group d-flex justify-content-between align-items-center mt-3 px-3">
+
+                            <!-- Back Button -->
+                            <button type="button" onclick="window.history.back();" class="btn btn-secondary d-flex align-items-center">
+                                <i class="fa fa-arrow-left me-1"></i> Back
                             </button>
+
+                            <!-- Go to Payments Button -->
+                            <a href="/all_payments" class="btn btn-info d-flex align-items-center">
+                                <i class="fa fa-credit-card me-1"></i> Go to Payments
+                            </a>
+
+                            <!-- Submit Payment Button -->
+                            <button type="submit" class="btn btn-primary d-flex align-items-center">
+                                <i class="fa fa-paper-plane me-1"></i> Submit Payment
+                            </button>
+
                         </div>
+
                     </form>
                     
                 </div>

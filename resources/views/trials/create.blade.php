@@ -96,11 +96,23 @@
                             </div>
                         </div>
                     
-                        <div class="form-group text-center mt-3">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fa fa-paper-plane"></i> Submit Trial
-                            </button>
+                       <div class="form-group d-flex justify-content-between align-items-center mt-3">
+                          <!-- Back Button (Left) -->
+                          <button type="button" onclick="window.history.back();" class="btn btn-secondary d-inline-flex align-items-center gap-2">
+                            <i class="fa fa-arrow-left"></i> <span>Back</span>
+                          </button>
+
+                          <!-- Go to /trials Button (Middle) -->
+                          <a href="/trials" class="btn btn-info d-inline-flex align-items-center gap-2">
+                            <i class="fa fa-list"></i> <span>View Trials</span>
+                          </a>
+
+                          <!-- Submit Trial Button (Right) -->
+                          <button type="submit" class="btn btn-primary d-inline-flex align-items-center gap-2">
+                            <i class="fa fa-paper-plane"></i> <span>Submit Trial</span>
+                          </button>
                         </div>
+
                     </form>
                     
                     

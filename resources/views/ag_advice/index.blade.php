@@ -58,12 +58,15 @@
     @php
     use Illuminate\Support\Str;
     @endphp
-
+ <h4> AG Advice </h4>
     <div class="panel panel-inverse">
-        <div class="panel-heading">
-            <h4 class="panel-title">List of Advice</h4>
+
+        <div  class="panel-heading d-flex justify-content-between align-items-center">
+            <a href="{{ url('/cases') }}" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
+                <i class="fa fa-arrow-left text-white fw-bold"></i> <span class="text-white">Back to Cases</span>
+                </a>
             <div class="panel-heading-btn">
-                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addEvaluationModal">
+                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#agAdviceModal">
                     <i class="fa fa-plus"></i> Add New AG Advice
                 </button>
             </div>
@@ -71,29 +74,35 @@
         <div class="panel-body">
             
              <!-- Modal -->
-             <div class="modal fade" id="addEvaluationModal" tabindex="-1" aria-labelledby="addEvaluationModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" style="color: rgb(1, 9, 12)" id="addEvaluationModalLabel">Create New AG Advice</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <form id="checkCaseForm">
-                                @csrf
-                                <div class="form-group">
-                                    <label for="case_number" style="color: rgb(1, 9, 12)">Case Number <span class="text-danger">*</span></label>
-                                    <input type="text" name="case_number" id="case_number" class="form-control" required>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary">Create Advice</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div class="modal fade" id="agAdviceModal" tabindex="-1" aria-labelledby="agAdviceModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+    
+      <div class="modal-header">
+        <h5 class="modal-title" id="agAdviceModalLabel">Seek AG Advice</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      
+      <div class="modal-body">
+        <form id="agAdviceForm">
+          @csrf
+          <div class="form-group">
+            <label for="ag_case_id" class="form-label">Select Case <span class="text-danger">*</span></label>
+            <select name="case_number" id="ag_case_id" class="form-control" required>
+              <option value="">Loading cases...</option>
+            </select>
+          </div>
+          
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Continue</button>
+          </div>
+        </form>
+      </div>
+      
+    </div>
+  </div>
+</div>
         </div>
 
 
@@ -562,6 +571,62 @@ $(document).ready(function () {
             });
         });
     });
+
+
+    
+let agCaseSelect;
+
+$(document).ready(function () {
+    $('#agAdviceModal').on('shown.bs.modal', function () {
+        const caseSelect = $('#ag_case_id');
+
+        // Destroy if already initialized
+        if (agCaseSelect) {
+            agCaseSelect.destroy();
+        }
+
+        caseSelect.empty().append('<option value="">Loading cases...</option>');
+
+        $.ajax({
+            url: "{{ route('cases.available-evaluation-cases') }}",
+            type: "GET",
+            success: function (response) {
+                caseSelect.empty().append('<option value="">Select Case</option>');
+
+                $.each(response, function (index, caseItem) {
+                    caseSelect.append(
+                        `<option value="${caseItem.case_id}">${caseItem.display_name}</option>`
+                    );
+                });
+
+                // Initialize Tom Select after populating options
+                agCaseSelect = new TomSelect("#ag_case_id", {
+                    placeholder: "Select Case",
+                    maxOptions: 500,
+                    allowEmptyOption: true,
+                });
+            },
+            error: function () {
+                caseSelect.empty().append('<option value="">Failed to load cases</option>');
+                alert("Failed to fetch cases. Please try again.");
+            }
+        });
+    });
+
+    $('#agAdviceForm').on('submit', function (e) {
+        e.preventDefault();
+        const caseNumber = $('#ag_case_id').val();
+
+        if (!caseNumber) {
+            alert("Please select a case.");
+            return;
+        }
+
+        window.location.href = `/ag_advice/create/{case_id}${caseNumber}`;
+
+
+    });
+});
 </script>
 
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>

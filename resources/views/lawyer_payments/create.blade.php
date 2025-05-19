@@ -133,11 +133,25 @@
                             </div>
                         </div>
                     
-                        <div class="form-group text-center mt-2">
-                            <button type="submit" class="btn btn-primary">
+                        <div class="form-group d-flex justify-content-between align-items-center mt-2">
+
+                              <!-- Back Button -->
+                              <button type="button" onclick="window.history.back();" class="btn btn-secondary d-inline-flex align-items-center gap-2">
+                                <i class="fa fa-arrow-left"></i> Back
+                              </button>
+
+                              <!-- Lawyer Payments Button -->
+                              <a href="{{ url('/lawyer_payments') }}" class="btn btn-info d-inline-flex align-items-center gap-2">
+                                <i class="fa fa-money-bill-wave"></i> Lawyer Payments
+                              </a>
+
+                              <!-- Submit Payment Button -->
+                              <button type="submit" class="btn btn-primary d-inline-flex align-items-center gap-2">
                                 <i class="fa fa-paper-plane"></i> Submit Payment
-                            </button>
-                        </div>
+                              </button>
+
+                            </div>
+
                     </form>
                     
                 </div>

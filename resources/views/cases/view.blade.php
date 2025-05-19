@@ -18,6 +18,25 @@
     overflow: visible;   /* Make sure text can be shown */
     text-overflow: unset; /* Remove ellipsis */
 }
+
+/* Style for the nav-pills container */
+.custom-pills .nav-link {
+    background-color: #f26a21; /* Light gray for non-active tabs */
+    color: #333;               /* Dark text */
+    border-radius: 5px;
+    margin-right: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.custom-pills .nav-link:hover {
+    background-color: #e0e0e0;
+}
+
+.custom-pills .nav-link.active {
+    background-color: #007bff; /* Bootstrap primary blue */
+    color: white;
+}
+
 </style>
 @endpush
 
@@ -54,114 +73,68 @@
 
 <!-- Action Buttons Card (Spans Full Width) -->
 
-<div class="card shadow-lg mb-3"> 
-    <div class="card-body">
-        <div class="row text-center">
-            <div class="col-md-2 mb-2">
-                <button class="btn btn-info btn-sm w-100 text-start text-truncate assign-case" title="Assign Case"
-                 data-bs-toggle="modal" 
-                    data-bs-target="#assignCaseModal"
-                    data-case-id="{{ $case->case_id }}"
-                    data-case-number="{{ $case->case_number }}"
-                    data-case-name="{{ $case->case_name }}"
-                    data-case-category="{{ $case->case_category }}"
-                    data-case-status="{{ $case->case_status }}"
-                    data-initial-status="{{ $case->initial_status }}"
-                    data-first-hearing-date="{{ $case->first_hearing_date }}"
-                    data-date-received="{{ $case->date_received }}"
-                    data-case-description="{{ $case->case_description }}"
-                
-                >Assign Case</button>
-            </div>
-            
-            
 
-           
-            
-            
-            <div class="col-md-2 mb-2">
-                
-                 <a href="{{ route('negotiations.create', $case->case_id) }}" class="btn btn-warning btn-sm w-100 text-start text-truncate" title="Send to Negotiation">Send to Negotiation</a>
-            </div>
-           
-            <div class="col-md-2 mb-2">
-                <button class="btn btn-dark btn-sm w-100 text-start text-truncate" title="More Actions" data-bs-toggle="modal"
-                id="actionCaseModal"
-                data-bs-target="#actionModal"   
-                data-case-id="{{ $case->case_id }}" data-case-name="{{ $case->case_name }}" data-case-number="{{ $case->case_number }}"  
-                >
-                    More Actions
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
 @endif
 
-<!-- Modal Dialog: Manage Activities -->
-<div class="modal fade" id="actionModal" tabindex="-1" aria-labelledby="actionModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="actionModalLabel">Manage Case Activities</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <!-- Add Actions Column -->
-                    <div class="col-4">
-                        <h6>Add Actions</h6>
 
-                        
 
-                        <div class="d-grid gap-2">
-                            <!-- Add Hearing Button -->
-                        <button class="btn btn-primary" id="addHearingBtn" data-case-id="" data-case-name=""  data-bs-toggle="modal" data-bs-target="#addHearingModal">
-                            Add Hearing
-                        </button>
-                        
-                        <button class="btn btn-primary" id="addMentionBtn" data-case-id="" data-case-name=""  data-bs-toggle="modal" data-bs-target="#addMentionModal">Add Mention</button>
-                        
-                        <button class="btn btn-primary" id="addApplicationBtn" data-case-id="" data-case-name=""  data-bs-toggle="modal" data-bs-target="#addApplicationModal">Add Application</button>
-                        </div>
-                    </div>
-
-                    <!-- Update Actions Column -->
-                    <div class="col-4">
-                        <h6>Update Actions</h6>
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-warning" id="updateHearingBtn" data-case-id="" data-case-name="">Update Hearing</button>
-                            <button class="btn btn-warning" id="updateMentionBtn" data-case-id="" data-case-name="" >Update Mention</button>
-                            <button class="btn btn-warning" id="updateApplicationBtn" data-case-id="" data-case-name="">Update Application</button>
-                        </div>
-                    </div>
-
-                    <!-- Delete Actions Column -->
-                    <div class="col-4">
-                        <h6>Delete Actions</h6>
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-danger" id="deleteHearingBtn" data-case-id="" data-case-name="">Delete Hearing</button>
-                            <button class="btn btn-danger" id="deleteMentionBtn" data-case-id="" data-case-name="">Delete Mention</button>
-                            <button class="btn btn-danger" id="deleteApplicationBtn" data-case-id="" data-case-name="">Delete Application</button>
-                        </div>
+<div class="container-fluid">
+    <div class="row mt-2" style="margin-left: 2%; margin-right: 2%;">
+        <div class="col-md-12 mt-2">
+            
+            <div class="panel panel-inverse">
+                <div class="panel-heading">
+                    <h4 class="panel-title">Case View</h4>
+                    <div class="panel-heading-btn">
+                        <a href="javascript:;" class="btn btn-xs btn-icon btn-circle btn-default" data-click="panel-expand">
+                            <i class="fa fa-expand"></i>
+                        </a>
+                        <a href="javascript:;" class="btn btn-xs btn-icon btn-circle btn-warning" data-click="panel-collapse">
+                            <i class="fa fa-minus"></i>
+                        </a>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
+                <div class="panel-body">
+
+<ul class="nav nav-pills mb-2 custom-pills" role="tablist">
+    <li class="nav-item" role="presentation">
+        <a href="#nav-pills-tab-1" data-bs-toggle="tab" class="nav-link active" aria-selected="true" role="tab">
+            <span class="d-sm-none">Case Details</span>
+            <span class="d-sm-block d-none">Case Details</span>
+        </a>
+    </li>
+    <li class="nav-item" role="presentation">
+        <a href="#nav-pills-tab-2" data-bs-toggle="tab" class="nav-link" aria-selected="false" role="tab" tabindex="-1">
+            <span class="d-sm-none">Complainant Details</span>
+            <span class="d-sm-block d-none">Complainant Details</span>
+        </a>
+    </li>
+    <li class="nav-item" role="presentation">
+        <a href="#nav-pills-tab-3" data-bs-toggle="tab" class="nav-link" aria-selected="false" role="tab" tabindex="-1">
+            <span class="d-sm-none">Case Documents</span>
+            <span class="d-sm-block d-none">Case Documents</span>
+        </a>
+    </li>
+     <li class="nav-item" role="presentation">
+        <a href="#nav-pills-tab-4" data-bs-toggle="tab" class="nav-link" aria-selected="false" role="tab" tabindex="-1">
+            <span class="d-sm-none">Case Progress/Events</span>
+            <span class="d-sm-block d-none">Case Progess/Events</span>
+        </a>
+    </li>
+    <li class="nav-item" role="presentation">
+        <a href="#nav-pills-tab-5" data-bs-toggle="tab" class="nav-link" aria-selected="false" role="tab" tabindex="-1">
+            <span class="d-sm-none">Next Steps</span>
+            <span class="d-sm-block d-none">Next Steps</span>
+        </a>
+    </li>
+</ul>
 
 
-
-
-
-
-
-
-    <div class="row justify-content-center pt-3">
-        <!-- Left Side: Case Details (Bigger Column) -->
-        <div class="col-lg-7 col-md-6 col-12 mb-4">
-<div class="card shadow-lg">
+<div class="tab-content p-3 rounded-top panel rounded-0 m-0">
+                        <!-- BEGIN tab-pane -->
+                        <div class="tab-pane fade active show" id="nav-pills-tab-1" role="tabpanel">
+                            
+                           <div class="card shadow-lg">
     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
         <h4 class="mb-0">Case Details</h4>
         @php
@@ -184,6 +157,9 @@
     <div class="card-body">
         <div class="row">
             <!-- Left Column: Case Details -->
+
+
+
             <div class="col-md-7">
                 <h5><strong>Case Number:</strong> <span id="case_number_display">{{ $case->case_number }}</span></h5>
                 <h5><strong>Title:</strong> <span id="case_name_display">{{ $case->case_name }}</span></h5>
@@ -268,10 +244,284 @@
         @endif
     </div>
 </div>
+                        </div>
+                        <!-- END tab-pane -->
+                        <!-- BEGIN tab-pane -->
+                        <div class="tab-pane fade" id="nav-pills-tab-2" role="tabpanel">
+                            <div class="card shadow-lg mb-4">
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Complainant Details</h4>
+                     
+                                        @if ($isLawyer)
+                                            
+                                        @else
+                                        <!-- Ensure `data-bs-toggle="modal"` and `data-bs-target="#editComplainantModal"` are correctly set -->
+                                        <button type="button" class="btn btn-warning btn-sm edit-complainant-btn"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#editComplainantModal"
+                                        data-id="{{ $complainant->Complainant_id }}"
+                                        data-case="{{ $case->case_id }}"
+                                        data-name="{{ $complainant->complainant_name }}"
+                                        data-phone="{{ $complainant->phone }}"
+                                        data-email="{{ $complainant->email }}"
+                                        data-address="{{ $complainant->address }}">
+                                         <i class="fas fa-edit"></i> Edit Complainant
+                                         </button>
+                                         @endif
+                                
+                                
+
+                </div>
+                <div class="card-body">
+                    <p><strong>Name:</strong> {{ $complainant->complainant_name }}</p>
+                    <p><strong>Phone:</strong> {{ $complainant->phone ?? 'N/A' }}</p>
+                    <p><strong>Email:</strong> {{ $complainant->email ?? 'N/A' }}</p>
+                    <p><strong>Address:</strong> {{ $complainant->address ?? 'N/A' }}</p>
+                </div>
+            </div>
+                        </div>
+                        <!-- END tab-pane -->
+                        <!-- BEGIN tab-pane -->
+                        <div class="tab-pane fade" id="nav-pills-tab-3" role="tabpanel">
+                              <div class="card shadow-lg">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Case Documents</h4>
+                    <!-- Add Document Button (Triggers Modal) -->
+                    @if ($isLawyer)
+
+                    @else
+                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addDocumentModal">
+                        <i class="fas fa-plus"></i> Add Document
+                    </button>  
+                    @endif
+                    
+                </div>
+                <div class="card-body">
+                    @if (session('success'))
+                        <script>
+                            document.addEventListener("DOMContentLoaded", function () {
+                                swal("Success!", "{{ session('success') }}", "success");
+                            });
+                        </script>
+                    @endif
+
+                    @if (session('error'))
+                        <script>
+                            document.addEventListener("DOMContentLoaded", function () {
+                                swal("Error!", "{{ session('error') }}", "error");
+                            });
+                        </script>
+                    @endif
+
+                    @if ($caseDocuments->isEmpty())
+                        <p class="text-muted">No documents uploaded.</p>
+                    @else
+                        <ul class="list-group">
+                            @foreach ($caseDocuments as $document)
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <a href="{{ asset('storage/documents/' . $document->document_name) }}" target="_blank">
+                                        {{ $document->document_name }}
+                                    </a>
+                                    <!-- Delete Button -->
+                                    @if ($isLawyer)
+                                    
+                                    @else
+                                    <button type="button" class="btn btn-danger btn-sm delete-document-btn"
+                                    data-id="{{ $document->document_id }}"
+                                    data-case-id="{{ $case->case_id }}"
+                                    >
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    @endif
+                                    
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
+                </div>
+            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="nav-pills-tab-4" role="tabpanel">
+                            <h4 class="mb-3">Case Events</h4>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped" id="case-events-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Title</th>
+                                            <th>Details</th>
+                                            <th>Date and Time</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Data will be inserted here by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- END tab-pane -->
+                        <!-- BEGIN tab-pane -->
+                <div class="tab-pane fade" id="nav-pills-tab-5" role="tabpanel">
+                    <h3 class="mt-10px">Choose Next Step</h3>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <button class="btn btn-dark btn-sm w-100 text-start text-truncate" title="More Actions" data-bs-toggle="modal"
+                                id="actionCaseModal"
+                                data-bs-target="#actionModal"
+                                data-case-id="{{ $case->case_id }}" data-case-name="{{ $case->case_name }}" data-case-number="{{ $case->case_number }}">
+                                Add Hearing/Mention/Application
+                            </button>
+                        </div>
+
+                        <div class="col-md-6 mb-2">
+                            <a href="{{ route('negotiations.create', $case->case_id) }}" class="btn btn-warning btn-sm w-100 text-start text-truncate" title="Send to Negotiation">
+                                Send to Negotiation
+                            </a>
+                        </div>
+
+                        <div class="col-md-6 mb-2">
+
+                            <a href="{{ route('cases.panelEvaluation', $case->case_id) }}" class="btn btn-primary btn-sm w-100 text-start text-truncate" title="Evaluate this case">
+                                Evaluate
+                            </a>
+
+                            
+                        </div>
+
+                        <div class="col-md-6 mb-2">
+
+                             <a href="{{ route('appeals.create', $case->case_id) }}" class="btn btn-secondary btn-sm w-100 text-start text-truncate" title="Appeal">
+                                Appeal
+                            </a>
+
+
+                            
+                        </div>
+
+                        <div class="col-md-6 mb-2">
+
+                             <a href="{{ route('adjourns.create', $case->case_id) }}" class="btn btn-success btn-sm w-100 text-start text-truncate" title="Adjourn">
+                                Adjourn
+                            </a>
+
+                          
+                        </div>
+
+                        <div class="col-md-6 mb-2">
+                             <a href="{{ route('witnesses.create', $case->case_id) }}" class="btn btn-info btn-sm w-100 text-start text-truncate" title="Add Witness">
+                                Witness
+                            </a>
+
+
+                           
+                        </div>
+
+                        <div class="col-md-6 mb-2">
+                              <a href="{{ route('trials.create', $case->case_id) }}" class="btn btn-info btn-sm w-100 text-start text-truncate" title="Add Trial">
+                                Trial
+                            </a>
+
+                          
+                        </div>
+
+                        <div class="col-md-6 mb-2">
+                             <a href="{{ route('lawyer_payments.create', $case->case_id) }}" class="btn btn-warning btn-sm w-100 text-start text-truncate" title="Add Payment">
+                                Lawyer Payment
+                            </a>
+                        </div>
+
+                        <div class="col-md-6 mb-2">
+                            <a href="{{ route('preparations.create', $case->case_id) }}" class="btn btn-outline-primary btn-sm w-100 text-start text-truncate" title=" Trial Preparation">
+                                Trial Preparation
+                            </a>
+
+
+                        </div>
+
+                        <div class="col-md-6 mb-2">
+
+                            <a href="{{ route('ag_advice.create', $case->case_id) }}" class="btn btn-outline-danger btn-sm w-100 text-start text-truncate" title="Add Payment">
+                                Seek AG Advice
+                            </a>
+
+                            
+                        </div>
+                    </div>
+                </div>
+                <!-- END tab-pane -->
 
 
 
+                        
+          
+
+
+
+</div>
+</div>
+</div>
+</div>
+</div>
+     
+            <!-- Case Documents (Bigger than complainant) -->
+           
+          
+
+<!-- Modal Dialog: Manage Activities -->
+<div class="modal fade" id="actionModal" tabindex="-1" aria-labelledby="actionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="actionModalLabel">Manage Case Activities</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <!-- Add Actions Column -->
+                    <div class="col-4">
+                        <h6>Add Actions</h6>
+
+                        
+
+                        <div class="d-grid gap-2">
+                            <!-- Add Hearing Button -->
+                        <button class="btn btn-primary" id="addHearingBtn" data-case-id="" data-case-name=""  data-bs-toggle="modal" data-bs-target="#addHearingModal">
+                            Add Hearing
+                        </button>
+                        
+                        <button class="btn btn-primary" id="addMentionBtn" data-case-id="" data-case-name=""  data-bs-toggle="modal" data-bs-target="#addMentionModal">Add Mention</button>
+                        
+                        <button class="btn btn-primary" id="addApplicationBtn" data-case-id="" data-case-name=""  data-bs-toggle="modal" data-bs-target="#addApplicationModal">Add Application</button>
+                        </div>
+                    </div>
+
+                    <!-- Update Actions Column -->
+                    <div class="col-4">
+                        <h6>Update Actions</h6>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-warning" id="updateHearingBtn" data-case-id="" data-case-name="">Update Hearing</button>
+                            <button class="btn btn-warning" id="updateMentionBtn" data-case-id="" data-case-name="" >Update Mention</button>
+                            <button class="btn btn-warning" id="updateApplicationBtn" data-case-id="" data-case-name="">Update Application</button>
+                        </div>
+                    </div>
+
+                    <!-- Delete Actions Column -->
+                    <div class="col-4">
+                        <h6>Delete Actions</h6>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-danger" id="deleteHearingBtn" data-case-id="" data-case-name="">Delete Hearing</button>
+                            <button class="btn btn-danger" id="deleteMentionBtn" data-case-id="" data-case-name="">Delete Mention</button>
+                            <button class="btn btn-danger" id="deleteApplicationBtn" data-case-id="" data-case-name="">Delete Application</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+    </div>
+</div>
 
         <!-- Case Update Modal -->
         <!-- Edit Case Modal -->
@@ -441,8 +691,8 @@
 
 
            
-                        
-            <!-- View Assigned Lawyers Modal -->
+
+  <!-- View Assigned Lawyers Modal -->
             <div class="modal fade" id="assignedLawyersModal" tabindex="-1" aria-labelledby="assignCaseModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
@@ -471,45 +721,6 @@
 
 
 
-
-
-
-
-
-        <!-- Right Side: Complainant & Documents (Smaller Column) -->
-        <div class="col-lg-5 col-md-6 col-12">
-            <!-- Complainant Details (Smaller on top) -->
-            <div class="card shadow-lg mb-4">
-                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0">Complainant Details</h4>
-                     
-                                        @if ($isLawyer)
-                                            
-                                        @else
-                                        <!-- Ensure `data-bs-toggle="modal"` and `data-bs-target="#editComplainantModal"` are correctly set -->
-                                        <button type="button" class="btn btn-warning btn-sm edit-complainant-btn"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#editComplainantModal"
-                                        data-id="{{ $complainant->Complainant_id }}"
-                                        data-case="{{ $case->case_id }}"
-                                        data-name="{{ $complainant->complainant_name }}"
-                                        data-phone="{{ $complainant->phone }}"
-                                        data-email="{{ $complainant->email }}"
-                                        data-address="{{ $complainant->address }}">
-                                         <i class="fas fa-edit"></i> Edit Complainant
-                                         </button>
-                                         @endif
-                                
-                                
-
-                </div>
-                <div class="card-body">
-                    <p><strong>Name:</strong> {{ $complainant->complainant_name }}</p>
-                    <p><strong>Phone:</strong> {{ $complainant->phone ?? 'N/A' }}</p>
-                    <p><strong>Email:</strong> {{ $complainant->email ?? 'N/A' }}</p>
-                    <p><strong>Address:</strong> {{ $complainant->address ?? 'N/A' }}</p>
-                </div>
-            </div>
             
             <!-- Edit Complainant Modal -->
             <!-- Edit Complainant Modal -->
@@ -566,65 +777,7 @@
 
 
 
-            <!-- Case Documents (Bigger than complainant) -->
-           
-            <div class="card shadow-lg">
-                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0">Case Documents</h4>
-                    <!-- Add Document Button (Triggers Modal) -->
-                    @if ($isLawyer)
-
-                    @else
-                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addDocumentModal">
-                        <i class="fas fa-plus"></i> Add Document
-                    </button>  
-                    @endif
-                    
-                </div>
-                <div class="card-body">
-                    @if (session('success'))
-                        <script>
-                            document.addEventListener("DOMContentLoaded", function () {
-                                swal("Success!", "{{ session('success') }}", "success");
-                            });
-                        </script>
-                    @endif
-
-                    @if (session('error'))
-                        <script>
-                            document.addEventListener("DOMContentLoaded", function () {
-                                swal("Error!", "{{ session('error') }}", "error");
-                            });
-                        </script>
-                    @endif
-
-                    @if ($caseDocuments->isEmpty())
-                        <p class="text-muted">No documents uploaded.</p>
-                    @else
-                        <ul class="list-group">
-                            @foreach ($caseDocuments as $document)
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <a href="{{ asset('storage/documents/' . $document->document_name) }}" target="_blank">
-                                        {{ $document->document_name }}
-                                    </a>
-                                    <!-- Delete Button -->
-                                    @if ($isLawyer)
-                                    
-                                    @else
-                                    <button type="button" class="btn btn-danger btn-sm delete-document-btn"
-                                    data-id="{{ $document->document_id }}"
-                                    data-case-id="{{ $case->case_id }}"
-                                    >
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                    @endif
-                                    
-                                </li>
-                            @endforeach
-                        </ul>
-                    @endif
-                </div>
-            </div>
+            
 
             <!-- Add Document Modal -->
             <div class="modal fade" id="addDocumentModal" tabindex="-1" aria-labelledby="addDocumentModalLabel" aria-hidden="true">
@@ -2019,5 +2172,50 @@ $('#deleteApplicationBtn').on('click', function (e) {
         });
         </script>
         
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const caseId = @json($case->case_id);
+
+      const tabLink = document.querySelector('a[href="#nav-pills-tab-4"]');
+
+
+        tabLink.addEventListener('shown.bs.tab', function () {
+               
+                loadCaseEvents(caseId);
+            });
+
+
+        function loadCaseEvents(caseId) {
+            $.ajax({
+                url: `/cases/${caseId}/events`,
+                method: 'GET',
+                success: function (response) {
+                    const tableBody = $('#case-events-table tbody');
+                    tableBody.empty();
+
+                    if (response.length === 0) {
+                        tableBody.append('<tr><td colspan="3" class="text-center">No events found.</td></tr>');
+                        return;
+                    }
+
+                    response.forEach(function (event) {
+                         const [date, time] = event.start.split('T');
+                        tableBody.append(`
+                            <tr>
+                                <td>${event.title}</td>
+                                <td>${event.titleContent ?? ''}</td>
+                                 <td>${date} at ${time}</td>
+                            </tr>
+                        `);
+                    });
+                },
+                error: function () {
+                    alert('Failed to load events. Please try again.');
+                }
+            });
+        }
+    });
+</script>
+
 
 @endpush

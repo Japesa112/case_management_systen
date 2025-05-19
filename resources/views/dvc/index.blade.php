@@ -52,8 +52,10 @@
 @section('content')
 <div class="container-fluid mt-4">
     <div class="panel panel-inverse">
-        <div class="panel-heading">
-            <h4 class="panel-title">List of Appointment</h4>
+        <div class="panel-heading d-flex justify-content-between align-items-center">
+            <a href="{{ url('/cases') }}" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
+                <i class="fa fa-arrow-left text-white fw-bold"></i> <span class="text-white">Back to Cases</span>
+            </a>
             <div class="panel-heading-btn">
                 <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addEvaluationModal">
                     <i class="fa fa-plus"></i> Add New Appointment
@@ -63,29 +65,33 @@
         <div class="panel-body">
             
              <!-- Modal -->
-             <div class="modal fade" id="addEvaluationModal" tabindex="-1" aria-labelledby="addEvaluationModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
+            <div class="modal fade" id="addEvaluationModal" tabindex="-1" aria-labelledby="addEvaluationModalLabel" aria-hidden="true">
+                  <div class="modal-dialog">
                     <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" style="color: rgb(1, 9, 12)" id="addEvaluationModalLabel">Create New Appointment</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      <div class="modal-header">
+                        <h5 class="modal-title text-dark" id="addEvaluationModalLabel">Create New Appointment</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        <form id="checkCaseForm">
+                          @csrf
+                          <div class="form-group">
+                            <label for="evaluation_case_id" style="color: rgb(1, 9, 12)">Select Case <span class="text-danger">*</span></label>
+                            <select name="case_id" id="evaluation_case_id" class="form-control" required>
+                               
+                                <!-- Options will be populated via AJAX -->
+                            </select>
                         </div>
-                        <div class="modal-body">
-                            <form id="checkCaseForm">
-                                @csrf
-                                <div class="form-group">
-                                    <label for="case_number" style="color: rgb(1, 9, 12)">Case Number <span class="text-danger">*</span></label>
-                                    <input type="text" name="case_number" id="case_number" class="form-control" required>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary">Create Appointment</button>
-                                </div>
-                            </form>
-                        </div>
+
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Create Appointment</button>
+                          </div>
+                        </form>
+                      </div>
                     </div>
-                </div>
-            </div>
+                  </div>
+</div>
         </div>
 
 
@@ -285,6 +291,50 @@
 
 @push('scripts')
 <script>
+
+
+    $(document).ready(function () {
+    let tomSelectInstance;
+
+    $('#addEvaluationModal').on('shown.bs.modal', function () {
+        let caseSelect = $('#evaluation_case_id');
+
+        // If already initialized, destroy previous Tom Select instance
+        if (tomSelectInstance) {
+            tomSelectInstance.destroy();
+            tomSelectInstance = null;
+        }
+
+        caseSelect.empty().append('<option value="">Loading cases...</option>');
+
+        $.ajax({
+            url: "{{ route('cases.available-evaluation-cases') }}",
+            type: "GET",
+            success: function (response) {
+                caseSelect.empty();
+               caseSelect.append('<option value="">Select Case</option>');
+
+                $.each(response, function (index, caseItem) {
+                    caseSelect.append(
+                        `<option value="${caseItem.case_number}">${caseItem.display_name}</option>`
+                    );
+                });
+
+                // Reinitialize Tom Select *after* options are loaded
+                tomSelectInstance = new TomSelect('#evaluation_case_id', {
+                    placeholder: "Select Case",
+                    allowEmptyOption: true,
+                    maxOptions: 500
+                });
+            },
+            error: function () {
+                caseSelect.empty().append('<option value="">Failed to load cases</option>');
+                alert("Failed to fetch cases. Please try again.");
+            }
+        });
+    });
+});
+
     $(document).ready(function () {
         $(document).on('click', '.view-appointment', function () {
             let appointmentId = $(this).data('id');
@@ -562,40 +612,18 @@ $(document).ready(function () {
         $(document).on('submit', '#checkCaseForm', function (e) {
             e.preventDefault(); // Prevent default form submission
     
-            let caseNumber = $('#case_number').val();
+            
     
-            $.ajax({
-                url: "{{ route('dvc.checkCase') }}", 
-                type: "GET", 
-                data: { case_number: caseNumber }, 
-                success: function (response) {
-                    if (response.exists) {
-                        if (response.evaluation) {
-                            // Redirect to evaluations.edit if evaluation exists
-                            window.location.href = response.evaluation.edit_url;
-                        } else {
-                            console.log(response);
-                            // Redirect to evaluations.create if no evaluation exists
-                        window.location.href = "{{ route('dvc.create', [':case_id', ':forwarding_id', ':evaluation_id']) }}"
-                        .replace(':case_id', response.case_id)
-                        .replace(':forwarding_id', response.forwarding_id)
-                        .replace(':evaluation_id', response.evaluation_id) + 
-                        "?case_name=" + encodeURIComponent(response.case_name);
+           let caseNumber = $('#evaluation_case_id').val(); 
 
-                        }
-                    } else {
-                        // Show error message inside modal
-                        $('.modal-body').html('<p class="text-danger text-center">Case number does not exist.</p>');
-                    }
-                },
-                error: function (xhr) {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Error",
-                        text: xhr.responseJSON ? xhr.responseJSON.message : "Something went wrong!"
-                    });
-                }
-            });
+    
+             
+        if (!caseNumber) {
+            alert("Please select a casef.");
+            return;
+        }
+       
+        window.location.href = `/dvc_appointments`;
         });
     });
 </script>

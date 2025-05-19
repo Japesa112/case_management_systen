@@ -74,8 +74,10 @@
 @section('content')
 <div class="container-fluid mt-4">
     <div class="panel panel-inverse">
-        <div class="panel-heading">
-            <h4 class="panel-title">List of Payments</h4>
+         <div class="panel-heading d-flex justify-content-between align-items-center">
+            <a href="{{ url('/cases') }}" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
+                <i class="fa fa-arrow-left text-white fw-bold"></i> <span class="text-white">Back to Cases</span>
+            </a>
             <div class="panel-heading-btn">
                 <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addEvaluationModal">
                     <i class="fa fa-plus"></i> Add New Case Payment
@@ -96,9 +98,12 @@
                             <form id="checkCaseForm">
                                 @csrf
                                 <div class="form-group">
-                                    <label for="case_number" style="color: rgb(1, 9, 12)">Case Number <span class="text-danger">*</span></label>
-                                    <input type="text" name="case_number" id="case_number" class="form-control" required>
-                                </div>
+                                    <label for="evaluation_case_id" style="color: rgb(1, 9, 12)">Select Case <span class="text-danger">*</span></label>
+                                    <select name="case_id" id="evaluation_case_id" class="form-control" required>
+                                       
+                                        <!-- Options will be populated via AJAX -->
+                                    </select>
+                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                                     <button type="submit" class="btn btn-primary">Create Payment</button>
@@ -340,6 +345,49 @@
 
 @push('scripts')
 <script>
+
+     $(document).ready(function () {
+    let tomSelectInstance;
+
+    $('#addEvaluationModal').on('shown.bs.modal', function () {
+        let caseSelect = $('#evaluation_case_id');
+
+        // If already initialized, destroy previous Tom Select instance
+        if (tomSelectInstance) {
+            tomSelectInstance.destroy();
+            tomSelectInstance = null;
+        }
+
+        caseSelect.empty().append('<option value="">Loading cases...</option>');
+
+        $.ajax({
+            url: "{{ route('cases.available-evaluation-cases') }}",
+            type: "GET",
+            success: function (response) {
+                caseSelect.empty();
+               caseSelect.append('<option value="">Select Case</option>');
+
+                $.each(response, function (index, caseItem) {
+                    caseSelect.append(
+                        `<option value="${caseItem.case_number}">${caseItem.display_name}</option>`
+                    );
+                });
+
+                // Reinitialize Tom Select *after* options are loaded
+                tomSelectInstance = new TomSelect('#evaluation_case_id', {
+                    placeholder: "Select Case",
+                    allowEmptyOption: true,
+                    maxOptions: 500
+                });
+            },
+            error: function () {
+                caseSelect.empty().append('<option value="">Failed to load cases</option>');
+                alert("Failed to fetch cases. Please try again.");
+            }
+        });
+    });
+});
+     
     $(document).ready(function () {
         $(document).on('click', '.view-payment', function () {
             let paymentId = $(this).data('id');
@@ -631,7 +679,7 @@ $(document).ready(function () {
         $(document).on('submit', '#checkCaseForm', function (e) {
             e.preventDefault(); // Prevent default form submission
     
-            let caseNumber = $('#case_number').val();
+            let caseNumber = $('#evaluation_case_id').val(); 
     
             $.ajax({
                 url: "{{ route('all_payments.checkCase') }}", 

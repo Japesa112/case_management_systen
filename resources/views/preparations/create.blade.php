@@ -91,11 +91,25 @@
                             </div>
                         </div>
                     
-                        <div class="form-group text-center mt-3">
-                            <button type="submit" class="btn btn-primary">
+                        <div class="form-group d-flex justify-content-center align-items-center gap-3 mt-3">
+
+                              <!-- Back Button (Left) -->
+                              <button type="button" onclick="window.history.back();" class="btn btn-secondary d-inline-flex align-items-center gap-2">
+                                <i class="fa fa-arrow-left"></i> Back
+                              </button>
+
+                              <!-- Go to Preparations Button (Middle) -->
+                              <a href="{{ url('/preparations') }}" class="btn btn-info d-inline-flex align-items-center gap-2">
+                                <i class="fa fa-list"></i> Preparations
+                              </a>
+
+                              <!-- Submit Preparation Button (Right) -->
+                              <button type="submit" class="btn btn-primary d-inline-flex align-items-center gap-2">
                                 <i class="fa fa-paper-plane"></i> Submit Preparation
-                            </button>
-                        </div>
+                              </button>
+
+                            </div>
+
                     </form>
                     
                     

@@ -1,6 +1,8 @@
 
 var handleCalendarDemo = function () {
 
+
+
 	// Initialize FullCalendar
 	var calendarEl = document.getElementById('calendar');
     var calendar = new FullCalendar.Calendar(calendarEl, {
@@ -21,7 +23,7 @@ var handleCalendarDemo = function () {
         droppable: false,
         themeSystem: 'bootstrap',
         eventTimeFormat: false,
-        events: 'cases/calendar/events', // URL for fetching events dynamically
+        events: '/cases/calendar/calendar_events', // URL for fetching events dynamically
 
         // Event click handler
         eventClick: function(info) {
@@ -560,6 +562,7 @@ var handleCalendarDemo = function () {
 			}
 		
 		}
+
 
 		
 

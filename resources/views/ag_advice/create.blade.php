@@ -17,8 +17,8 @@
 
 @section('content')
 <div class="container-fluid">
-    <div class="row mt-4" style="margin-left: 20%; margin-right: 10%;">
-        <div class="col-md-12 mt-4">
+    <div class="row mt-4" style="margin-left: 5%; margin-right: 5%;">
+        <div class="col-md-12 mt-2">
             <h1 class="page-header mt-4">Create AG Advice</h1>
             <div class="panel panel-inverse">
                 <div class="panel-heading">
@@ -79,11 +79,26 @@
                               
                             </div>
                         </div>
-                        <div class="form-group text-center mt-2">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fa fa-paper-plane"></i> Submit Advice
+                        <!-- Back, View AG Advices, and Submit Buttons -->
+                        <div class="form-group d-flex justify-content-between align-items-center mt-4 px-3">
+
+                            <!-- Back Button -->
+                            <button type="button" onclick="window.history.back();" class="btn btn-secondary d-flex align-items-center">
+                                <i class="fa fa-arrow-left me-1"></i> Back
                             </button>
+
+                            <!-- View AG Advices -->
+                            <a href="{{ url('/ag_advice') }}" class="btn btn-info d-flex align-items-center">
+                                <i class="fa fa-folder-open me-1"></i> View AG Advice
+                            </a>
+
+                            <!-- Submit Advice -->
+                            <button type="submit" class="btn btn-primary d-flex align-items-center">
+                                <i class="fa fa-paper-plane me-1"></i> Submit Advice
+                            </button>
+
                         </div>
+
                     </form>
                 </div>
             </div>

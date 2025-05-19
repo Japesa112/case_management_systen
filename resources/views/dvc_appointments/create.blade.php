@@ -11,6 +11,34 @@
         align-items: center;
     }
 </style>
+
+<style>
+  .btn-custom {
+    border-radius: 6px;
+    font-weight: 600;
+    padding: 0.5rem 1.25rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+  }
+  .btn-custom i {
+    font-size: 1.1rem;
+  }
+  .btn-secondary:hover {
+    background-color: #5a6268;
+    color: #fff;
+  }
+  .btn-primary:hover {
+    background-color: #004085;
+    color: #fff;
+  }
+  @media (max-width: 575.98px) {
+    .form-group.d-flex {
+      flex-direction: column;
+      gap: 0.75rem;
+      align-items: stretch;
+    }
+  }
+</style>
 @endpush
 
 @section('title', 'Forwarding')
@@ -86,15 +114,23 @@
                               
                             </div>
                         </div>
-                        <div class="form-group mt-3 d-flex justify-content-between">
-                            <a href="{{ url()->previous() }}" class="btn btn-secondary">
-                                <i class="fa fa-arrow-left"></i> Back
-                            </a>
-                        
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fa fa-share"></i> Forward
-                            </button>
-                        </div>
+                       <div class="form-group mt-3 d-flex justify-content-between px-3">
+
+                      <a href="{{ url()->previous() }}" class="btn btn-secondary btn-custom d-inline-flex align-items-center gap-2" title="Go Back">
+                        <i class="fa fa-arrow-left"></i> <span>Back</span>
+                      </a>
+
+                      <a href="{{ url('/dvc_appointments') }}" class="btn btn-info btn-custom d-inline-flex align-items-center gap-2" title="Go to Evaluations">
+                        <i class="fa fa-list"></i> <span>Forwardings </span>
+                      </a>
+
+                      <button type="submit" class="btn btn-primary btn-custom d-inline-flex align-items-center gap-2" title="Forward">
+                        <i class="fa fa-share"></i> <span>Forward</span>
+                      </button>
+
+                    </div>
+
+
                         
                     </form>
                 </div>

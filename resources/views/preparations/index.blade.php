@@ -48,10 +48,12 @@
     @php
     use Illuminate\Support\Str;
     @endphp
-    
+    <h4>List of Trial Preparations</h4>
     <div class="panel panel-inverse">
-        <div class="panel-heading">
-            <h4 class="panel-title">List of Trials Preparations</h4>
+        <div class="panel-heading d-flex justify-content-between align-items-center">
+            <a href="{{ url('/cases') }}" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
+                <i class="fa fa-arrow-left text-white fw-bold"></i> <span class="text-white">Back to Cases</span>
+            </a>
             <div class="panel-heading-btn">
                 <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addEvaluationModal">
                     <i class="fa fa-plus"></i> Add New Preparation
@@ -72,9 +74,12 @@
                             <form id="checkCaseForm">
                                 @csrf
                                 <div class="form-group">
-                                    <label for="case_number" style="color: rgb(1, 9, 12)">Case Number <span class="text-danger">*</span></label>
-                                    <input type="text" name="case_number" id="case_number" class="form-control" required>
-                                </div>
+                                    <label for="evaluation_case_id" style="color: rgb(1, 9, 12)">Select Case <span class="text-danger">*</span></label>
+                                    <select name="case_id" id="evaluation_case_id" class="form-control" required>
+                                       
+                                        <!-- Options will be populated via AJAX -->
+                                    </select>
+                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                                     <button type="submit" class="btn btn-primary">Create Preparation</button>
@@ -132,25 +137,34 @@
                                 <td class="text-center">{{ $preparation->preparation_status}}</td>
                                 <td> {{ Str::limit($preparation->briefing_notes ?? 'No comments', 30) }}  </td>
                                 <td>
-                                @if($preparation->case)
-                                 <a href="{{ route('trials.create', $preparation->case->case_id) }}" 
-                                       class="btn btn-sm btn-outline-success d-inline-flex align-items-center" 
-                                       title="Trial">
-                                        <i class="fa fa-gavel me-1"></i> Trial
-                                    </a>
-                                @else
-                                    <span class="text-muted">N/A</span>
-                                @endif
-                            </td>
-                                <td class="text-center action-buttons">
-                                    <button class="btn btn-warning btn-sm edit-preparation" data-id="{{ $preparation->preparation_id }}">
-                                        <i class="fa fa-edit"></i> Edit
+                                    @if($preparation->case)
+                                        <a href="{{ route('trials.create', $preparation->case->case_id) }}" 
+                                           class="btn btn-sm btn-outline-success d-inline-flex align-items-center mb-1" 
+                                           title="Trial">
+                                            <i class="fa fa-gavel me-1"></i> Trial
+                                        </a>
+                                        <a href="{{ route('witnesses.create', $preparation->case->case_id) }}" 
+                                           class="btn btn-sm btn-outline-primary d-inline-flex align-items-center" 
+                                           title="Add Witness">
+                                            <i class="fa fa-user-plus me-1"></i> Witness
+                                        </a>
+                                    @else
+                                        <span class="text-muted">N/A</span>
+                                    @endif
+                                </td>
+
+                              <td class="text-center action-buttons">
+                                  <div class="d-flex justify-content-center gap-2">
+                                    <button class="btn btn-warning btn-sm edit-preparation" data-id="{{ $preparation->preparation_id }}" title="Edit Preparation">
+                                      <i class="fa fa-edit me-1"></i> Edit
                                     </button>
 
-                                    <button class="btn btn-info btn-sm view-preparation" data-id="{{ $preparation->preparation_id }}">
-                                        <i class="fa fa-eye"></i> View
+                                    <button class="btn btn-info btn-sm view-preparation" data-id="{{ $preparation->preparation_id }}" title="View Preparation">
+                                      <i class="fa fa-eye me-1"></i> View
                                     </button>
+                                  </div>
                                 </td>
+
                                 
                                 
                             </tr>
@@ -316,6 +330,48 @@
 
 @push('scripts')
 <script>
+
+    $(document).ready(function () {
+    let tomSelectInstance;
+
+    $('#addEvaluationModal').on('shown.bs.modal', function () {
+        let caseSelect = $('#evaluation_case_id');
+
+        // If already initialized, destroy previous Tom Select instance
+        if (tomSelectInstance) {
+            tomSelectInstance.destroy();
+            tomSelectInstance = null;
+        }
+
+        caseSelect.empty().append('<option value="">Loading cases...</option>');
+
+        $.ajax({
+            url: "{{ route('cases.available-evaluation-cases') }}",
+            type: "GET",
+            success: function (response) {
+                caseSelect.empty();
+               caseSelect.append('<option value="">Select Case</option>');
+
+                $.each(response, function (index, caseItem) {
+                    caseSelect.append(
+                        `<option value="${caseItem.case_number}">${caseItem.display_name}</option>`
+                    );
+                });
+
+                // Reinitialize Tom Select *after* options are loaded
+                tomSelectInstance = new TomSelect('#evaluation_case_id', {
+                    placeholder: "Select Case",
+                    allowEmptyOption: true,
+                    maxOptions: 500
+                });
+            },
+            error: function () {
+                caseSelect.empty().append('<option value="">Failed to load cases</option>');
+                alert("Failed to fetch cases. Please try again.");
+            }
+        });
+    });
+});
     $(document).ready(function () {
         $(document).on('click', '.view-preparation', function () {
             let preparationId = $(this).data('id');
@@ -602,7 +658,8 @@ $(document).ready(function () {
         $(document).on('submit', '#checkCaseForm', function (e) {
             e.preventDefault(); // Prevent default form submission
     
-            let caseNumber = $('#case_number').val();
+            
+             let caseNumber = $('#evaluation_case_id').val(); 
     
             $.ajax({
                 url: "{{ route('preparations.checkCase') }}", 

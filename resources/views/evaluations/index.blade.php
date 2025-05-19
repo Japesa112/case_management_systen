@@ -47,45 +47,33 @@
     <div class="mt-4">
         <h1 class="page-header">Evaluations</h1>
         <div class="panel panel-inverse">
-            <div class="panel-heading">
+            <div class="panel-heading d-flex justify-content-between align-items-center">
                 @if ($isLawyer)
-                <h4 class="panel-title">My Evaluation List</h4>
+                <a href="{{ url('/cases') }}" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
+                <i class="fa fa-arrow-left text-white fw-bold"></i> <span class="text-white">Back to Cases</span>
+            </a>
                
                 @else
 
-                <h4 class="panel-title">Evaluation List</h4>
-                <div class="panel-heading-btn">
-                    <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addEvaluationModal">
-                        <i class="fa fa-plus"></i> Add New Evaluation
-                    </button>
-                </div>
+                <a href="{{ url('/cases') }}" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
+                <i class="fa fa-arrow-left text-white fw-bold"></i> <span class="text-white">Back to Cases</span>
+                </a>
+              <div class="panel-heading-btn d-flex gap-2 flex-wrap">
+                <!-- Add New Evaluation Button -->
+                <button class="btn btn-success btn-sm d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#addEvaluationModal">
+                    <i class="fa fa-plus"></i> <span>Add New Evaluation</span>
+                </button>
+
+               <!-- Seek AG Advice Button -->
+            <button class="btn btn-secondary btn-sm d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#agAdviceModal">
+                <i class="fa fa-envelope-open-text"></i> <span>Seek AG Advice</span>
+            </button>
+
+            </div>
+
                 
                 @endif
 
-                <!-- Modal -->
-                <div class="modal fade" id="addEvaluationModal" tabindex="-1" aria-labelledby="addEvaluationModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" style="color: rgb(1, 9, 12)" id="addEvaluationModalLabel">Create New Evaluation</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <form id="checkCaseForm">
-                                    @csrf
-                                    <div class="form-group">
-                                        <label for="case_number" style="color: rgb(1, 9, 12)">Case Number <span class="text-danger">*</span></label>
-                                        <input type="text" name="case_number" id="case_number" class="form-control" required>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                        <button type="submit" class="btn btn-primary">Create Evaluation</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
             
             <!-- Panel Body -->
@@ -171,14 +159,25 @@
 
                                 
                                 <td>
-                                    <button class="btn btn-info btn-sm view-evaluation" data-bs-target="#viewEvaluationModal" data-id="{{ $evaluation->evaluation_id }}" title="View Details">
-                                        <i class="fa fa-eye"></i> View
-                                    </button>
-                                    <a href="{{ route('evaluations.edit', $evaluation) }}" class="btn btn-warning btn-sm" title="Edit">
-                                        <i class="fa fa-edit"></i> Edit
-                                    </a>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <!-- View Button (Modal trigger) -->
+                                        <button 
+                                            class="btn btn-info btn-sm d-inline-flex align-items-center gap-1 view-evaluation" 
+                                            data-bs-target="#viewEvaluationModal" 
+                                            data-id="{{ $evaluation->evaluation_id }}" 
+                                            title="View Details">
+                                            <i class="fa fa-eye"></i> <span>View</span>
+                                        </button>
 
+                                        <!-- Edit Button -->
+                                        <a href="{{ route('evaluations.edit', $evaluation) }}" 
+                                           class="btn btn-warning btn-sm d-inline-flex align-items-center gap-1" 
+                                           title="Edit Evaluation">
+                                            <i class="fa fa-edit"></i> <span>Edit</span>
+                                        </a>
+                                    </div>
                                 </td>
+
                             </tr>
                             @endforeach
                         </tbody>
@@ -199,6 +198,34 @@
 </div>
 
 
+                <!-- Modal -->
+ <div class="modal fade" id="addEvaluationModal" tabindex="-1" aria-labelledby="addEvaluationModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-dark" id="addEvaluationModalLabel">Create New Evaluation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="checkCaseForm">
+          @csrf
+          <div class="form-group">
+            <label for="evaluation_case_id" style="color: rgb(1, 9, 12)">Select Case <span class="text-danger">*</span></label>
+            <select name="case_id" id="evaluation_case_id" class="form-control" required>
+               
+                <!-- Options will be populated via AJAX -->
+            </select>
+        </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Create Evaluation</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- View Evaluation Modal -->
 <div class="modal fade" id="viewEvaluationModal" tabindex="-1" aria-labelledby="viewEvaluationModalLabel" aria-hidden="true">
@@ -220,6 +247,36 @@
             </div>
         </div>
     </div>
+</div>
+
+<div class="modal fade" id="agAdviceModal" tabindex="-1" aria-labelledby="agAdviceModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+    
+      <div class="modal-header">
+        <h5 class="modal-title" id="agAdviceModalLabel">Seek AG Advice</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      
+      <div class="modal-body">
+        <form id="agAdviceForm">
+          @csrf
+          <div class="form-group">
+            <label for="ag_case_id" class="form-label">Select Case <span class="text-danger">*</span></label>
+            <select name="case_number" id="ag_case_id" class="form-control" required>
+              <option value="">Loading cases...</option>
+            </select>
+          </div>
+          
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Continue</button>
+          </div>
+        </form>
+      </div>
+      
+    </div>
+  </div>
 </div>
 
 @endsection
@@ -281,7 +338,9 @@
         $(document).on('submit', '#checkCaseForm', function (e) {
             e.preventDefault(); // Prevent default form submission
     
-            let caseNumber = $('#case_number').val();
+          let caseNumber = $('#evaluation_case_id').val(); 
+          // This will give you the selected case_number
+
     
             $.ajax({
                 url: "{{ route('evaluations.checkCase') }}", 
@@ -313,6 +372,12 @@
             });
         });
     });
+
+
+
+
+
+
 </script>
 
      
@@ -334,4 +399,104 @@
         );
     });
 </script> 
+
+<script>
+$(document).ready(function () {
+    let tomSelectInstance;
+
+    $('#addEvaluationModal').on('shown.bs.modal', function () {
+        let caseSelect = $('#evaluation_case_id');
+
+        // If already initialized, destroy previous Tom Select instance
+        if (tomSelectInstance) {
+            tomSelectInstance.destroy();
+            tomSelectInstance = null;
+        }
+
+        caseSelect.empty().append('<option value="">Loading cases...</option>');
+
+        $.ajax({
+            url: "{{ route('cases.available-evaluation-cases') }}",
+            type: "GET",
+            success: function (response) {
+                caseSelect.empty();
+               caseSelect.append('<option value="">Select Case</option>');
+
+                $.each(response, function (index, caseItem) {
+                    caseSelect.append(
+                        `<option value="${caseItem.case_number}">${caseItem.display_name}</option>`
+                    );
+                });
+
+                // Reinitialize Tom Select *after* options are loaded
+                tomSelectInstance = new TomSelect('#evaluation_case_id', {
+                    placeholder: "Select Case",
+                    allowEmptyOption: true,
+                    maxOptions: 500
+                });
+            },
+            error: function () {
+                caseSelect.empty().append('<option value="">Failed to load cases</option>');
+                alert("Failed to fetch cases. Please try again.");
+            }
+        });
+    });
+});
+
+let agCaseSelect;
+
+$(document).ready(function () {
+    $('#agAdviceModal').on('shown.bs.modal', function () {
+        const caseSelect = $('#ag_case_id');
+
+        // Destroy if already initialized
+        if (agCaseSelect) {
+            agCaseSelect.destroy();
+        }
+
+        caseSelect.empty().append('<option value="">Loading cases...</option>');
+
+        $.ajax({
+            url: "{{ route('cases.available-evaluation-cases') }}",
+            type: "GET",
+            success: function (response) {
+                caseSelect.empty().append('<option value="">Select Case</option>');
+
+                $.each(response, function (index, caseItem) {
+                    caseSelect.append(
+                        `<option value="${caseItem.case_id}">${caseItem.display_name}</option>`
+                    );
+                });
+
+                // Initialize Tom Select after populating options
+                agCaseSelect = new TomSelect("#ag_case_id", {
+                    placeholder: "Select Case",
+                    maxOptions: 500,
+                    allowEmptyOption: true,
+                });
+            },
+            error: function () {
+                caseSelect.empty().append('<option value="">Failed to load cases</option>');
+                alert("Failed to fetch cases. Please try again.");
+            }
+        });
+    });
+
+    $('#agAdviceForm').on('submit', function (e) {
+        e.preventDefault();
+        const caseNumber = $('#ag_case_id').val();
+
+        if (!caseNumber) {
+            alert("Please select a case.");
+            return;
+        }
+
+        window.location.href = `/ag_advice/create/{case_id}${caseNumber}`;
+
+
+    });
+});
+
+</script>
+
 @endpush

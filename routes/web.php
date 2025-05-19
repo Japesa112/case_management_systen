@@ -271,11 +271,14 @@ Route::get('/cases/{case_id}/check-assignment', [CaseController::class, 'checkAs
 Route::delete('/cases/{case_id}/remove-lawyer/{lawyer_id}', [CaseController::class, 'removeAssignedLawyer']);
 
 //Cases Route
+Route::get('/evaluations/available-cases', [CaseController::class, 'getEvaluationCases'])->name('cases.available-evaluation-cases');
+
 Route::middleware(['auth'])->prefix('cases')->group(function () {
     Route::post('/{case_id}/submit-panel-evaluation', [CaseController::class, 'submitToPanelEvaluation'])->name('cases.submitToPanelEvaluation');
     Route::get('/{case_id}/panel-evaluation', [CaseController::class, 'showPanelEvaluation'])->name('cases.panelEvaluation');
 
     Route::post('/send-case-email/{case_id}', [CaseController::class, 'sendEmail'])->name('cases.sendEmail');
+    Route::get('/{caseId}/events', [CaseController::class, 'getEventsCase'])->name('cases.eventCase');
 
     Route::get('/update-form', [CaseController::class, 'showUpdateForm'])->name('cases.showUpdateForm');
     Route::get('/matter', [CaseController::class, 'showMatter'])->name('cases.matter');
@@ -286,7 +289,7 @@ Route::middleware(['auth'])->prefix('cases')->group(function () {
     Route::post('/addMention', [CaseController::class, 'addMention'])->name('cases.addMention');
     Route::post('/addApplication', [CaseController::class, 'addApplication'])->name('cases.addApplication');
     Route::post('/addActivity', [CaseController::class, 'addActivity'])->name('cases.addActivity');
-    Route::get('/calendar/events', [CaseController::class, 'getEvents'])->name('cases.getEvents');
+    Route::get('/calendar/calendar_events', [CaseController::class, 'getCalenderEvents'])->name('cases.getCalenderEvents');
    // routes/web.php
    Route::post('/update-matter', [CaseController::class, 'updateMatter'])
      ->name('cases.updateMatter');

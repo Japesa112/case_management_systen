@@ -17,19 +17,18 @@
 
 @section('content')
 <div class="container-fluid">
-    <div class="row mt-1" style="margin-left: 15%; margin-right: 10%;">
+    <div class="row mt-1" style="margin-left: 5%; margin-right: 5%;">
         <div class="col-md-12 mt-2">
             <h1 class="page-header mt-2">Closed Case</h1>
             <div class="panel panel-inverse">
                 <div class="panel-heading">
                     <h4 class="panel-title">Case Closure Form</h4>
+                    
+
                     <div class="panel-heading-btn">
-                        <a href="javascript:;" class="btn btn-xs btn-icon btn-circle btn-default" data-click="panel-expand">
-                            <i class="fa fa-expand"></i>
-                        </a>
-                        <a href="javascript:;" class="btn btn-xs btn-icon btn-circle btn-warning" data-click="panel-collapse">
-                            <i class="fa fa-minus"></i>
-                        </a>
+                        <a href="{{ url('/cases') }}" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
+                        <i class="fa fa-arrow-left text-white fw-bold"></i> <span class="text-white">Back to Cases</span>
+                    </a>
                     </div>
                 </div>
                 <div class="panel-body">
@@ -79,7 +78,7 @@
                             <!-- Right Column -->
                             <div class="col-md-6">
                                 <div class="form-group mt-2">
-                                    <label for="lawyer_payment_confirmed">Lawyer Payment Confirmed <span class="text-danger">*</span></label>
+                                    <label for="lawyer_payment_confirmed">Payment Confirmed <span class="text-danger">*</span></label>
                                     <select name="lawyer_payment_confirmed" id="lawyer_payment_confirmed" class="form-control" required>
                                         <option value="">Select</option>
                                         <option value="Yes">Yes</option>
@@ -103,11 +102,26 @@
                             </div>
                         </div>
                     
-                        <div class="form-group text-center mt-3">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fa fa-folder-check"></i> Close Case
+                      <div class="form-group d-flex justify-content-between align-items-center mt-3">
+
+                            <!-- Back Button (Left) -->
+                            <button type="button" onclick="window.history.back();" class="btn btn-secondary d-inline-flex align-items-center gap-2">
+                                <i class="fa fa-arrow-left"></i> <span>Back</span>
                             </button>
+
+                            <!-- Middle Button (Center) -->
+                            <a href="/closed_cases" class="btn btn-info d-inline-flex align-items-center gap-2">
+                                <i class="fa fa-archive"></i> <span>Closed Cases</span>
+                            </a>
+
+                            <!-- Submit Button (Right) -->
+                            <button type="submit" class="btn btn-primary d-inline-flex align-items-center gap-2">
+                                <i class="fa fa-folder-check"></i> <span>Close Case</span>
+                            </button>
+
                         </div>
+
+
                     </form>
                            
                 </div>

@@ -3,7 +3,7 @@
 
 @section('content')
 <!-- BEGIN panel -->
-<div class="panel panel-inverse">
+<div class="panel panel-inverse mt-5">
   <div class="panel-heading">
     <h4 class="panel-title">Submit Case for Panel Evaluation</h4>
   </div>
@@ -17,11 +17,23 @@
         <textarea class="form-control" id="panelMessage" name="message" rows="5" placeholder="Enter your message to the panel..."></textarea>
       </div>
 
-      <div class="text-end">
-        <button type="submit" id="sendPanelEvaluationBtn" class="btn btn-primary">
-          <i class="fa fa-paper-plane me-1"></i> Send Evaluation Request
-        </button>
+      <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+          <!-- Back Button (Left) -->
+          <button type="button" onclick="window.history.back();" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2">
+              <i class="fa fa-arrow-left"></i> <span>Back</span>
+          </button>
+
+          <!-- Go to Panel Evaluation (Center) -->
+          <a href="{{ url('/evaluations') }}" class="btn btn-outline-info d-inline-flex align-items-center gap-2">
+              <i class="fa fa-gavel"></i> <span>Panel Evaluations</span>
+          </a>
+
+          <!-- Send Evaluation Request (Right) -->
+          <button type="submit" id="sendPanelEvaluationBtn" class="btn btn-primary d-inline-flex align-items-center gap-2">
+              <i class="fa fa-paper-plane"></i> <span>Send Evaluation Request</span>
+          </button>
       </div>
+
     </form>
   </div>
 </div>

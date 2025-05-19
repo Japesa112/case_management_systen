@@ -45,9 +45,12 @@
 
 @section('content')
 <div class="container-fluid mt-4">
+    <h5>Cases Hearings/Mentions/Applications</h5>
     <div class="panel panel-inverse">
-        <div class="panel-heading">
-            <h4 class="panel-title">List of Activities</h4>
+         <div class="panel-heading d-flex justify-content-between align-items-center">
+            <a href="{{ url('/cases') }}" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
+                <i class="fa fa-arrow-left text-white fw-bold"></i> <span class="text-white">Back to Cases</span>
+            </a>
             <div class="panel-heading-btn">
                 <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addEvaluationModal">
                     <i class="fa fa-plus"></i> Add New Activity

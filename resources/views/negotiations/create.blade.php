@@ -148,14 +148,25 @@
                         </div>
 
                         <!-- Submit Button -->
-                        <div class="d-flex justify-content-between mt-4">
-                        <button onclick="window.history.back();" class="btn btn-secondary">
-                            <i class="fa fa-arrow-left"></i> Back
-                        </button>
-                            <button type="submit" class="btn btn-primary">
+                        <div class="d-flex justify-content-between mt-4 align-items-center">
+
+                              <!-- Back Button (Left) -->
+                              <button onclick="window.history.back();" class="btn btn-secondary d-inline-flex align-items-center gap-2">
+                                <i class="fa fa-arrow-left"></i> Back
+                              </button>
+
+                              <!-- Go to Negotiations Button (Middle) -->
+                              <a href="{{ url('/negotiations') }}" class="btn btn-info d-inline-flex align-items-center gap-2">
+                                <i class="fa fa-list"></i> Negotiations
+                              </a>
+
+                              <!-- Submit Button (Right) -->
+                              <button type="submit" class="btn btn-primary d-inline-flex align-items-center gap-2">
                                 <i class="fa fa-paper-plane"></i> Submit Negotiation
-                            </button>
-                        </div>
+                              </button>
+
+                            </div>
+
                     </form>
                 </div> <!-- end panel-body -->
             </div> <!-- end panel -->

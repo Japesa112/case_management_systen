@@ -83,11 +83,25 @@
                               
                             </div>
                         </div>
-                        <div class="form-group text-center mt-2">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fa fa-paper-plane"></i> Submit Adjourn
+                        <div class="form-group d-flex justify-content-between align-items-center mt-3 px-3">
+
+                            <!-- Back Button -->
+                            <button type="button" onclick="window.history.back();" class="btn btn-secondary d-flex align-items-center">
+                                <i class="fa fa-arrow-left me-1"></i> Back
                             </button>
+
+                            <!-- Go to Adjourns Button -->
+                            <a href="/adjourns" class="btn btn-info d-flex align-items-center">
+                                <i class="fa fa-clock me-1"></i> Go to Adjourns
+                            </a>
+
+                            <!-- Submit Adjourn Button -->
+                            <button type="submit" class="btn btn-primary d-flex align-items-center">
+                                <i class="fa fa-paper-plane me-1"></i> Submit Adjourn
+                            </button>
+
                         </div>
+
                     </form>
                 </div>
             </div>

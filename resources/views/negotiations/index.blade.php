@@ -59,41 +59,20 @@
     <div class="mt-4">
     <h1 class="page-header">Negotiations</h1>
     <div class="panel panel-inverse">
-        <div class="panel-heading">
-            <h4 class="panel-title">Negotiation List</h4>
-           
+        <div class="panel-heading d-flex justify-content-between align-items-center">
+            <!-- Back to Cases Button (Left) -->
+            <a href="{{ url('/cases') }}" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
+                <i class="fa fa-arrow-left text-white fw-bold"></i> <span class="text-white">Back to Cases</span>
+            </a>
+
+            <!-- Add New Negotiation Button (Right) -->
             <div class="panel-heading-btn">
-                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addNegotiationModal">
-                    <i class="fa fa-plus"></i> Add New Negotiation
+                <button class="btn btn-success btn-sm d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addNegotiationModal">
+                    <i class="fa fa-plus text-white"></i> <span class="text-white">Add New Negotiation</span>
                 </button>
-                
             </div>
-            <div class="modal fade" id="addNegotiationModal" tabindex="-1" aria-labelledby="addNegotiationModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" style="color: rgb(1, 9, 12)" id="addNegotiationModalLabel">Create New Negotiation</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <!--action="// //route('negotiations.checkCase') }}"-->
-                            <form id="checkCaseForm">
-                                @csrf
-                                <div class="form-group">
-                                    <label for="case_number" style="color: rgb(1, 9, 12)">Case Number <span class="text-danger">*</span></label>
-                                    <input type="text" name="case_number" id="case_number" class="form-control" required>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary">Create Negotiation</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
         </div>
+
 
        
 
@@ -167,28 +146,45 @@
                             <td>{{ $negotiation->initiation_datetime }}</td>
                             <td>
                                 @if($negotiation->caseRecord)
-                                 <a href="{{ route('cases.panelEvaluation', $negotiation->caseRecord->case_id) }}" 
-                                       class="btn btn-sm btn-outline-success d-inline-flex align-items-center" 
-                                       title="Submit for Panel Evaluation">
-                                        <i class="fa fa-gavel me-1"></i> Panel Evaluation
-                                    </a>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <!-- Panel Evaluation Button -->
+                                        <a href="{{ route('cases.panelEvaluation', $negotiation->caseRecord->case_id) }}" 
+                                           class="btn btn-sm btn-outline-success d-inline-flex align-items-center" 
+                                           title="Submit for Panel Evaluation">
+                                            <i class="fa fa-gavel me-1"></i> Panel Evaluation
+                                        </a>
+
+                                        <!-- Close Case Button -->
+                                        <a href="{{ route('closed_cases.create', $negotiation->caseRecord->case_id) }}" 
+                                           class="btn btn-sm btn-outline-danger d-inline-flex align-items-center" 
+                                           title="Close Case">
+                                            <i class="fa fa-lock me-1"></i> Close Case
+                                        </a>
+                                    </div>
                                 @else
                                     <span class="text-muted">N/A</span>
                                 @endif
                             </td>
 
+
                             <td>
-                                <a href="{{ route('negotiations.show', $negotiation) }}" class="btn btn-info btn-sm" title="View Details">
-                                    <i class="fa fa-eye"></i> View
-                                </a>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <!-- View Button -->
+                                    <a href="{{ route('negotiations.show', $negotiation) }}" 
+                                       class="btn btn-info btn-sm d-inline-flex align-items-center gap-1" 
+                                       title="View Details">
+                                        <i class="fa fa-eye"></i> <span>View</span>
+                                    </a>
 
-                                <a href="{{ route('negotiations.edit', $negotiation) }}" class="btn btn-warning btn-sm" title="View Details">
-                                    <i class="fa fa-edit"></i> Edit
-                                </a>
-                                
-
-                                
+                                    <!-- Edit Button -->
+                                    <a href="{{ route('negotiations.edit', $negotiation) }}" 
+                                       class="btn btn-warning btn-sm d-inline-flex align-items-center gap-1" 
+                                       title="Edit Negotiation">
+                                        <i class="fa fa-edit"></i> <span>Edit</span>
+                                    </a>
+                                </div>
                             </td>
+
                         </tr>
                         @endforeach
                     </tbody>
@@ -200,6 +196,33 @@
 </div>
 </div>
 
+<div class="modal fade" id="addNegotiationModal" tabindex="-1" aria-labelledby="addNegotiationModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" style="color: rgb(1, 9, 12)" id="addNegotiationModalLabel">Create New Negotiation</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <!--action="// //route('negotiations.checkCase') }}"-->
+                            <form id="checkCaseForm">
+                                @csrf
+                                <div class="form-group">
+                                    <label for="evaluation_case_id" style="color: rgb(1, 9, 12)">Select Case <span class="text-danger">*</span></label>
+                                    <select name="case_id" id="evaluation_case_id" class="form-control" required>
+                                       
+                                        <!-- Options will be populated via AJAX -->
+                                    </select>
+                                 </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">Create Negotiation</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
 
 
@@ -213,11 +236,53 @@
 
 @push('scripts')
 <script>
+     $(document).ready(function () {
+    let tomSelectInstance;
+
+    $('#addNegotiationModal').on('shown.bs.modal', function () {
+        let caseSelect = $('#evaluation_case_id');
+
+        // If already initialized, destroy previous Tom Select instance
+        if (tomSelectInstance) {
+            tomSelectInstance.destroy();
+            tomSelectInstance = null;
+        }
+
+        caseSelect.empty().append('<option value="">Loading cases...</option>');
+
+        $.ajax({
+            url: "{{ route('cases.available-evaluation-cases') }}",
+            type: "GET",
+            success: function (response) {
+                caseSelect.empty();
+               caseSelect.append('<option value="">Select Case</option>');
+
+                $.each(response, function (index, caseItem) {
+                    caseSelect.append(
+                        `<option value="${caseItem.case_number}">${caseItem.display_name}</option>`
+                    );
+                });
+
+                // Reinitialize Tom Select *after* options are loaded
+                tomSelectInstance = new TomSelect('#evaluation_case_id', {
+                    placeholder: "Select Case",
+                    allowEmptyOption: true,
+                    maxOptions: 500
+                });
+            },
+            error: function () {
+                caseSelect.empty().append('<option value="">Failed to load cases</option>');
+                alert("Failed to fetch cases. Please try again.");
+            }
+        });
+    });
+});
+
     $(document).ready(function () {
         $(document).on('submit', '#checkCaseForm', function (e) {
             e.preventDefault(); // Prevent default form submission
     
-            let caseNumber = $('#case_number').val();
+            let caseNumber = $('#evaluation_case_id').val(); 
     
             $.ajax({
                 url: "{{ route('negotiations.checkCase') }}", 

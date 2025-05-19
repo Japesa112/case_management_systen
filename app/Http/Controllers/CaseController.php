@@ -18,6 +18,7 @@ use Carbon\Carbon;  // Import Carbon for handling timestamps
 use App\Mail\TestEmail;
 use App\Models\Appeal;
 use App\Models\Forwarding;
+use App\Models\DvcAppointment;
 use App\Models\AGAdvice;
 use App\Models\Adjourn;
 use App\Models\Negotiation;
@@ -1110,9 +1111,11 @@ public function sendEmail($case_id)
 
 
 
-public function getEvents()
+public function getCalenderEvents()
 {
  
+
+ Log::info("I am trying to reach ut");
    
     try {
         // Step 1: Get the case_ids for the currently logged-in lawyer
@@ -1120,7 +1123,7 @@ public function getEvents()
 
         
         $isLawyer = Auth::user() && Auth::user()->role === 'Lawyer'; 
-        if ($isLawyer) {
+    if ($isLawyer) {
             $lawyerId = Auth::user()->lawyer->lawyer_id;
             Log::info('Lawyer id is: '.$lawyerId.' Jaba');
 
@@ -1406,10 +1409,11 @@ public function getEvents()
             $combinedEvents = $combinedEvents->merge($events_all);
             $combinedEvents = $combinedEvents->merge($events_lawyerpay);
             $combinedEvents = $combinedEvents->merge($events_negotiate);
+
             return response()->json($combinedEvents);
 
     }
-    else{
+        else{
 
             //If not a lawyer
 
@@ -1656,6 +1660,24 @@ public function getEvents()
                     
                 ];
             });
+
+
+            $appointments = DVCAppointment::whereHas('forwarding')->get();
+
+            $events_dvc_appointment = $appointments->map(function ($appointment) {
+                $title = "Appointment";
+                $titleContent = $appointment->briefing_notes;
+
+                return [
+                    'id' => $appointment->appointment_id . '.appointment',
+                    'title' => $title,
+                    'titleContent' => $titleContent,
+                    'start' => \Carbon\Carbon::parse($appointment->appointment_date)->format('Y-m-d') . 'T' . $appointment->appointment_time,
+                    'allDay' => false,
+                    'color' => '#F2B418',
+                ];
+            });
+
     
             $combinedEvents = $events->merge($events_appeal);
             $combinedEvents = $combinedEvents->merge($events_adjourn);
@@ -1666,6 +1688,7 @@ public function getEvents()
             $combinedEvents = $combinedEvents->merge($events_all);
             $combinedEvents = $combinedEvents->merge($events_lawyerpay);
             $combinedEvents = $combinedEvents->merge($events_negotiate);
+            $combinedEvents = $combinedEvents->merge($events_dvc_appointment);
             return response()->json($combinedEvents);
 
         }
@@ -1727,5 +1750,590 @@ public function showPanelEvaluation($case_id)
     $case = CaseModel::findOrFail($case_id); // adjust model name if different
     return view('evaluations.panel-evaluation', ['caseId' => $case->case_id, 'case' => $case]);
 }
+
+public function getEvaluationCases()
+{
+    $cases = CaseModel::where('case_status', '!=', 'Closed')
+        ->select('case_id', 'case_name', 'case_number')
+        ->get()
+        ->map(function ($case) {
+            return [
+                'case_number' => $case->case_number,
+                'case_id' => $case->case_id,
+                'display_name' => $case->case_name . ' - ' . $case->case_number
+            ];
+        });
+
+    return response()->json($cases);
+}
+
+public function getEventsCase($caseId)
+{
+try {
+        // Step 1: Get the case_ids for the currently logged-in lawyer
+       
+    Log::info("Are you reaching me");
+        
+        $isLawyer = Auth::user() && Auth::user()->role === 'Lawyer'; 
+    if ($isLawyer) {
+            $lawyerId = Auth::user()->lawyer->lawyer_id;
+            Log::info('Lawyer id is: '.$lawyerId.' Jaba');
+
+        $caseIds = \App\Models\CaseLawyer::where('lawyer_id', $lawyerId)->pluck('case_id');
+     
+
+            //Negotiations
+            $activities_negotiate = $activities_negotiate = Negotiation::where('case_id', $caseId)->get();
+
+            $events_negotiate = $activities_negotiate ->map(function ($activity_negotiate) {
+                // Get the ordinal parts for the sequence number
+                
+                // Format the title and content
+                $title = " Negotiation" ;
+                $titleContent = $activity_negotiate ->  outcome ;
+    
+                return [
+                    'id' =>$activity_negotiate->negotiation_id . '.negotiate',
+                    'title' => $title,
+                    'titleContent' => $titleContent,
+                    'start' => $activity_negotiate->initiation_datetime,
+                    'allDay' => false, // Set true if it's a full-day event
+                    'color' => 'rgb(6, 53, 80)',
+                    
+
+
+                ];
+            });
+
+
+            //Lawyer Payments
+             //Law Payments
+             $activities_lawyer= $activities_lawyerpay = LawyerPayment::where('case_id', $caseId)->get();
+
+             $events_lawyerpay= $activities_lawyerpay->map(function ($activity_lawyerpay) {
+                 // Get the ordinal parts for the sequence number
+                 
+                 // Format the title and content
+                 $title = " Lawyer Payment" ;
+                 $titleContent = $activity_lawyerpay->  transaction ;
+     
+                 return [
+                     'id' => $activity_lawyerpay->payment_id . '.lawyerpayment',
+                     'title' => $title,
+                     'titleContent' => $titleContent,
+                     'start' => \Carbon\Carbon::parse($activity_lawyerpay->payment_date)->format('Y-m-d') . 'T' . $activity_lawyerpay->payment_time,
+                     'allDay' => false, // Set true if it's a full-day event
+                     'color' => 'rgb(14, 168, 22)',
+                     
+ 
+ 
+                 ];
+             });
+ 
+
+            //Law Payments
+            $activities_all= $activities_all = Payment::where('case_id', $caseId)->get();
+
+            $events_all= $activities_all->map(function ($activity_all) {
+                // Get the ordinal parts for the sequence number
+                
+                // Format the title and content
+                $title = " Payment" ;
+                $titleContent = $activity_all-> transaction ;
+    
+                return [
+                    'id' => $activity_all->payment_id . '.allpayment',
+                    'title' => $title,
+                    'titleContent' => $titleContent,
+                    'start' => \Carbon\Carbon::parse($activity_all->payment_date)->format('Y-m-d') . 'T' . $activity_all->payment_time,
+                    'allDay' => false, // Set true if it's a full-day event
+                    'color' => 'rgb(194, 15, 218)',
+                    
+
+
+                ];
+            });
+
+
+            // AG Advice
+            $activities_advice= $activities_advice = AGAdvice::where('case_id', $caseId)->get();
+
+            $events_advice= $activities_advice->map(function ($activity_advice) {
+                // Get the ordinal parts for the sequence number
+                
+                // Format the title and content
+                $title = " AG Advice" ;
+                $titleContent = $activity_advice->  ag_advice   ;
+    
+                return [
+                    'id' => $activity_advice->ag_advice_id . '.advice',
+                    'title' => $title,
+                    'titleContent' => $titleContent,
+                    'start' => \Carbon\Carbon::parse($activity_advice->advice_date)->format('Y-m-d') . 'T' . $activity_advice-> advice_time,
+                    'allDay' => false, // Set true if it's a full-day event
+                    'color' => ' #272838',
+                    
+
+
+                ];
+            });
+
+
+            //Appointment
+            
+            $activities_appointment = $activities_appointment = Forwarding::where('case_id', $caseId)->get();
+
+            $events_appointment = $activities_appointment->map(function ($activity_appointment) {
+                // Get the ordinal parts for the sequence number
+                
+                // Format the title and content
+                $title = " Appointment" ;
+                $titleContent = $activity_appointment->briefing_notes   ;
+    
+                return [
+                    'id' => $activity_appointment->forwarding_id . '.appointment',
+                    'title' => $title,
+                    'titleContent' => $titleContent,
+                    'start' => \Carbon\Carbon::parse($activity_appointment->dvc_appointment_date)->format('Y-m-d') . 'T' . $activity_appointment->dvc_appointment_time,
+                    'allDay' => false, // Set true if it's a full-day event
+                    'color' => '#F2B418',
+                    
+
+
+                ];
+            });
+
+
+
+            //Trial
+            $activities_trial = $activities_trial = Trial::where('case_id', $caseId)->get();
+
+            $events_trial = $activities_trial->map(function ($activity_trial) {
+                // Get the ordinal parts for the sequence number
+                
+                // Format the title and content
+                $title = " Trial" ;
+                $titleContent = $activity_trial->judgement_details  ;
+    
+                return [
+                    'id' => $activity_trial->trial_id. '.trial',
+                    'title' => $title,
+                    'titleContent' => $titleContent,
+                    'start' => \Carbon\Carbon::parse($activity_trial->trial_date)->format('Y-m-d') . 'T' . $activity_trial->trial_time,
+                    'allDay' => false, // Set true if it's a full-day event
+                    'color' => '#AFCBD5',
+                    
+
+
+                ];
+            });
+
+
+
+
+            //Trial Preparation Events
+            $activities_preparation = $activities_preparation = TrialPreparation::where('case_id', $caseId)->get();
+
+            $events_preparation = $activities_preparation->map(function ($activity_preparation) {
+                // Get the ordinal parts for the sequence number
+                
+                // Format the title and content
+                $title = " Preparation" ;
+                $titleContent = $activity_preparation->briefing_notes;
+    
+                return [
+                    'id' => $activity_preparation->preparation_id. '.preparation',
+                    'title' => $title,
+                    'titleContent' => $titleContent,
+                    'start' => \Carbon\Carbon::parse($activity_preparation->preparation_date)->format('Y-m-d') . 'T' . $activity_preparation->preparation_time,
+                    'allDay' => false, // Set true if it's a full-day event
+                    'color' => '#445D48',
+                    
+
+
+                ];
+            });
+
+
+            //Adjourn Events
+
+            $activities_adjourn = $activities_adjourn = Adjourn::where('case_id', $caseId)->get();
+
+            $events_adjourn = $activities_adjourn->map(function ($activity_adjourn) {
+                // Get the ordinal parts for the sequence number
+                
+                // Format the title and content
+                $title = " Adjourn" ;
+                $titleContent = $activity_adjourn->adjourn_comments;
+    
+                return [
+                    'id' => $activity_adjourn->adjourns_id. '.adjourn',
+                    'title' => $title,
+                    'titleContent' => $titleContent,
+                    'start' => \Carbon\Carbon::parse($activity_adjourn->next_hearing_date)->format('Y-m-d') . 'T' . $activity_adjourn->next_hearing_time,
+                    'allDay' => false, // Set true if it's a full-day event
+                    'color' => '#F57251',
+                    
+
+
+                ];
+            });
+
+
+
+            //Appeal Events
+             $activities_appeal = $activities_appeal = Appeal::where('case_id', $caseId)->get();
+
+            $events_appeal = $activities_appeal->map(function ($activity_appeal) {
+                // Get the ordinal parts for the sequence number
+                
+                // Format the title and content
+                $title = " Appeal" ;
+                $titleContent = $activity_appeal->appeal_comments;
+    
+                return [
+                    'id' => $activity_appeal->appeal_id. '.appeal',
+                    'title' => $title,
+                    'titleContent' => $titleContent,
+                    'start' => \Carbon\Carbon::parse($activity_appeal->next_hearing_date)->format('Y-m-d') . 'T' . $activity_appeal->next_hearing_time,
+                    'allDay' => false, // Set true if it's a full-day event
+                    'color' => '#C4AD9D',
+                    
+                ];
+            });
+
+
+            $activities = $activities = CaseActivity::where('case_id', $caseId)->get();
+
+            $events = $activities->map(function ($activity) {
+                // Get the ordinal parts for the sequence number
+                $parts = $this->ordinalParts($activity->sequence_number);
+                $activity->seq_num = $parts['number'];
+                $activity->seq_suffix = $parts['suffix'];
+    
+                // Format the title and content
+                $title = $this->getOrdinal($activity->sequence_number) . ' ' . ucfirst($activity->type);
+                $titleContent = $activity->seq_num . '<sup>' . $activity->seq_suffix . '</sup>' . ' ' . ucfirst($activity->type);
+    
+                return [
+                    'id' => $activity->id. '.activity',
+                    'title' => $title,
+                    'titleContent' => $titleContent,
+                    'start' => $activity->date->format('Y-m-d') . 'T' . $activity->time, // Combine date and time
+                    'allDay' => false, // Set true if it's a full-day event
+                    'color' => $this->getTypeColor($activity->type),
+                    
+                ];
+            });
+    
+            $combinedEvents = $events->merge($events_appeal);
+            $combinedEvents = $combinedEvents->merge($events_adjourn);
+            $combinedEvents = $combinedEvents->merge($events_preparation);
+            $combinedEvents = $combinedEvents->merge($events_trial);
+            $combinedEvents = $combinedEvents->merge($events_appointment);
+            $combinedEvents = $combinedEvents->merge($events_advice);
+            $combinedEvents = $combinedEvents->merge($events_all);
+            $combinedEvents = $combinedEvents->merge($events_lawyerpay);
+            $combinedEvents = $combinedEvents->merge($events_negotiate);
+            return response()->json($combinedEvents);
+
+    }
+        else{
+
+            //If not a lawyer
+
+            //Negotiations
+            $activities_negotiate = $activities_negotiate = Negotiation::where('case_id', $caseId)->get();
+
+            $events_negotiate = $activities_negotiate ->map(function ($activity_negotiate) {
+                // Get the ordinal parts for the sequence number
+                
+                // Format the title and content
+                $title = " Negotiation" ;
+                $titleContent = $activity_negotiate ->  outcome ;
+    
+                return [
+                    'id' =>$activity_negotiate->negotiation_id . '.negotiate',
+                    'title' => $title,
+                    'titleContent' => $titleContent,
+                    'start' => \Carbon\Carbon::parse($activity_negotiate->initiation_datetime)->format('Y-m-d\TH:i:s'),
+
+                    'allDay' => false, // Set true if it's a full-day event
+                    'color' => 'rgb(6, 53, 80)',
+                    
+
+
+                ];
+            });
+
+
+            //Lawyer Payments
+             //Law Payments
+             $activities_lawyer= $activities_lawyerpay = LawyerPayment::where('case_id', $caseId)->get();
+
+             $events_lawyerpay= $activities_lawyerpay->map(function ($activity_lawyerpay) {
+                 // Get the ordinal parts for the sequence number
+                 
+                 // Format the title and content
+                 $title = " Lawyer Payment" ;
+                 $titleContent = $activity_lawyerpay->  transaction ;
+     
+                 return [
+                     'id' => $activity_lawyerpay->payment_id . '.lawyerpayment',
+                     'title' => $title,
+                     'titleContent' => $titleContent,
+                     'start' => \Carbon\Carbon::parse($activity_lawyerpay->payment_date)->format('Y-m-d') . 'T' . $activity_lawyerpay->payment_time,
+                     'allDay' => false, // Set true if it's a full-day event
+                     'color' => 'rgb(14, 168, 22)',
+                     
+ 
+ 
+                 ];
+             });
+ 
+
+            //Law Payments
+            $activities_all= $activities_all = Payment::where('case_id', $caseId)->get();
+
+            $events_all= $activities_all->map(function ($activity_all) {
+                // Get the ordinal parts for the sequence number
+                
+                // Format the title and content
+                $title = " Payment" ;
+                $titleContent = $activity_all-> transaction ;
+    
+                return [
+                    'id' => $activity_all->payment_id . '.allpayment',
+                    'title' => $title,
+                    'titleContent' => $titleContent,
+                    'start' => \Carbon\Carbon::parse($activity_all->payment_date)->format('Y-m-d') . 'T' . $activity_all->payment_time,
+                    'allDay' => false, // Set true if it's a full-day event
+                    'color' => 'rgb(194, 15, 218)',
+                    
+
+
+                ];
+            });
+
+
+            // AG Advice
+            $activities_advice= $activities_advice = AGAdvice::where('case_id', $caseId)->get();
+
+            $events_advice= $activities_advice->map(function ($activity_advice) {
+                // Get the ordinal parts for the sequence number
+                
+                // Format the title and content
+                $title = " AG Advice" ;
+                $titleContent = $activity_advice->  ag_advice   ;
+    
+                return [
+                    'id' => $activity_advice->ag_advice_id . '.advice',
+                    'title' => $title,
+                    'titleContent' => $titleContent,
+                    'start' => \Carbon\Carbon::parse($activity_advice->advice_date)->format('Y-m-d') . 'T' . $activity_advice-> advice_time,
+                    'allDay' => false, // Set true if it's a full-day event
+                    'color' => ' #272838',
+                    
+
+
+                ];
+            });
+
+
+            //Forwarding
+            
+            $activities_appointment = $activities_appointment = Forwarding::where('case_id', $caseId)->get();
+
+            $events_appointment = $activities_appointment->map(function ($activity_appointment) {
+                // Get the ordinal parts for the sequence number
+                
+                // Format the title and content
+                $title = " Forwarded" ;
+                $titleContent = $activity_appointment->briefing_notes   ;
+    
+                return [
+                    'id' => $activity_appointment->forwarding_id . '.forwarding',
+                    'title' => $title,
+                    'titleContent' => $titleContent,
+                    'start' => \Carbon\Carbon::parse($activity_appointment->dvc_appointment_date)->format('Y-m-d') . 'T' . $activity_appointment->dvc_appointment_time,
+                    'allDay' => false, // Set true if it's a full-day event
+                    'color' => '#F2B418',
+                    
+
+
+                ];
+            });
+
+
+             //Appointment
+            
+            $appointments = DVCAppointment::whereHas('forwarding', function ($query) use ($caseId) {
+                $query->where('case_id', $caseId);
+            })->get();
+
+
+                 $events_dvc_appointment = $appointments->map(function ($appointment) {
+            $title = "Appointment";
+            $titleContent = $appointment->briefing_notes;
+
+            return [
+                'id' => $appointment->appointment_id . '.appointment',
+                'title' => $title,
+                'titleContent' => $titleContent,
+                'start' => \Carbon\Carbon::parse($appointment->appointment_date)->format('Y-m-d') . 'T' . $appointment->appointment_time,
+                'allDay' => false,
+                'color' => '#F2B418',
+            ];
+        });
+
+
+
+
+            //Trial
+            $activities_trial = $activities_trial = Trial::where('case_id', $caseId)->get();
+
+            $events_trial = $activities_trial->map(function ($activity_trial) {
+                // Get the ordinal parts for the sequence number
+                
+                // Format the title and content
+                $title = " Trial" ;
+                $titleContent = $activity_trial->judgement_details  ;
+    
+                return [
+                    'id' => $activity_trial->trial_id. '.trial',
+                    'title' => $title,
+                    'titleContent' => $titleContent,
+                    'start' => \Carbon\Carbon::parse($activity_trial->trial_date)->format('Y-m-d') . 'T' . $activity_trial->trial_time,
+                    'allDay' => false, // Set true if it's a full-day event
+                    'color' => '#AFCBD5',
+                    
+
+
+                ];
+            });
+
+
+
+
+            //Trial Preparation Events
+            $activities_preparation = $activities_preparation = TrialPreparation::where('case_id', $caseId)->get();
+
+            $events_preparation = $activities_preparation->map(function ($activity_preparation) {
+                // Get the ordinal parts for the sequence number
+                
+                // Format the title and content
+                $title = " Preparation" ;
+                $titleContent = $activity_preparation->briefing_notes;
+    
+                return [
+                    'id' => $activity_preparation->preparation_id. '.preparation',
+                    'title' => $title,
+                    'titleContent' => $titleContent,
+                    'start' => \Carbon\Carbon::parse($activity_preparation->preparation_date)->format('Y-m-d') . 'T' . $activity_preparation->preparation_time,
+                    'allDay' => false, // Set true if it's a full-day event
+                    'color' => '#445D48',
+                    
+
+
+                ];
+            });
+
+
+            //Adjourn Events
+
+            $activities_adjourn = $activities_adjourn = Adjourn::where('case_id', $caseId)->get();
+
+            $events_adjourn = $activities_adjourn->map(function ($activity_adjourn) {
+                // Get the ordinal parts for the sequence number
+                
+                // Format the title and content
+                $title = " Adjourn" ;
+                $titleContent = $activity_adjourn->adjourn_comments;
+    
+                return [
+                    'id' => $activity_adjourn->adjourns_id. '.adjourn',
+                    'title' => $title,
+                    'titleContent' => $titleContent,
+                    'start' => \Carbon\Carbon::parse($activity_adjourn->next_hearing_date)->format('Y-m-d') . 'T' . $activity_adjourn->next_hearing_time,
+                    'allDay' => false, // Set true if it's a full-day event
+                    'color' => '#F57251',
+                    
+
+
+                ];
+            });
+
+
+
+            //Appeal Events
+             $activities_appeal = $activities_appeal = Appeal::where('case_id', $caseId)->get();
+
+            $events_appeal = $activities_appeal->map(function ($activity_appeal) {
+                // Get the ordinal parts for the sequence number
+                
+                // Format the title and content
+                $title = " Appeal" ;
+                $titleContent = $activity_appeal->appeal_comments;
+    
+                return [
+                    'id' => $activity_appeal->appeal_id. '.appeal',
+                    'title' => $title,
+                    'titleContent' => $titleContent,
+                    'start' => \Carbon\Carbon::parse($activity_appeal->next_hearing_date)->format('Y-m-d') . 'T' . $activity_appeal->next_hearing_time,
+                    'allDay' => false, // Set true if it's a full-day event
+                    'color' => '#C4AD9D',
+                    
+                ];
+            });
+
+
+            $activities = $activities = CaseActivity::where('case_id', $caseId)->get();
+
+            $events = $activities->map(function ($activity) {
+                // Get the ordinal parts for the sequence number
+                $parts = $this->ordinalParts($activity->sequence_number);
+                $activity->seq_num = $parts['number'];
+                $activity->seq_suffix = $parts['suffix'];
+    
+                // Format the title and content
+                $title = $this->getOrdinal($activity->sequence_number) . ' ' . ucfirst($activity->type);
+                $titleContent = $activity->seq_num . '<sup>' . $activity->seq_suffix . '</sup>' . ' ' . ucfirst($activity->type);
+    
+                return [
+                    'id' => $activity->id. '.activity',
+                    'title' => $title,
+                    'titleContent' => $titleContent,
+                    'start' => $activity->date->format('Y-m-d') . 'T' . $activity->time, // Combine date and time
+                    'allDay' => false, // Set true if it's a full-day event
+                    'color' => $this->getTypeColor($activity->type),
+                    
+                ];
+            });
+    
+            $combinedEvents = $events->merge($events_appeal);
+            $combinedEvents = $combinedEvents->merge($events_adjourn);
+            $combinedEvents = $combinedEvents->merge($events_preparation);
+            $combinedEvents = $combinedEvents->merge($events_trial);
+            $combinedEvents = $combinedEvents->merge($events_appointment);
+            $combinedEvents = $combinedEvents->merge($events_advice);
+            $combinedEvents = $combinedEvents->merge($events_all);
+            $combinedEvents = $combinedEvents->merge($events_lawyerpay);
+            $combinedEvents = $combinedEvents->merge($events_negotiate);
+            $combinedEvents = $combinedEvents->merge($events_dvc_appointment);
+
+
+            $combinedEvents = $combinedEvents->sortByDesc('start')->values();
+            return response()->json($combinedEvents);
+
+        }
+    } catch (\Exception $e) {
+        Log::error('Calendar event fetch failed', [$e->getMessage()]);
+        return response()->json(['error' => 'Could not fetch events.'], 500);
+    }
+
+
+}
+
+
 
 }

@@ -130,18 +130,24 @@
                 
 
 
-                                 <!-- Button container -->
-                                    <div class="d-flex justify-content-between mt-2">
-                                        <!-- Back Button (Left) -->
-                                        <button onclick="window.history.back();" class="btn btn-secondary">
-                                            <i class="fa fa-arrow-left"></i> Back
-                                        </button>
+                                                                     <!-- Button container -->
+                        <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+                            <!-- Back Button (Left) -->
+                            <a href="javascript:history.back()" class="btn btn-outline-secondary d-flex align-items-center gap-2">
+                                <i class="fa fa-arrow-left"></i> <span>Back</span>
+                            </a>
 
-                                        <!-- Update Button (Right) -->
-                                        <button type="submit" class="btn btn-primary">
-                                        <i class="fa fa-paper-plane"></i> Update Negotiation
-                                        </button>
-                                    </div>
+                            <!-- Go to Negotiations (Center) -->
+                            <a href="{{ url('/negotiations') }}" class="btn btn-outline-info d-flex align-items-center gap-2">
+                                <i class="fa fa-list-alt"></i> <span>All Negotiations</span>
+                            </a>
+
+                            <!-- Update Button (Right) -->
+                            <button type="submit" class="btn btn-primary d-flex align-items-center gap-2">
+                                <i class="fa fa-paper-plane"></i> <span>Update Negotiation</span>
+                            </button>
+                        </div>
+
                                 
                             </form>
                         </div>
