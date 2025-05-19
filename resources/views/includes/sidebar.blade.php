@@ -17,6 +17,12 @@
 </style>
 @endpush
 
+@php
+		    $isUserRoute = request()->is('users') || request()->is('users/add');
+		    $isLawyerRoute = request()->is('lawyers') || request()->is('lawyers/add');
+		    $isProfileSectionExpanded = $isUserRoute || $isLawyerRoute;
+			@endphp
+
 <!-- BEGIN #sidebar -->
 <div id="sidebar" class="app-sidebar {{ $appSidebarClass }}" {{ $appSidebarAttr }}>
 	<!-- BEGIN scrollbar -->
@@ -24,7 +30,8 @@
 		<div class="menu">
 			@if (!$appSidebarSearch)
 			<div class="menu-profile">
-				<a href="javascript:;" class="menu-profile-link" data-toggle="app-sidebar-profile" data-target="#appSidebarProfileMenu">
+				<a href="javascript:;" class="menu-profile-link {{ $isProfileSectionExpanded ? '' : 'collapsed' }}" data-toggle="app-sidebar-profile" data-target="#appSidebarProfileMenu" aria-expanded="{{ $isProfileSectionExpanded ? 'true' : 'false' }}">
+
 					<div class="menu-profile-cover with-shadow"></div>
 					<div class="menu-profile-image">
 						<img src="/assets/img/user/user-13.jpg" alt="" />
@@ -40,45 +47,51 @@
 					</div>
 				</a>
 			</div>
-			<div id="appSidebarProfileMenu" class="collapse">
+
+
+			
+
+		<div id="appSidebarProfileMenu" class="collapse {{ $isProfileSectionExpanded ? 'show' : '' }}">
+
+			
 				
-				
-				<div class="menu-item pt-5px">
+				<div class="menu-item pt-5px {{ request()->is('users') ? 'active' : '' }}">
 					<a href="/users" class="menu-link">
 						<div class="menu-icon"><i class="fa fa-users"></i></div>
 						<div class="menu-text">All Users</div>
 					</a>
 				</div>
-				<div class="menu-item">
+				<div class="menu-item {{ request()->is('users/add') ? 'active' : '' }}">
 					<a href="/users/add" class="menu-link">
 						<div class="menu-icon"><i class="fa fa-user-plus"></i></div>
-						<div class="menu-text"> Add User</div>
+						<div class="menu-text">Add User</div>
 					</a>
 				</div>
+
 				
 
 
-				<div class="menu-item">
-					<a href="javascript:;" class="menu-link collapsed" 
+				@php
+				    $isLawyerRoute = request()->is('lawyers') || request()->is('lawyers/add');
+				@endphp
+
+				<div class="menu-item {{ $isLawyerRoute ? 'active' : '' }}">
+					<a href="javascript:;" class="menu-link {{ $isLawyerRoute ? '' : 'collapsed' }}" 
 					   data-bs-toggle="collapse" 
 					   data-bs-target="#lawyerSubMenu"
-					   aria-expanded="false">
+					   aria-expanded="{{ $isLawyerRoute ? 'true' : 'false' }}">
 						<div class="menu-icon"><i class="fa-solid fa-gavel"></i></div>
 						<div class="menu-text">Lawyer Management</div>
-						
-							<i class="collapse-chevron fa fa-chevron-down"></i>
-						
-						
-						
+						<i class="collapse-chevron fa fa-chevron-down"></i>
 					</a>
-					<div class="sub-menu collapse" id="lawyerSubMenu">
-						<div class="menu-item">
+					<div class="sub-menu collapse {{ $isLawyerRoute ? 'show' : '' }}" id="lawyerSubMenu">
+						<div class="menu-item {{ request()->is('lawyers') ? 'active' : '' }}">
 							<a href="/lawyers" class="menu-link">
 								<div class="menu-icon"><i class="fa-solid fa-list"></i></div>
 								<div class="menu-text">View All Lawyers</div>
 							</a>
 						</div>
-						<div class="menu-item">
+						<div class="menu-item {{ request()->is('lawyers/add') ? 'active' : '' }}">
 							<a href="/lawyers/add" class="menu-link">
 								<div class="menu-icon"><i class="fa-solid fa-user-plus"></i></div>
 								<div class="menu-text">Add New Lawyer</div>
@@ -86,6 +99,7 @@
 						</div>
 					</div>
 				</div>
+
 				
 				<div class="menu-divider m-0"></div>
 			</div>
@@ -98,6 +112,11 @@
 			@endif
 			
 			<div class="menu-header">Navigation</div>
+
+			@php
+			use Illuminate\Support\Str;
+
+			@endphp
 			
 			@php
 				$currentUrl = (Request::path() != '/') ? '/'. Request::path() : '/';
@@ -122,7 +141,26 @@
 							$subSubMenu .= '</div>';
 						}
 						
-						$active = (!empty($menu['route-name']) && (Route::currentRouteName() == $menu['route-name'])) ? 'active' : '';
+						$active = '';
+
+						if (!empty($menu['route-names'])) {
+							foreach ($menu['route-names'] as $routeName) {
+								if (Route::currentRouteName() === $routeName) {
+									$active = 'active';
+									break;
+								}
+							}
+						}
+
+						if (!$active && !empty($menu['route-name']) && Route::currentRouteName() === $menu['route-name']) {
+							$active = 'active';
+						}
+
+						if (!$active && !empty($menu['route-prefix']) && Str::startsWith(Route::currentRouteName(), $menu['route-prefix'])) {
+							$active = 'active';
+						}
+
+
 						
 						if ($active) {
 							$GLOBALS['parent_active'] = true;
@@ -160,8 +198,27 @@
 						$subMenu .= renderSubMenu($menu['sub_menu'], $currentUrl);
 						$subMenu .= '</div>';
 					}
-					$active = (!empty($menu['route-name']) && (Route::currentRouteName() == $menu['route-name'])) ? 'active' : '';
-					$active = (empty($active) && !empty($GLOBALS['parent_active'])) ? 'active' : $active;
+					
+					
+					$active = '';
+
+				if (!empty($menu['route-names'])) {
+					foreach ($menu['route-names'] as $routeName) {
+						if (Route::currentRouteName() === $routeName) {
+							$active = 'active';
+							break;
+						}
+					}
+				}
+
+					if (!empty($menu['route-name']) && Route::currentRouteName() == $menu['route-name']) {
+					    $active = 'active';
+					} elseif (!empty($menu['route-prefix']) && Str::startsWith(Route::currentRouteName(), $menu['route-prefix'])) {
+					    $active = 'active';
+					} elseif (!empty($GLOBALS['parent_active'])) {
+					    $active = 'active';
+					}
+
 					echo '
 						<div class="menu-item '. $hasSub .' '. $active .'">
 							<a href="'. $menu['url'] .'" class="menu-link">

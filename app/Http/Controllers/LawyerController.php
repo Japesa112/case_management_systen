@@ -10,8 +10,10 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\CaseModel;
 use Illuminate\Support\Facades\Hash;
 use App\Models\CaseLawyer;
-use App\Models\PanelEvaluation; // Assuming you have a PanelEvaluation model
 use App\Models\CaseClosure;
+use App\Models\PanelEvaluation;
+use App\Models\DvcAppointment;
+
 class LawyerController extends Controller
 {
     /**
@@ -293,15 +295,27 @@ public function getCasesAwaitingAction()
 
     public function my_index()
 {
-    $lawyerId = Auth::user()->lawyer->lawyer_id;
+              $lawyerId = Auth::user()->lawyer->lawyer_id;
 
-    // Get all cases assigned to the currently authenticated lawyer
-    $cases = CaseModel::whereHas('caseLawyers', function ($query) use ($lawyerId) {
-        $query->where('lawyer_id', $lawyerId);
-    })->orderBy('created_at', 'desc')->paginate(10);
+            // Step 1: Get evaluation_ids from PanelEvaluation for this lawyer
+            $lawyerEvaluationIds = PanelEvaluation::where('lawyer_id', $lawyerId)
+                ->pluck('evaluation_id');
 
-    return view("lawyers.my_index", compact('cases'));
-}
+            // Step 2: Find which of those evaluations are in the DvcAppointment table
+            $forwardedEvaluationIds = DvcAppointment::whereIn('evaluation_id', $lawyerEvaluationIds)
+                ->pluck('evaluation_id');
+
+            // Step 3: Get the case_ids for those forwarded evaluations
+            $caseIds = PanelEvaluation::whereIn('evaluation_id', $forwardedEvaluationIds)
+                ->pluck('case_id');
+
+            // Step 4: Return cases
+            $cases = CaseModel::whereIn('case_id', $caseIds)
+                ->orderBy('created_at', 'desc')
+                ->paginate(10);
+
+            return view('lawyers.my_index', compact('cases'));
+    }
 
 
 public function changePassword(Request $request)

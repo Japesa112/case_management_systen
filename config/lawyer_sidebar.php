@@ -6,25 +6,25 @@ return [
             'icon' => 'fa fa-tachometer-alt',
             'title' => 'Dashboard',
             'url' => '/dashboard/lawyer',
-            'route-name' => 'lawyer-dashboard'
+            'route-name' => 'dashboard-v2-lawyer'
         ],
         [
             'icon' => 'fa fa-list-alt',
             'title' => 'Cases List',
             'url' => '/cases',
-            'route-name' => 'lawyer-cases'
+            'route-name' => 'cases.index'
         ],
         [
             'icon' => 'fa fa-folder',
             'title' => 'My Assigned Cases',
             'url' => '/lawyers/my-cases',
-            'route-name' => 'assigned-cases'
+            'route-name' => 'lawyers.my_index'
         ],
         [
             'icon' => 'fa-solid fa-balance-scale',
             'title' => 'My Evaluated Cases',
             'url' => '/evaluations',
-            'route-name' => 'assigned-cases'
+            'route-name' => 'evaluations.index'
         ],
 
         
@@ -40,7 +40,7 @@ return [
             'icon' => 'fa fa-credit-card',
             'title' => 'Billing & Invoices',
             'url' => '/lawyer_payments',
-            'route-name' => 'lawyer-billing'
+            'route-name' => 'lawyer_payments.index'
         ],
         
     ]

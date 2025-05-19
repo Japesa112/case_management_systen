@@ -15,7 +15,7 @@ class ForwardingController extends Controller
 
      public function __construct()
     {
-        $this->middleware('auth'); // Applies to all methods in the controller
+        $this->middleware(['auth', 'block-lawyer']); // Applies to all methods in the controller
     }
 
     public function index()
@@ -97,7 +97,7 @@ class ForwardingController extends Controller
         return redirect()->route('dvc_appointments.index', [
             'case_id' => $request->case_id,
         ])->with('forwarding_success', true)
-          ->with('success', 'The Advice Added successfully');
+          ->with('success', 'The forwarded to DVC successfully');
 
     } catch (\Exception $e) {
         Log::error($e->getMessage());

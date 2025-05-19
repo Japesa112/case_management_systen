@@ -15,6 +15,12 @@ class DvcAppointmentController extends Controller
     /**
      * Display a listing of the resource.
      */
+
+      public function __construct()
+    {
+        $this->middleware(['auth', 'block-lawyer']); // Applies to all methods in the controller
+    }
+    
     public function index()
     {
         //

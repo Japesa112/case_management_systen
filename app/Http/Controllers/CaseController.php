@@ -44,6 +44,7 @@ class CaseController extends Controller
     public function __construct()
     {
         $this->middleware('auth'); // Applies to all methods in the controller
+        $this->middleware('block-lawyer')->except(['index', 'show', 'getEventsCase', 'getCalenderEvents']);
     }
 
     public function index()

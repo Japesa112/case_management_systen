@@ -140,7 +140,7 @@
 		
 		@include('includes.component.scroll-top-btn')
 		
-		@include('includes.component.theme-panel')
+		
 		
 	</div>
 	

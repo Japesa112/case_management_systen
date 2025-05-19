@@ -41,6 +41,8 @@
 <div class="container-fluid">
     @php
     use Illuminate\Support\Str;
+    use Illuminate\Support\Facades\Auth;
+    use App\Models\Forwarding;
     $isLawyer = Auth::user() && Auth::user()->role === 'Lawyer'; 
     @endphp
     
@@ -139,23 +141,34 @@
                                 <td>{{ $evaluation->outcome }}</td>
 
                                <td>
-                                @php
-                                    // Check if evaluation_id exists in the forwardings table
-                                    $isForwarded = \App\Models\Forwarding::where('evaluation_id', $evaluation->evaluation_id)->exists();
-                                @endphp
+                                    @php
+                                        
 
-                                @if (strtolower($evaluation->outcome) === 'no')
-                                    <span class="text-muted">Cannot be forwarded to DVC</span>
-                                @elseif ($isForwarded)
-                                    <span class="text-muted">Already Forwarded</span>
-                                @else
-                                    <a href="{{ route('dvc_appointments.create', [$evaluation->case->case_id, $evaluation->evaluation_id]) }}"
-                                    title="Forward to DVC"
-                                    class="text-decoration-none text-purple">
-                                        <i class="fa fa-edit me-1"></i> Forward to DVC
-                                    </a>
-                                @endif
-                            </td>
+                                        $isForwarded = Forwarding::where('evaluation_id', $evaluation->evaluation_id)->exists();
+                                        $isLawyer = Auth::check() && Auth::user()->role === 'Lawyer';
+                                    @endphp
+
+                                    @if ($isLawyer)
+                                        @if ($isForwarded)
+                                            <span class="text-muted">Already Forwarded</span>
+                                        @else
+                                            <span class="text-muted">Not Forwarded</span>
+                                        @endif
+                                    @else
+                                        @if (strtolower($evaluation->outcome) === 'no')
+                                            <span class="text-muted">Cannot be forwarded to DVC</span>
+                                        @elseif ($isForwarded)
+                                            <span class="text-muted">Already Forwarded</span>
+                                        @else
+                                            <a href="{{ route('dvc_appointments.create', [$evaluation->case->case_id, $evaluation->evaluation_id]) }}"
+                                               title="Forward to DVC"
+                                               class="text-decoration-none text-purple">
+                                                <i class="fa fa-edit me-1"></i> Forward to DVC
+                                            </a>
+                                        @endif
+                                    @endif
+                                </td>
+
 
                                 
                                 <td>

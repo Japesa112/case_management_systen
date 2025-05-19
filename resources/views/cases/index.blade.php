@@ -46,6 +46,12 @@
 
 @section('content')
 <div class="container">
+
+    @php
+    use Illuminate\Support\Facades\Auth;
+    use App\Models\PanelEvaluation;
+    @endphp
+
     @php
     use Illuminate\Support\Str;
     $isLawyer = Auth::user() && Auth::user()->role === 'Lawyer'; 
@@ -165,21 +171,28 @@
                                     <i class="fa fa-eye"></i>
                                 </a>
                             </td>
-                            <td class="text-nowrap">
+                        <td class="text-nowrap">
                             <div class="d-flex flex-column gap-1">
-                                <a href="{{ route('negotiations.create', $case->case_id) }}" 
-                                   class="btn btn-outline-success btn-sm d-flex align-items-center gap-2" 
-                                   title="Start Negotiation">
-                                    <i class="fa fa-handshake"></i> <span>Negotiation</span>
-                                </a>
-                                
-                                <a href="{{ route('cases.panelEvaluation', $case->case_id) }}" 
-                                   class="btn btn-outline-primary btn-sm d-flex align-items-center gap-2" 
-                                   title="Evaluate this case">
-                                    <i class="fa fa-star"></i> <span>Send to Evaluation</span>
-                                </a>
+                              
+                                @php
+                                    $isLawyer = Auth::check() && Auth::user()->role === 'Lawyer';
+                                    $lawyerId = $isLawyer ? Auth::user()->lawyer->lawyer_id : null;
+                                    $alreadyEvaluated = $isLawyer && \App\Models\PanelEvaluation::where('case_id', $case->case_id)
+                                                        ->where('lawyer_id', $lawyerId)
+                                                        ->exists();
+                                @endphp
+
+                                @if ($isLawyer)
+                                    <a href="{{ route('evaluations.create', $case->case_id) }}" 
+                                       class="btn btn-outline-primary btn-sm d-flex align-items-center gap-2" 
+                                       title="{{ $alreadyEvaluated ? 'Edit your evaluation' : 'Evaluate this case' }}">
+                                        <i class="fa fa-star"></i> 
+                                        <span>{{ $alreadyEvaluated ? 'Edit Evaluation' : 'Evaluate' }}</span>
+                                    </a>
+                                @endif
                             </div>
-                        </td>
+                    </td>
+
                              </tr>
                         @endforeach
                     </tbody>

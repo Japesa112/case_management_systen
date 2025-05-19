@@ -57,7 +57,8 @@
     @endphp
     
     <div class="mt-4">
-    <h1 class="page-header">Negotiations</h1>
+    <h1 class="page-header">Negotiations
+</h1>
     <div class="panel panel-inverse">
         <div class="panel-heading d-flex justify-content-between align-items-center">
             <!-- Back to Cases Button (Left) -->

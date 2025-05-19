@@ -52,12 +52,6 @@
                         </a>
                     </div>
                     
-                    <div class="menu-item pb-5px">
-                        <a href="javascript:;" class="menu-link" id="help-trigger">
-                            <div class="menu-icon"><i class="fa fa-question-circle"></i></div>
-                            <div class="menu-text">Help</div>
-                        </a>
-                    </div>
                     
                     <div class="menu-divider m-0"></div>
                 </div>
@@ -94,7 +88,25 @@
                                 $subSubMenu .= '</div>';
                             }
                             
-                            $active = (!empty($menu['route-name']) && (Route::currentRouteName() == $menu['route-name'])) ? 'active' : '';
+                                $active = '';
+
+                                if (!empty($menu['route-names'])) {
+                                    foreach ($menu['route-names'] as $routeName) {
+                                        if (Route::currentRouteName() === $routeName) {
+                                            $active = 'active';
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                if (!$active && !empty($menu['route-name']) && Route::currentRouteName() === $menu['route-name']) {
+                                    $active = 'active';
+                                }
+
+                                if (!$active && !empty($menu['route-prefix']) && Str::startsWith(Route::currentRouteName(), $menu['route-prefix'])) {
+                                    $active = 'active';
+                                }
+
                             
                             if ($active) {
                                 $GLOBALS['parent_active'] = true;
@@ -165,6 +177,9 @@
     <!-- END #sidebar -->
 
 
+
+
+
     <!-- Change Password Modal -->
 <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -203,34 +218,22 @@
   </div>
 
 
-  <!-- Help Modal -->
-<div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="helpModalLabel"><i class="fa fa-info-circle me-2 text-primary"></i>Using the System</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <p>Welcome to the Case Management System!</p>
-          <ul>
-              <li>🔒 <strong>Security Reminder:</strong> If you haven’t changed your password in the last 3 months, we recommend doing so to keep your account secure.</li>
-              <li>🙅 <strong>Never share your password</strong> with anyone, including colleagues. Your login is personal and confidential.</li>
-              <li>🚀 <strong>Good news!</strong> Our system is built to be user-friendly, intuitive, and efficient — helping you manage your work with ease.</li>
-          </ul>
-          <p>If you need further assistance, don’t hesitate to reach out to support.</p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Got it</button>
-        </div>
-      </div>
-    </div>
-  </div>
   
   
 @endif
 
 @push('scripts')
+
+<script type="text/javascript">
+    
+    $('#help-trigger').on('click', function () {
+
+
+       
+        $('#helpModal').modal('show');
+    });
+
+</script>
 <script>
     $('#change-password-trigger').on('click', function () {
         $('#changePasswordModal').modal('show');
@@ -280,9 +283,6 @@
     });
 
     
-    $('#help-trigger').on('click', function () {
-        $('#helpModal').modal('show');
-    });
 
 
 </script>
