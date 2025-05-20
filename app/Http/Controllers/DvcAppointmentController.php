@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use App\Models\CaseModel;
 use App\Mail\LawyerAssignedNotification;
+use App\Models\CaseLawyer;
+use App\Models\PanelEvaluation;
 use Illuminate\Support\Facades\Mail;
 class DvcAppointmentController extends Controller
 {
@@ -70,6 +72,12 @@ class DvcAppointmentController extends Controller
                 ]);
         
                 Log::info('Request Data:', $request->all());
+
+                $evaluation = PanelEvaluation::findOrFail($request->evaluation_id);
+                $caseId = $evaluation->case_id;
+                $lawyerId = $evaluation->lawyer_id;
+
+
                 $dateTime = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->next_hearing_date);
                 $appointment_date = $dateTime->toDateString();
                 $appointment_time = $dateTime->toTimeString();
@@ -86,6 +94,19 @@ class DvcAppointmentController extends Controller
                 ]);
         
                 Log::info('Appointment Created:', $appointment->toArray());
+
+                                // Store in CaseLawyer if not already assigned
+                $existingAssignment = CaseLawyer::where('case_id', $caseId)
+                    ->where('lawyer_id', $lawyerId)
+                    ->first();
+
+                if (!$existingAssignment) {
+                    CaseLawyer::create([
+                        'case_id' => $caseId,
+                        'lawyer_id' => $lawyerId
+                    ]);
+                }
+
         
                 // Handle file uploads
                 if ($request->hasFile('modalAttachments')) {

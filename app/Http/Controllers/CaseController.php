@@ -47,34 +47,60 @@ class CaseController extends Controller
         $this->middleware('block-lawyer')->except(['index', 'show', 'getEventsCase', 'getCalenderEvents']);
     }
 
-    public function index()
-    {
-        //
-      $cases = CaseModel::orderBy('created_at', 'desc')->get(); // No paginate()
 
-        foreach ($cases as $case) {
-            if (Str::contains($case->case_status, '-')) {
-                $parts = explode('-', $case->case_status);
-               
-                // add two new attributes:
-              
-                if (count($parts) == 2 && is_numeric($parts[0])) {
-                    
 
-                    $ordinal =$this->ordinalParts((int) $parts[0]);
-                    $case->seq_num = $ordinal['number'];
-                   $case->seq_suffix = $ordinal['suffix'];
-                   $case->matter = $parts[1];
+public function index(Request $request)
+{
+    $query = CaseModel::orderBy('created_at', 'desc');
 
-                } else {
-                    $case->case_status_formatted = $case->case_status;
-                }
+    // Filter active cases
+    if ($request->has('status') && $request->status === 'active') {
+        $query->where('case_status', '!=', 'Closed');
+    }
+
+    // Filter for upcoming hearings or mentions
+    if ($request->has('filter') && $request->filter === 'upcoming_hearings') {
+        $caseIdsWithHearings = CaseActivity::whereDate('date', '>=', Carbon::today())
+            ->where(function ($q) {
+                $q->where('type', 'like', '%hearing%')
+                  ->orWhere('type', 'like', '%mention%');
+            })
+            ->pluck('case_id')
+            ->unique();
+
+        $query->whereIn('case_id', $caseIdsWithHearings);
+    }
+
+    // Filter for cases created this month
+    if ($request->has('filter') && $request->filter === 'this_month') {
+        $start = Carbon::now()->startOfMonth();
+        $end = Carbon::now()->endOfMonth();
+        $query->whereBetween('created_at', [$start, $end]);
+    }
+
+   
+
+    $cases = $query->get();
+
+    // Format case status and extract components
+    foreach ($cases as $case) {
+        if (Str::contains($case->case_status, '-')) {
+            $parts = explode('-', $case->case_status);
+            if (count($parts) === 2 && is_numeric($parts[0])) {
+                $ordinal = $this->ordinalParts((int) $parts[0]);
+                $case->seq_num = $ordinal['number'];
+                $case->seq_suffix = $ordinal['suffix'];
+                $case->matter = $parts[1];
             } else {
                 $case->case_status_formatted = $case->case_status;
             }
+        } else {
+            $case->case_status_formatted = $case->case_status;
         }
-        return view("cases.index", compact('cases'));
     }
+
+    return view("cases.index", compact('cases'));
+}
 
     /**
      * Show the form for creating a new resource.

@@ -57,7 +57,13 @@
 		<div class="stats-icon stats-icon-lg"><i class="fa fa-balance-scale fa-fw"></i></div>
 		<div class="stats-content">
 		<div class="stats-title">CLOSED CASES</div>
-		<div class="stats-number">{{ $closedCases }}</div>
+		 <a href="{{ url('/closed_cases') }}" class="btn btn-sm btn-info mb-4">
+		<div class="stats-number">
+   
+        {{ $closedCases }}
+    
+		</div>
+		</a>
 		<div class="stats-progress progress">
 			<div class="progress-bar" style="width: {{ $closedCases > 0 ? round(($wonCases / $closedCases) * 100) : 0 }}%;"></div>
 		</div>
@@ -77,7 +83,12 @@
 			<div class="stats-icon stats-icon-lg"><i class="fa fa-briefcase fa-fw"></i></div>
 			<div class="stats-content">
 			<div class="stats-title">ACTIVE CASES</div>
-			<div class="stats-number" id="active-cases-count">...</div>
+			<a href="{{ url('/cases?status=active') }}" class="btn btn-sm btn-info mb-4">
+
+				<div class="stats-number" id="active-cases-count">...</div>
+			</a>
+
+			
 			<div class="stats-progress progress">
 				<div class="progress-bar" id="active-cases-bar" style="width: 0%;"></div>
 			</div>
@@ -93,7 +104,12 @@
 				<div class="stats-icon stats-icon-lg"><i class="fa fa-calendar-alt fa-fw"></i></div>
 				<div class="stats-content">
 					<div class="stats-title">UPCOMING HEARINGS</div>
+
+					<a href="{{ url('/cases?filter=upcoming_hearings') }}" class="btn btn-sm btn-info mb-4" >
+
 					<div id="upcoming-hearings-number" class="stats-number">0</div>
+
+				</a>
 					<div class="stats-progress progress">
 						<div id="upcoming-hearings-bar" class="progress-bar" style="width: 0%;"></div>
 					</div>
@@ -110,7 +126,9 @@
 				<div class="stats-icon stats-icon-lg"><i class="fa fa-folder-plus fa-fw"></i></div>
 				<div class="stats-content">
 					<div class="stats-title">NEW CASES</div>
+					<a href="{{ url('/cases?filter=this_month') }}" class="btn btn-sm btn-info mb-4">
 					<div id="new-cases-number" class="stats-number">0</div>
+				</a>
 					<div class="stats-progress progress">
 						<div id="new-cases-bar" class="progress-bar" style="width: 0%;"></div>
 					</div>

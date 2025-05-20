@@ -449,6 +449,15 @@
 
                             
                         </div>
+
+                         <div class="col-md-6 mb-2">
+
+                            <a href="{{ route('closed_cases.create', $case->case_id) }}" class="btn btn-warning btn-sm w-100 text-start text-truncate" title="Close Case">
+                                Close Case
+                            </a>
+
+                            
+                        </div>
                     </div>
                 </div>
                 <!-- END tab-pane -->
