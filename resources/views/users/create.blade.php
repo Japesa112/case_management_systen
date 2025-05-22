@@ -80,7 +80,7 @@
                                     <select id="role" name="role" class="form-control" required>
                                         <option value="lawyer">Choose...</option>
                                         <option value="Admin">Admin</option>
-                                        <option value="lawyer">Lawyer</option>
+                                        <option value="DVC">DVC</option>
                                        
                                     </select>
                                 </div>

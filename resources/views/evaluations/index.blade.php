@@ -197,14 +197,7 @@
                     </table>
                 </div>
 
-                <!-- Pagination -->
-                <div class="d-flex justify-content-center">
-                    <nav aria-label="Page navigation">
-                        <ul class="pagination">
-                            {{ $evaluations->links('vendor.pagination.bootstrap-4') }}
-                        </ul>
-                    </nav>
-                </div>
+                
             </div>
         </div>
     </div>

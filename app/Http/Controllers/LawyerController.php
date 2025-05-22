@@ -295,7 +295,7 @@ public function getCasesAwaitingAction()
 
     public function my_index()
 {
-              $lawyerId = Auth::user()->lawyer->lawyer_id;
+              $lawyerId = Auth::user()->user_id;
 
             // Step 1: Get evaluation_ids from PanelEvaluation for this lawyer
             $lawyerEvaluationIds = PanelEvaluation::where('lawyer_id', $lawyerId)

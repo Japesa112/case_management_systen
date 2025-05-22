@@ -1803,10 +1803,9 @@ try {
         
         $isLawyer = Auth::user() && Auth::user()->role === 'Lawyer'; 
     if ($isLawyer) {
-            $lawyerId = Auth::user()->lawyer->lawyer_id;
-            Log::info('Lawyer id is: '.$lawyerId.' Jaba');
+       
 
-        $caseIds = \App\Models\CaseLawyer::where('lawyer_id', $lawyerId)->pluck('case_id');
+        
      
 
             //Negotiations

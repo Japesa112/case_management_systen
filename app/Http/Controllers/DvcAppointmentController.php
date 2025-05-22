@@ -10,8 +10,11 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\CaseModel;
 use App\Mail\LawyerAssignedNotification;
 use App\Models\CaseLawyer;
+use App\Models\Lawyer;
+use App\User;
 use App\Models\PanelEvaluation;
 use Illuminate\Support\Facades\Mail;
+
 class DvcAppointmentController extends Controller
 {
     /**
@@ -26,7 +29,8 @@ class DvcAppointmentController extends Controller
     public function index()
     {
         //
-        $appointments = DvcAppointment::paginate(10);
+        $appointments = DvcAppointment::orderBy('created_at', 'desc')
+            ->get();
         return view('dvc.index', compact('appointments'));
     }
 
@@ -75,7 +79,9 @@ class DvcAppointmentController extends Controller
 
                 $evaluation = PanelEvaluation::findOrFail($request->evaluation_id);
                 $caseId = $evaluation->case_id;
-                $lawyerId = $evaluation->lawyer_id;
+                $userId = $evaluation->lawyer_id;
+                $lawyerId = User::find($userId)?->lawyer?->lawyer_id;
+
 
 
                 $dateTime = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->next_hearing_date);
@@ -99,6 +105,8 @@ class DvcAppointmentController extends Controller
                 $existingAssignment = CaseLawyer::where('case_id', $caseId)
                     ->where('lawyer_id', $lawyerId)
                     ->first();
+
+               
 
                 if (!$existingAssignment) {
                     CaseLawyer::create([

@@ -100,9 +100,9 @@
                             <th>Name</th>
                             <th>Description</th>
                             <th>Status</th>
-                            <th>Hearing Date</th>
+                            
                             <th>View</th>
-                            <th>Next Step</th>
+                            
                         </tr>
                     </thead>
                     <tbody>
@@ -136,17 +136,13 @@
                             </span>
                             
                             </td>
-                            <td>{{ $case->first_hearing_date}}</td>
+                           
                             <td>
                                 <a href="{{ route('cases.show', $case) }}" class="btn btn-info btn-sm">
                                     <i class="fa fa-eye"></i>
                                 </a>
                             </td>
-                            <td>
-                                <a href="{{ route('negotiations.create', $case->case_id) }}" class="btn btn-primary btn-sm" title="Negotiation">
-                                    <i class="fa fa-handshake"></i>
-                                </a>
-                            </td>
+                           
                              </tr>
                         @endforeach
                     </tbody>

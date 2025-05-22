@@ -162,7 +162,8 @@
 
             <div class="col-md-7">
                 <h5><strong>Case Number:</strong> <span id="case_number_display">{{ $case->case_number }}</span></h5>
-                <h5><strong>Title:</strong> <span id="case_name_display">{{ $case->case_name }}</span></h5>
+                <h5><strong>Citation:</strong> <span id="case_name_display">{{ $case->case_name }}</span></h5>
+                <h5><strong>Track Number:</strong> <span id="case_track_display">{{ $case->track_number }}</span></h5>
                 <p><strong>Description:</strong></p>
                 <p id="case_description_display">{{ $case->case_description }}</p>
                 <p><strong>Received Date:</strong> <span id="date_received_display">{{ $case->date_received }}</span></p>

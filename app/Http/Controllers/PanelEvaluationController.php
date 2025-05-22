@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use  Illuminate\Support\Facades\Auth;
 use App\Models\CaseModel;
+use App\User;
 class PanelEvaluationController extends Controller
 {
 
@@ -17,22 +18,33 @@ class PanelEvaluationController extends Controller
 
     public function index()
 {
-    $isLawyer = Auth::user() && Auth::user()->role === 'Lawyer'; 
-
+    $user = Auth::user();
+    $isLawyer = $user && $user->role === 'Lawyer';
 
     if ($isLawyer) {
-        // Fetch evaluations for the logged-in lawyer
-        $evaluations = PanelEvaluation::with(['case', 'user'])
-                                      ->where('lawyer_id', Auth::id())  // Filter by lawyer_id
-                                      ->paginate(5);
-                                    
+        // Get the lawyer_id from the authenticated user
+        $lawyerId = $user->lawyer ? $user->lawyer->lawyer_id : null;
+
+        if ($lawyerId) {
+            // Fetch evaluations for the logged-in lawyer
+            $evaluations = PanelEvaluation::with(['case', 'user'])
+                ->where('lawyer_id', $lawyerId)
+                ->orderBy('created_at', 'desc')
+                ->get();
+        } else {
+            // Handle case where lawyer relationship doesn't exist
+            $evaluations = collect(); // empty collection
+        }
     } else {
         // Fetch all evaluations for non-lawyer users
-        $evaluations = PanelEvaluation::with(['case', 'user'])->paginate(5);
+        $evaluations = PanelEvaluation::with(['case', 'user'])
+            ->orderBy('created_at', 'desc')
+            ->get();
     }
 
     return view('evaluations.index', compact('evaluations'));
 }
+
 
 
     public function create(Request $request) 
