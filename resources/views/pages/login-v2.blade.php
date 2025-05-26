@@ -73,6 +73,27 @@
         padding: 20px;
         border-radius: 10px;
     }
+
+    .or-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.or-divider::before,
+.or-divider::after {
+    content: '';
+    flex: 1;
+    border-top: 1px solid #ccc;
+}
+
+.or-divider span {
+    margin: 0 10px;
+    color: #666;
+    font-weight: 500;
+}
+
 </style>
 @endpush
 
@@ -109,6 +130,19 @@
 			
 			<!-- BEGIN login-content -->
 			<div class="login-content">
+				@if ($errors->has('google'))
+				<script>
+				    document.addEventListener('DOMContentLoaded', function () {
+				        Swal.fire({
+				            icon: 'error',
+				            title: 'Login Failed',
+				            text: '{{ $errors->first('google') }}',
+				            confirmButtonText: 'OK'
+				        });
+				    });
+				</script>
+				@endif
+
 				@if ($errors->any())
 					<div class="alert alert-danger">
 						<ul>
@@ -135,12 +169,24 @@
 							Remember Me. 
 						</label>
 					</div>
-					<div class="mb-20px">
-						<button type="submit" class="btn btn-theme d-block w-100 h-45px btn-lg"  id="signupButton" disabled>Sign me in</button>
+					<div class="mb-3">
+					    <button type="submit" class="btn btn-theme w-100 btn-lg" id="signupButton" disabled>
+					        Sign Me In
+					    </button>
 					</div>
-					<div class="text-gray-500">
-						Not a member yet? Click <a href="{{ route('register-v3') }}" class="text-white">here</a> to register.
+
+										<div class="d-flex align-items-center my-4">
+					    <hr class="flex-grow-1 border-top border-secondary-subtle">
+					    <span class="mx-3 text-muted fw-bold">OR</span>
+					    <hr class="flex-grow-1 border-top border-secondary-subtle">
 					</div>
+
+					<div class="mb-3">
+					    <a href="{{ route('login.google') }}" class="btn btn-danger w-100 btn-lg d-flex align-items-center justify-content-center gap-2">
+					        <i class="fab fa-google"></i> Continue with Google
+					    </a>
+					</div>
+
 				</form>
 			</div>
 			<!-- END login-content -->
@@ -186,7 +232,7 @@
 			   data-toggle="login-change-bg" 
 			  style="background-image: url(../images/second_court.jpg)"
 			   data-type="video" 
-			   data-video="http://127.0.0.1:8000/videos/cout_4.mp4"
+			   data-video="http://127.0.0.1:8000/videos/cout_4.mp4">
 			  
 			</a>
 		  </div>

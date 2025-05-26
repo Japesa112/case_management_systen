@@ -64,6 +64,11 @@ Route::get('/', function () {
 });
 
 Route::post('/login', [LoginController::class, 'login'])->name('login.post');   // Process login
+// Redirect to Google
+Route::get('/auth/google', [LoginController::class, 'redirectToGoogle'])->name('login.google');
+
+// Callback from Google
+Route::get('/auth/google/callback', [LoginController::class, 'handleGoogleCallback']);
 
 Route::get('/dashboard/lawyer', [LawyerController::class, 'dashboard'])->name('dashboard-v2-lawyer');
 

@@ -8,6 +8,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Auth\AuthenticatesUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Laravel\Socialite\Facades\Socialite;
+use App\User;
+use App\Models\GoogleUser; // or App\User if you're using the legacy structure
+use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class LoginController extends Controller
 {
@@ -50,6 +55,14 @@ class LoginController extends Controller
      */
     public function logout(Request $request)
     {
+        
+
+        if (Auth::check()) {
+            $user = Auth::user();
+            $user->logged_out_at = now();
+            $user->save();
+        }
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
@@ -78,6 +91,8 @@ class LoginController extends Controller
         }
     
         if ($user && Hash::check($request->password_hash, $user->password_hash)) {
+            $user->logged_in_at = now();   // 👈 new
+            $user->save();
             Auth::login($user);
             if($user->role === 'Lawyer') {
                 return redirect()->route('dashboard-v2-lawyer')->with('success', 'Login successful!');
@@ -87,6 +102,53 @@ class LoginController extends Controller
     
         return back()->withErrors(['email' => 'Invalid credentials'])->withInput();
     }
+
+
+public function redirectToGoogle()
+{
+    return Socialite::driver('google')->redirect();
+}
+
+public function handleGoogleCallback()
+{
+    $googleUser = Socialite::driver('google')->stateless()->user();
+    $email      = $googleUser->getEmail();
+
+    // 1️⃣ Try to find an existing Laravel user
+    $user = User::where('email', trim($email))->first();
+    Log::info("Login attempt for: " . $email);
+
+    //$user = User::where('email', $email)->first();
+
+    if (!$user) {
+        // 2️⃣ No match → bounce back with friendly message
+        return redirect()
+            ->route('login')                // or wherever your form lives
+            ->withErrors([
+                'google' => 'This email account isn’t registered. Please contact the administrator to be added to the system.'
+            ]);
+    }
+
+    // 3️⃣ User exists → link Google ID if we haven’t before
+    if (is_null($user->google_id)) {
+        $user->google_id = $googleUser->getId();
+    }
+
+    // 4️⃣ Stamp login time
+    $user->logged_in_at = now();
+    $user->save();
+
+    // 5️⃣ Standard Laravel login + redirect based on role
+    Auth::login($user);
+
+    return $user->role === 'Lawyer'
+        ? redirect()->route('dashboard-v2-lawyer')
+        : redirect()->route('dashboard-v2');
+}
+
+
+
+
     
     
 }

@@ -1905,19 +1905,18 @@ try {
             });
 
 
-            //Appointment
-            
+             
             $activities_appointment = $activities_appointment = Forwarding::where('case_id', $caseId)->get();
 
             $events_appointment = $activities_appointment->map(function ($activity_appointment) {
                 // Get the ordinal parts for the sequence number
                 
                 // Format the title and content
-                $title = " Appointment" ;
+                $title = " Forwarded" ;
                 $titleContent = $activity_appointment->briefing_notes   ;
     
                 return [
-                    'id' => $activity_appointment->forwarding_id . '.appointment',
+                    'id' => $activity_appointment->forwarding_id . '.forwarding',
                     'title' => $title,
                     'titleContent' => $titleContent,
                     'start' => \Carbon\Carbon::parse($activity_appointment->dvc_appointment_date)->format('Y-m-d') . 'T' . $activity_appointment->dvc_appointment_time,
@@ -1930,6 +1929,26 @@ try {
             });
 
 
+             //Appointment
+            
+            $appointments = DVCAppointment::whereHas('forwarding', function ($query) use ($caseId) {
+                $query->where('case_id', $caseId);
+            })->get();
+
+
+                 $events_dvc_appointment = $appointments->map(function ($appointment) {
+            $title = "Appointment";
+            $titleContent = $appointment->briefing_notes;
+
+            return [
+                'id' => $appointment->appointment_id . '.appointment',
+                'title' => $title,
+                'titleContent' => $titleContent,
+                'start' => \Carbon\Carbon::parse($appointment->appointment_date)->format('Y-m-d') . 'T' . $appointment->appointment_time,
+                'allDay' => false,
+                'color' => '#F2B418',
+            ];
+        });
 
             //Trial
             $activities_trial = $activities_trial = Trial::where('case_id', $caseId)->get();
@@ -2052,16 +2071,22 @@ try {
                 ];
             });
     
-            $combinedEvents = $events->merge($events_appeal);
-            $combinedEvents = $combinedEvents->merge($events_adjourn);
-            $combinedEvents = $combinedEvents->merge($events_preparation);
-            $combinedEvents = $combinedEvents->merge($events_trial);
-            $combinedEvents = $combinedEvents->merge($events_appointment);
-            $combinedEvents = $combinedEvents->merge($events_advice);
-            $combinedEvents = $combinedEvents->merge($events_all);
-            $combinedEvents = $combinedEvents->merge($events_lawyerpay);
-            $combinedEvents = $combinedEvents->merge($events_negotiate);
+            $combinedEvents = collect($events->toArray())
+                        ->merge($events_appeal->toArray())
+                        ->merge($events_adjourn->toArray())
+                        ->merge($events_preparation->toArray())
+                        ->merge($events_trial->toArray())
+                        ->merge($events_appointment->toArray())
+                        ->merge($events_advice->toArray())
+                        ->merge($events_all->toArray())
+                        ->merge($events_lawyerpay->toArray())
+                        ->merge($events_negotiate->toArray())
+                        ->merge($events_dvc_appointment->toArray())
+                        ->sortByDesc('start')
+                        ->values();
+
             return response()->json($combinedEvents);
+
 
     }
         else{
@@ -2165,7 +2190,7 @@ try {
                 ];
             });
 
-
+            
             //Forwarding
             
             $activities_appointment = $activities_appointment = Forwarding::where('case_id', $caseId)->get();
@@ -2212,7 +2237,7 @@ try {
             ];
         });
 
-
+    
 
 
             //Trial
@@ -2336,19 +2361,20 @@ try {
                 ];
             });
     
-            $combinedEvents = $events->merge($events_appeal);
-            $combinedEvents = $combinedEvents->merge($events_adjourn);
-            $combinedEvents = $combinedEvents->merge($events_preparation);
-            $combinedEvents = $combinedEvents->merge($events_trial);
-            $combinedEvents = $combinedEvents->merge($events_appointment);
-            $combinedEvents = $combinedEvents->merge($events_advice);
-            $combinedEvents = $combinedEvents->merge($events_all);
-            $combinedEvents = $combinedEvents->merge($events_lawyerpay);
-            $combinedEvents = $combinedEvents->merge($events_negotiate);
-            $combinedEvents = $combinedEvents->merge($events_dvc_appointment);
+          $combinedEvents = collect($events->toArray())
+                        ->merge($events_appeal->toArray())
+                        ->merge($events_adjourn->toArray())
+                        ->merge($events_preparation->toArray())
+                        ->merge($events_trial->toArray())
+                        ->merge($events_appointment->toArray())
+                        ->merge($events_advice->toArray())
+                        ->merge($events_all->toArray())
+                        ->merge($events_lawyerpay->toArray())
+                        ->merge($events_negotiate->toArray())
+                        ->merge($events_dvc_appointment->toArray())
+                        ->sortByDesc('start')
+                        ->values();
 
-
-            $combinedEvents = $combinedEvents->sortByDesc('start')->values();
             return response()->json($combinedEvents);
 
         }
