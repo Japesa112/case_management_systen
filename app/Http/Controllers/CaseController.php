@@ -21,8 +21,10 @@ use App\Models\Forwarding;
 use App\Models\DvcAppointment;
 use App\Models\AGAdvice;
 use App\Models\Adjourn;
+use App\Models\CaseClosure;
 use App\Models\Negotiation;
 use App\Models\TrialPreparation;
+use App\Models\PanelEvaluation;
 use App\Models\Trial;
 use Illuminate\Support\Facades\Storage;
 use App\User;
@@ -53,14 +55,25 @@ public function index(Request $request)
 {
     $query = CaseModel::orderBy('created_at', 'desc');
 
-    // Filter active cases
+    // Filter active cases (not closed by status)
     if ($request->has('status') && $request->status === 'active') {
         $query->where('case_status', '!=', 'Closed');
     }
 
-    // Filter for upcoming hearings or mentions
-    if ($request->has('filter') && $request->filter === 'upcoming_hearings') {
-        $caseIdsWithHearings = CaseActivity::whereDate('date', '>=', Carbon::today())
+  // Filter for upcoming hearings or mentions (for the logged-in lawyer)
+if ($request->has('filter') && $request->filter === 'upcoming_hearings') {
+    $isLawyer = Auth::user() && Auth::user()->role === 'Lawyer';
+
+    if ($isLawyer) {
+        $lawyerId = Auth::user()->lawyer->lawyer_id;
+
+        // Get case IDs assigned to this lawyer
+        $lawyerCaseIds = CaseLawyer::where('lawyer_id', $lawyerId)
+            ->pluck('case_id')
+            ->unique();
+
+        // Get case IDs with upcoming hearings or mentions
+        $upcomingCaseIds = CaseActivity::whereDate('date', '>=', Carbon::today())
             ->where(function ($q) {
                 $q->where('type', 'like', '%hearing%')
                   ->orWhere('type', 'like', '%mention%');
@@ -68,8 +81,13 @@ public function index(Request $request)
             ->pluck('case_id')
             ->unique();
 
-        $query->whereIn('case_id', $caseIdsWithHearings);
+        // Intersect to get only those relevant to the logged-in lawyer
+        $filteredCaseIds = $lawyerCaseIds->intersect($upcomingCaseIds);
+
+        $query->whereIn('case_id', $filteredCaseIds);
     }
+}
+
 
     // Filter for cases created this month
     if ($request->has('filter') && $request->filter === 'this_month') {
@@ -78,7 +96,48 @@ public function index(Request $request)
         $query->whereBetween('created_at', [$start, $end]);
     }
 
-   
+    // Filter for closed cases assigned to the logged-in lawyer
+    if ($request->has('filter') && $request->filter === 'closed_lawyer') {
+        $isLawyer = Auth::user() && Auth::user()->role === 'Lawyer';
+        if ($isLawyer) {
+            $lawyerId = Auth::user()->lawyer->lawyer_id;
+
+            $closedCaseIds = CaseClosure::pluck('case_id')->unique();
+            $lawyerCaseIds = CaseLawyer::where('lawyer_id', $lawyerId)->pluck('case_id')->unique();
+            $filteredCaseIds = $closedCaseIds->intersect($lawyerCaseIds);
+
+            $query->whereIn('case_id', $filteredCaseIds);
+        }
+    }
+
+    // Filter for active cases assigned to the logged-in lawyer (not in closures)
+    if ($request->has('filter') && $request->filter === 'my_active_cases') {
+        $isLawyer = Auth::user() && Auth::user()->role === 'Lawyer';
+        if ($isLawyer) {
+            $lawyerId = Auth::user()->lawyer->lawyer_id;
+
+            $closedCaseIds = CaseClosure::pluck('case_id')->unique();
+            $lawyerCaseIds = CaseLawyer::where('lawyer_id', $lawyerId)->pluck('case_id')->unique();
+            $filteredCaseIds = $lawyerCaseIds->diff($closedCaseIds);
+
+            $query->whereIn('case_id', $filteredCaseIds);
+        }
+    }
+
+    if ($request->has('filter') && $request->filter === 'awaiting_evaluation') {
+    $isLawyer = Auth::user() && Auth::user()->role === 'Lawyer';
+
+    if ($isLawyer) {
+        $lawyerId = Auth::user()->lawyer->lawyer_id;
+
+        // Get case_ids that the lawyer has already evaluated
+        $evaluatedCaseIds = PanelEvaluation::where('lawyer_id', $lawyerId)->pluck('case_id');
+
+        // Get all cases that have NOT been evaluated by this lawyer
+        $query->whereNotIn('case_id', $evaluatedCaseIds);
+    }
+}
+
 
     $cases = $query->get();
 
@@ -101,6 +160,8 @@ public function index(Request $request)
 
     return view("cases.index", compact('cases'));
 }
+
+
 
     /**
      * Show the form for creating a new resource.

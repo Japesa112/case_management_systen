@@ -21,6 +21,7 @@ use App\Models\Forwarding;
 use App\Models\AGAdvice;
 use App\Models\Adjourn;
 
+
 use App\Models\TrialPreparation;
 use App\Models\Trial;
 use Illuminate\Support\Facades\Storage;
@@ -29,6 +30,41 @@ use App\Mail\NewCaseNotification;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 class MainController extends Controller {
+
+
+
+public function getLawyerPaymentStats()
+{
+    try {
+        $isLawyer = Auth::user() && Auth::user()->role === 'Lawyer';
+
+        if (!$isLawyer) {
+            return response()->json([
+                'error' => 'Unauthorized',
+            ], 403);
+        }
+
+        $lawyerId = Auth::user()->lawyer->lawyer_id;
+
+        $total = LawyerPayment::where('lawyer_id', $lawyerId)->sum('amount_paid');
+        $pending = LawyerPayment::where('lawyer_id', $lawyerId)
+            ->where('lawyer_payment_status', 'pending')
+            ->sum('amount_paid');
+        $completed = LawyerPayment::where('lawyer_id', $lawyerId)
+            ->where('lawyer_payment_status', 'completed')
+            ->sum('amount_paid');
+
+        return response()->json([
+            'total' => $total,
+            'pending' => $pending,
+            'completed' => $completed,
+        ]);
+    } catch (\Exception $e) {
+        Log::error("Payment stats error: " . $e->getMessage());
+        return response()->json(['error' => 'Server Error'], 500);
+    }
+}
+
 
 
 public function getNewCasesStats()
@@ -180,95 +216,73 @@ public function getNewCasesStats()
         return response()->json(['error' => $e->getMessage()], 500);
     }
 }
-    public function getActiveCasesStats()
-    {
-        try {
-            // Get current year and previous year
-            $isLawyer = Auth::user() && Auth::user()->role === 'Lawyer'; 
-            if ($isLawyer) {
-                $lawyerId = Auth::user()->lawyer->lawyer_id;
-                $caseIds = CaseLawyer::where('lawyer_id', $lawyerId)->pluck('case_id');
-                $currentYear = now()->year;
-            $lastYear = now()->subYear()->year;
+   public function getActiveCasesStats()
+{
+    try {
+        $currentYear = now()->year;
+        $lastYear = now()->subYear()->year;
 
-            // Filter active cases (not closed) for the assigned cases
+        // Exclude closed case IDs
+        $closedCaseIds = CaseClosure::pluck('case_id')->toArray();
+
+        $isLawyer = Auth::user() && Auth::user()->role === 'Lawyer'; 
+
+        if ($isLawyer) {
+            $lawyerId = Auth::user()->lawyer->lawyer_id;
+            $caseIds = CaseLawyer::where('lawyer_id', $lawyerId)->pluck('case_id');
+
+            // Active cases (assigned + not closed)
             $active = CaseModel::whereIn('case_id', $caseIds)
-                ->where('case_status', '!=', 'Closed')
+                ->whereNotIn('case_id', $closedCaseIds)
                 ->count();
 
-            // Active this year
             $activeThisYear = CaseModel::whereIn('case_id', $caseIds)
+                ->whereNotIn('case_id', $closedCaseIds)
                 ->whereYear('created_at', $currentYear)
-                ->where('case_status', '!=', 'Closed')
                 ->count();
 
-            // Active last year
             $activeLastYear = CaseModel::whereIn('case_id', $caseIds)
+                ->whereNotIn('case_id', $closedCaseIds)
                 ->whereYear('created_at', $lastYear)
-                ->where('case_status', '!=', 'Closed')
+                ->count();
+        } else {
+            // For admins or general users: count all not-closed cases
+            $active = CaseModel::whereNotIn('case_id', $closedCaseIds)->count();
+
+            $activeThisYear = CaseModel::whereNotIn('case_id', $closedCaseIds)
+                ->whereYear('created_at', $currentYear)
                 ->count();
 
-            // Calculate percentage difference
-            if ($activeLastYear > 0) {
-                $percentChange = round((($activeThisYear - $activeLastYear) / $activeLastYear) * 100);
-            } else {
-                $percentChange = 100; // Assume 100% if no cases last year
-            }
-
-            $trend = $percentChange >= 0
-                ? "Up from last year ({$percentChange}%)"
-                : "Down from last year (" . abs($percentChange) . "%)";
-
-            return response()->json([
-                'count' => $active,
-                'trend' => $trend
-            ]);
-
-            } else {
-                
-                
-            $currentYear = now()->year;
-            $lastYear = now()->subYear()->year;
-    
-
-            $active = CaseModel::where('case_status', '!=', 'Closed')
+            $activeLastYear = CaseModel::whereNotIn('case_id', $closedCaseIds)
+                ->whereYear('created_at', $lastYear)
                 ->count();
-            // Get counts of active cases (not 'Closed') for both years
-            $activeThisYear = CaseModel::whereYear('created_at', $currentYear)
-                ->where('case_status', '!=', 'Closed')
-                ->count();
-    
-            $activeLastYear = CaseModel::whereYear('created_at', $lastYear)
-                ->where('case_status', '!=', 'Closed')
-                ->count();
-    
-            // Calculate percentage difference
-            if ($activeLastYear > 0) {
-                $percentChange = round((($activeThisYear - $activeLastYear) / $activeLastYear) * 100);
-            } else {
-                $percentChange = 100; // Assume 100% if no cases last year
-            }
-    
-            $trend = $percentChange >= 0
-                ? "Up from last year ({$percentChange}%)"
-                : "Down from last year (" . abs($percentChange) . "%)";
-    
-            return response()->json([
-                'count' => $active,
-                'trend' => $trend
-            ]);
-
-            }
-            
-        } catch (\Exception $e) {
-            Log::error("Error retrieving active case stats: " . $e->getMessage());
-    
-            return response()->json([
-                'error' => $e->getMessage()
-            ], 500);
         }
+
+        // Calculate percentage difference
+        if ($activeLastYear > 0) {
+            $percentChange = round((($activeThisYear - $activeLastYear) / $activeLastYear) * 100);
+        } else {
+            $percentChange = 100; // Assume 100% if no cases last year
+        }
+
+        $trend = $percentChange >= 0
+            ? "Up from last year ({$percentChange}%)"
+            : "Down from last year (" . abs($percentChange) . "%)";
+
+        return response()->json([
+            'count' => $active,
+            'trend' => $trend
+        ]);
+
+    } catch (\Exception $e) {
+        Log::error("Error retrieving active case stats: " . $e->getMessage());
+
+        return response()->json([
+            'error' => $e->getMessage()
+        ], 500);
     }
-    
+}
+
     public function getUpcomingDates()
 {
     try {

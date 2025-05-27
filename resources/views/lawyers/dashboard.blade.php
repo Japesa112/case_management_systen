@@ -16,7 +16,23 @@
 	  border-bottom: 1px solid #fff; /* White border */
 	}
   
-	
+	.widget-link {
+    text-decoration: none;
+    display: block;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.widget-link:hover .widget-stats {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    transform: scale(1.02);
+    border: 2px solid #ffffff80;
+    cursor: pointer;
+}
+
+.widget-stats {
+    transition: all 0.3s ease;
+}
+
   </style>
 @endpush
 @push('scripts')
@@ -52,60 +68,61 @@
 	<!-- BEGIN row -->
 <div class="row">
 		<!-- BEGIN col-3 -->
-  <div class="col-xl-4 col-md-6">
-	<div class="widget widget-stats bg-teal">
-		<div class="stats-icon stats-icon-lg"><i class="fa fa-balance-scale fa-fw"></i></div>
-		<div class="stats-content">
-		<div class="stats-title">MY CLOSED CASES</div>
-		<a href="{{ url('/cases?filter=closed_lawyer') }}" class="btn btn-sm btn-danger" title="Closed cases assigned to you">
-		<div class="stats-number">{{ $closedCases }}</div>
-	</a>
-		<div class="stats-progress progress">
-			<div class="progress-bar" style="width: {{ $closedCases > 0 ? round(($wonCases / $closedCases) * 100) : 0 }}%;"></div>
-		</div>
-		<div class="stats-desc">
-			Won: {{ $wonCases }} | Lost: {{ $lostCases }}
-		</div>
-		</div>
-	</div>
-	</div>
+<div class="col-xl-4 col-md-6">
+    <a href="{{ url('/cases?filter=closed_lawyer') }}" class="widget-link">
+        <div class="widget widget-stats bg-teal">
+            <div class="stats-icon stats-icon-lg"><i class="fa fa-balance-scale fa-fw"></i></div>
+            <div class="stats-content">
+                <div class="stats-title">MY CLOSED CASES</div>
+                <div class="stats-number">{{ $closedCases }}</div>
+                <div class="stats-progress progress">
+                    <div class="progress-bar" style="width: {{ $closedCases > 0 ? round(($wonCases / $closedCases) * 100) : 0 }}%;"></div>
+                </div>
+                <div class="stats-desc">
+                    Won: {{ $wonCases }} | Lost: {{ $lostCases }}
+                </div>
+            </div>
+        </div>
+    </a>
+</div>
+
 
 
 		
+	<div class="col-xl-4 col-md-6">
+    <a href="{{ url('/cases?filter=my_active_cases') }}" class="widget-link">
+        <div class="widget widget-stats bg-blue">
+            <div class="stats-icon stats-icon-lg"><i class="fa fa-briefcase fa-fw"></i></div>
+            <div class="stats-content">
+                <div class="stats-title">MY ACTIVE CASES</div>
+                <div class="stats-number" id="active-cases-count">...</div>
+                <div class="stats-progress progress">
+                    <div class="progress-bar" id="active-cases-bar" style="width: 0%;"></div>
+                </div>
+                <div class="stats-desc" id="active-cases-trend">Loading...</div>
+            </div>
+        </div>
+    </a>
+</div>
+
 		<!-- END col-3 -->
 		<!-- BEGIN col-3 -->
-		<div class="col-xl-4 col-md-6">
-		<div class="widget widget-stats bg-blue">
-			<div class="stats-icon stats-icon-lg"><i class="fa fa-briefcase fa-fw"></i></div>
-			<div class="stats-content">
-			<div class="stats-title">MY ACTIVE CASES</div>
-			
-			<div class="stats-number" id="active-cases-count">...</div>
-		
-			<div class="stats-progress progress">
-				<div class="progress-bar" id="active-cases-bar" style="width: 0%;"></div>
-			</div>
-			<div class="stats-desc" id="active-cases-trend">Loading...</div>
-			</div>
-		</div>
-		</div>
+	<div class="col-xl-4 col-md-6">
+    <a href="{{ url('/cases?filter=upcoming_hearings') }}" class="widget-link">
+        <div class="widget widget-stats bg-indigo">
+            <div class="stats-icon stats-icon-lg"><i class="fa fa-calendar-alt fa-fw"></i></div>
+            <div class="stats-content">
+                <div class="stats-title">MY UPCOMING HEARINGS</div>
+                <div id="upcoming-hearings-number" class="stats-number">0</div>
+                <div class="stats-progress progress">
+                    <div id="upcoming-hearings-bar" class="progress-bar" style="width: 0%;"></div>
+                </div>
+                <div id="upcoming-hearings-desc" class="stats-desc">Click to view</div>
+            </div>
+        </div>
+    </a>
+</div>
 
-		<!-- END col-3 -->
-		<!-- BEGIN col-3 -->
-		<div class="col-xl-4 col-md-6">
-			<div class="widget widget-stats bg-indigo">
-				<div class="stats-icon stats-icon-lg"><i class="fa fa-calendar-alt fa-fw"></i></div>
-				<div class="stats-content">
-					<div class="stats-title">MY UPCOMING HEARINGS</div>
-					<div id="upcoming-hearings-number" class="stats-number">0</div>
-					<div class="stats-progress progress">
-						<div id="upcoming-hearings-bar" class="progress-bar" style="width: 0%;"></div>
-					</div>
-					<div id="upcoming-hearings-desc" class="stats-desc">Loading...</div>
-				</div>
-			</div>
-		</div>
-		
 
 		<!-- END col-3 -->
 		<!-- BEGIN col-3 -->
@@ -145,45 +162,102 @@
 		
 		<!-- END col-3 -->
 		<!-- BEGIN col-3 -->
-		<div class="col-xl-4 col-md-6">
-			<div class="widget widget-stats bg-pink">
-				<div class="stats-icon stats-icon-lg"><i class="fa fa-folder-plus fa-fw"></i></div>
-				<div class="stats-content">
-					<div class="stats-title">CASE ASSIGNMENTS</div>
-					<a href="{{ url('/lawyers/my-cases') }}" class="btn btn-sm btn-info mb-4">
-					<div id="new-cases-number" class="stats-number">0</div>
-				</a>
-					<div class="stats-progress progress">
-						<div id="new-cases-bar" class="progress-bar" style="width: 0%;"></div>
-					</div>
-					<div id="new-cases-desc" class="stats-desc">Loading...</div>
-				</div>
-			</div>
-		</div>
-		
+<div class="col-xl-4 col-md-6">
+    <a href="{{ url('/lawyers/my-cases') }}" class="widget-link">
+        <div class="widget widget-stats bg-pink">
+            <div class="stats-icon stats-icon-lg"><i class="fa fa-folder-plus fa-fw"></i></div>
+            <div class="stats-content">
+                <div class="stats-title">CASE ASSIGNMENTS</div>
+                <div id="new-cases-number" class="stats-number">0</div>
+                <div class="stats-progress progress">
+                    <div id="new-cases-bar" class="progress-bar" style="width: 0%;"></div>
+                </div>
+                <div id="new-cases-desc" class="stats-desc">Loading...</div>
+            </div>
+        </div>
+    </a>
+</div>
+
 
 		<!-- END col-3 -->
 		<!-- BEGIN col-3 -->
-	<div class="col-xl-4 col-md-6">
-    <div class="widget widget-stats bg-orange">
-        <div class="stats-icon stats-icon-lg"><i class="fa fa-hourglass-half fa-fw"></i></div>
-        <div class="stats-content">
-            <div class="stats-title">CASES AWAITING ACTIONS</div>
-            <div id="awaiting-cases-number" class="stats-number">0</div>
-            <div class="stats-progress progress">
-                <div id="awaiting-cases-bar" class="progress-bar" style="width: 0%;"></div>
+<div class="col-xl-4 col-md-6">
+    <a href="{{ url('/cases?filter=awaiting_evaluation') }}" class="widget-link">
+        <div class="widget widget-stats bg-orange">
+            <div class="stats-icon stats-icon-lg"><i class="fa fa-hourglass-half fa-fw"></i></div>
+            <div class="stats-content">
+                <div class="stats-title">CASES AWAITING EVALUATION</div>
+                <div id="awaiting-cases-number" class="stats-number">0</div>
+                <div class="stats-progress progress">
+                    <div id="awaiting-cases-bar" class="progress-bar" style="width: 0%;"></div>
+                </div>
+                <div id="awaiting-cases-desc" class="stats-desc">Click to view</div>
             </div>
-            <div id="awaiting-cases-desc" class="stats-desc">Loading...</div>
         </div>
-    </div>
+    </a>
 </div>
 
 		
 
 		<!-- END col-3 -->
 	</div>
+
+	<div class="row mt-4">
+    <!-- Total Payments -->
+    <div class="col-xl-4 col-md-6">
+        <a href="{{ url('/lawyer_payments?filter=total') }}" class="widget-link">
+            <div class="widget widget-stats bg-primary">
+                <div class="stats-icon stats-icon-lg"><i class="fa fa-wallet fa-fw"></i></div>
+                <div class="stats-content">
+                    <div class="stats-title">TOTAL PAYMENTS</div>
+                    <div id="total-payments-number" class="stats-number">₦0.00</div>
+                    <div class="stats-progress progress">
+                        <div id="total-payments-bar" class="progress-bar" style="width: 100%;"></div>
+                    </div>
+                    <div id="total-payments-desc" class="stats-desc">Both Pending and Completed payments</div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Pending Payments -->
+    <div class="col-xl-4 col-md-6">
+        <a href="{{ url('/lawyer_payments?filter=pending') }}" class="widget-link">
+            <div class="widget widget-stats bg-warning">
+                <div class="stats-icon stats-icon-lg"><i class="fa fa-clock fa-fw"></i></div>
+                <div class="stats-content">
+                    <div class="stats-title">PENDING PAYMENTS</div>
+                    <div id="pending-payments-number" class="stats-number">₦0.00</div>
+                    <div class="stats-progress progress">
+                        <div id="pending-payments-bar" class="progress-bar" style="width: 0%;"></div>
+                    </div>
+                    <div id="pending-payments-desc" class="stats-desc">Awaiting confirmation</div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Completed Payments -->
+    <div class="col-xl-4 col-md-6">
+        <a href="{{ url('/lawyer_payments?filter=completed') }}" class="widget-link">
+            <div class="widget widget-stats bg-success">
+                <div class="stats-icon stats-icon-lg"><i class="fa fa-check-circle fa-fw"></i></div>
+                <div class="stats-content">
+                    <div class="stats-title">COMPLETED PAYMENTS</div>
+                    <div id="completed-payments-number" class="stats-number">₦0.00</div>
+                    <div class="stats-progress progress">
+                        <div id="completed-payments-bar" class="progress-bar" style="width: 100%;"></div>
+                    </div>
+                    <div id="completed-payments-desc" class="stats-desc">Fully settled transactions</div>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
 		
 </div>
+
 
 
 
@@ -794,6 +868,29 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 });
 </script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    fetch("{{ route('stats.payments') }}")
+        .then(response => response.json())
+        .then(data => {
+            if (!data.error) {
+                document.getElementById('total-payments-number').textContent = 'KSH.' + data.total.toLocaleString();
+                document.getElementById('pending-payments-number').textContent = 'KSH' + data.pending.toLocaleString();
+                document.getElementById('completed-payments-number').textContent = 'KSH' + data.completed.toLocaleString();
+
+                const total = data.total || 1; // Avoid division by zero
+                document.getElementById('pending-payments-bar').style.width = ((data.pending / total) * 100).toFixed(0) + '%';
+                document.getElementById('completed-payments-bar').style.width = ((data.completed / total) * 100).toFixed(0) + '%';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching payment stats:', error);
+        });
+});
+</script>
+
 
 
 @endpush

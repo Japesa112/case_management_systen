@@ -86,6 +86,8 @@ Route::get('/dashboard/upcoming-dates', [MainController::class, 'getUpcomingDate
 
 Route::get('/cases/by-status/{status}', [MainController::class, 'getCasesByStatus'])->name('cases.by.status');
 Route::get('/stats/active-cases', [MainController::class, 'getActiveCasesStats'])->name('stats.active.cases');
+Route::get('/stats/payments', [MainController::class, 'getLawyerPaymentStats'])->name('stats.payments');
+
 Route::get('/stats/upcoming-hearings', [MainController::class, 'getUpcomingHearingsStats'])->name('stats.upcoming.hearings');
 Route::get('/stats/new-cases', [MainController::class, 'getNewCasesStats'])->name('stats.new.cases');
 Route::get('/lawyer/compliance-stats', [LawyerController::class, 'getComplianceStats'])->name('lawyer.compliance.stats');

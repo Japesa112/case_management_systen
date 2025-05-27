@@ -19,30 +19,37 @@ class LawyerPaymentController extends Controller
         $this->middleware('auth'); // Applies to all methods in the controller
     }
 
-    public function index()
-    {
-       
-       try{
-        $isLawyer = Auth::user() && Auth::user()->role === 'Lawyer'; 
-    
+    public function index(Request $request)
+{
+    try {
+        $isLawyer = Auth::user() && Auth::user()->role === 'Lawyer';
+        $filter = $request->query('filter'); // Read filter from query string
+
+        $query = LawyerPayment::with('case');
+
         if ($isLawyer) {
-            // Fetch payments for the logged-in lawyer
-            $payments = LawyerPayment::with('case')
-                                     ->where('lawyer_id', Auth::id())  // Filter by lawyer_id
-                                     ->get();
-        } else {
-            // Fetch all payments for non-lawyer users
-            $payments = LawyerPayment::with('case')->get();
+            $lawyerId = Auth::user()->lawyer->lawyer_id;
+            $query->where('lawyer_id', $lawyerId);
         }
-    
+
+        // Apply filter
+        if ($filter === 'pending') {
+            $query->where('lawyer_payment_status', 'pending');
+        } elseif ($filter === 'completed') {
+            $query->where('lawyer_payment_status', 'completed');
+        }
+        // No filter = all payments (total)
+
+        $payments = $query->get();
+
         return view('lawyer_payments.index', compact('payments'));
-       }
-       catch(\Exception $e){
-        Log::error($e->getMessage());
-        Log::error("Error occurred");
-       }
-        
+
+    } catch (\Exception $e) {
+        Log::error("Payment index error: " . $e->getMessage());
+        abort(500, 'An error occurred while loading payments.');
     }
+}
+
     
 
 
