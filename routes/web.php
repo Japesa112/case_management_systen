@@ -308,7 +308,8 @@ Route::middleware(['auth'])->prefix('cases')->group(function () {
     Route::get('/get-last-sequence-application/{case_id}', [CaseController::class, 'getLastSequenceApplication']);
     Route::get('/get-last-sequence-all/{case_id}', [CaseController::class, 'getLastSequenceAll']);
     Route::get('{case}/available-lawyers', [CaseController::class, 'getLawyers'])->name('cases.available-lawyers');
-
+    Route::get('{case}/all-available-lawyers', [CaseController::class, 'getAvailableLawyers'])->name('cases.all-available-lawyers');
+    Route::get('{case}/available-complainants', [CaseController::class, 'getComplainants'])->name('cases.available-complainants');
     Route::get('/', [CaseController::class, 'index'])->name('cases.index');
     Route::get('/add', [CaseController::class, 'create'])->name('cases.create');
     Route::post('/store', [CaseController::class, 'store'])->name('cases.store');

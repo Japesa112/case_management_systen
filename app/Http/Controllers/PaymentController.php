@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Payment;
 use App\Models\PaymentAttachment;
+
+use App\Models\Lawyer;
+use App\Models\Complainant;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 
@@ -31,6 +34,8 @@ class PaymentController extends Controller
     public function create($case_id) {
         $case_name = null;
         $payment = null;
+        $complainants = Complainant::all();
+        $lawyers = Lawyer::all();
 
         if ($case_id) {
             // Retrieve the case record based on the provided case_id
@@ -42,7 +47,7 @@ class PaymentController extends Controller
             }
         }
 
-        return view('all_payments.create', compact('case_id', 'case_name', 'payment'));
+        return view('all_payments.create', compact('case_id', 'case_name', 'payment', 'complainants', 'lawyers'));
     }
     
     /**
@@ -51,20 +56,33 @@ class PaymentController extends Controller
     public function store(Request $request)
     {
         try {
-            $validatedData = $request->validate([
-                'case_id' => 'required|exists:cases,case_id',
-                'amount_paid' => 'required|numeric',
-                'payment_method' => 'required|string',
-                'transaction' => 'nullable|string',
-                'payment_date' => 'required|date_format:Y-m-d\TH:i',                
-                'auctioneer_involvement' => 'nullable|string',
-                'paymentAttachments.*' => 'file|mimes:pdf,doc,docx,jpg,png|max:2048'
-            ]);
-            $dateTime = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->payment_date);
-            $validatedData['payment_date'] = $dateTime->toDateString();
-            $validatedData['payment_time'] = $dateTime->toTimeString();
+           $validatedData = $request->validate([
+                        'case_id' => 'required|exists:cases,case_id',
+                        'payee' => 'required|in:kenyatta_university,complainant,lawyer,other',
+                        'payee_id' => 'nullable|integer', // Will be validated conditionally below
+                        'amount_paid' => 'required|numeric',
+                        'payment_method' => 'required|string',
+                        'transaction' => 'nullable|string',
+                        'payment_date' => 'required|date_format:Y-m-d\TH:i',
+                        'due_date' => 'required|date_format:Y-m-d\TH:i',
+                        'auctioneer_involvement' => 'nullable|string',
+                        'paymentAttachments.*' => 'file|mimes:pdf,doc,docx,jpg,png|max:2048'
+                    ]);
 
-            $payment = Payment::create($validatedData);
+                   
+
+                    // Split payment_date into date and time
+                    $dateTime = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $validatedData['payment_date']);
+                    $validatedData['payment_date'] = $dateTime->toDateString();
+                    $validatedData['payment_time'] = $dateTime->toTimeString();
+
+
+                    $dateDueTime = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $validatedData['due_date']);
+                    $validatedData['due_date'] = $dateDueTime->toDateString();
+                    $validatedData['due_time'] = $dateDueTime->toTimeString();
+
+                    $payment = Payment::create($validatedData);
+
 
             if ($request->hasFile('paymentAttachments')) {
                 foreach ($request->file('paymentAttachments') as $file) {
@@ -90,18 +108,46 @@ class PaymentController extends Controller
      * Display the specified payment.
      */
     public function show($payment_id)
-    {
-        $payment= Payment::with('attachments')->where('payment_id', $payment_id)->firstOrFail();
-        $formattedDateTime = $payment->payment_date && $payment->payment_time
+{
+    $payment = Payment::with('attachments')->where('payment_id', $payment_id)->firstOrFail();
+
+    // Format payment date and due date+time
+    $formattedDateTime = $payment->payment_date && $payment->payment_time
         ? \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', "$payment->payment_date $payment->payment_time")->format('Y-m-d\TH:i')
         : '';
-        return response()->json([
-            'case_name' => $payment->case->case_name,
-            'payment' => $payment,
-            'attachments' => $payment->attachments,
-            'formattedDateTime'=> $formattedDateTime
-        ]);
+
+    $formattedDateDueTime = $payment->due_date && $payment->due_time
+        ? \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', "$payment->due_date $payment->due_time")->format('Y-m-d\TH:i')
+        : '';
+
+    // Determine recipient name
+    $recipientName = null;
+
+    if ($payment->payee === 'complainant') {
+        $complainant = \App\Models\Complainant::find($payment->payee_id);
+        $recipientName = $complainant ? $complainant->complainant_name . ' (Complainant)' : null;
+
+    } elseif ($payment->payee === 'lawyer') {
+        $lawyer = \App\Models\Lawyer::with('user')->find($payment->payee_id);
+        $recipientName = $lawyer && $lawyer->user ? $lawyer->user->full_name . ' (Lawyer)' : null;
+
+    } elseif ($payment->payee === 'kenyatta_university') {
+        $recipientName = 'Kenyatta University';
+
+    } elseif ($payment->payee === 'other') {
+        $recipientName = 'Other';
     }
+
+    return response()->json([
+        'case_name' => $payment->case->case_name,
+        'payment' => $payment,
+        'attachments' => $payment->attachments,
+        'formattedDateTime' => $formattedDateTime,
+        'formattedDateDueTime' => $formattedDateDueTime,
+        'recipient_name' => $recipientName,
+    ]);
+}
+
     
     /**
      * Show the form for editing the specified payment.
@@ -122,16 +168,23 @@ class PaymentController extends Controller
 
         $validatedData = $request->validate([
             'case_id' => 'required|exists:cases,case_id',
-            'amount_paid' => 'required|numeric',
-            'payment_method' => 'required|string',
-            'transaction' => 'nullable|string',
-            'payment_date' => 'required|date_format:Y-m-d\TH:i',
-            'auctioneer_involvement' => 'nullable|string'
+                        'payee' => 'required|in:kenyatta_university,complainant,lawyer,other',
+                        'payee_id' => 'nullable|integer', // Will be validated conditionally below
+                        'amount_paid' => 'required|numeric',
+                        'payment_method' => 'required|string',
+                        'transaction' => 'nullable|string',
+                        'payment_date' => 'required|date_format:Y-m-d\TH:i',
+                        'due_date' => 'required|date_format:Y-m-d\TH:i',
+                        'auctioneer_involvement' => 'nullable|string'
         ]);
 
         $dateTime = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->payment_date);
         $validatedData['payment_date'] = $dateTime->toDateString();
         $validatedData['payment_time'] = $dateTime->toTimeString();
+
+         $dateDueTime = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $validatedData['due_date']);
+         $validatedData['due_date'] = $dateDueTime->toDateString();
+         $validatedData['due_time'] = $dateDueTime->toTimeString();
 
         $payment->update($validatedData);
 

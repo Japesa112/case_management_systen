@@ -79,15 +79,57 @@
                                     </select>
                                     
                                 </div>
-                               
+                               <!-- Payer Type -->
+                                <div class="form-group mt-2">
+                                    <label for="payer_type">Payee (Payment Recipient) <span class="text-danger">*</span></label>
+                                    <select name="payee" id="payee" class="form-control" required>
+                                        <option value="">Select Payment From</option>
+                                        <option value="kenyatta_university">Kenyatta University</option>
+                                        <option value="complainant">Complainant</option>
+                                        <option value="lawyer">Lawyer</option>
+                                        <option value="other">Other Payment</option>
+                                    </select>
+                                </div>
                                 
                             </div>
                     
                             <div class="col-md-6">
+
+                                
+
+                                <!-- Complainant Select (Initially Hidden) -->
+                                <div class="form-group mt-2 d-none" id="complainant_select_group">
+                                    <label for="complainant_id">Select Complainant</label>
+                                    <select name="payee_id" id="complainant_id" class="form-control">
+                                        <option value="">Select Complainant</option>
+                                        @foreach ($complainants as $complainant)
+                                            <option value="{{ $complainant->Complainant_id }}">{{ $complainant->complainant_name." ".$complainant->phone}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <!-- Lawyer Select (Initially Hidden) -->
+                                <div class="form-group mt-2 d-none" id="lawyer_select_group">
+                                    <label for="lawyer_id">Select Lawyer</label>
+                                    <select name="payee_id" id="lawyer_id" class="form-control">
+                                        <option value="">Select Lawyer</option>
+                                        @foreach ($lawyers as $lawyer)
+                                            <option value="{{ $lawyer->lawyer_id }}">{{ $lawyer->user->full_name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+
+
+
+                                 <div class="form-group mt-2">
+                                    <label for="payment_date">Expected Payment Date <span class="text-danger">*</span></label>
+                                    <input type="datetime-local" name="due_date" id="due_date" class="form-control" required>
+                                </div>
                                 
                                 <div class="form-group mt-2">
                                     <label for="payment_date">Payment Date <span class="text-danger">*</span></label>
-                                    <input type="date" name="payment_date" id="payment_date" class="form-control" required>
+                                    <input type="datetime-local" name="payment_date" id="payment_date" class="form-control" required>
                                 </div>
                                 <div class="form-group mt-2">
                                     <label for="appeal_details">Transaction  Details</label>
@@ -229,6 +271,26 @@
         });
     });
     </script>
-    
+   
+
+   <script>
+    $(document).ready(function () {
+        $('#payee').on('change', function () {
+            const type = $(this).val();
+            $('#complainant_select_group, #lawyer_select_group').addClass('d-none');
+            $('#complainant_id, #lawyer_id').prop('disabled', true);
+
+            if (type === 'complainant') {
+                $('#complainant_select_group').removeClass('d-none');
+                $('#complainant_id').prop('disabled', false);
+            } else if (type === 'lawyer') {
+                $('#lawyer_select_group').removeClass('d-none');
+                $('#lawyer_id').prop('disabled', false);
+            }
+        });
+    });
+</script>
+ 
     
 @endpush
+

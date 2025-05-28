@@ -628,6 +628,44 @@ public function getLawyers(Request $request)
     return response()->json($lawyers);
 }
 
+public function getAvailableLawyers(Request $request)
+{
+    $lawyers = Lawyer::with('user')
+        ->get()
+        ->map(function ($lawyer) {
+            return [
+                'lawyer_id' => $lawyer->lawyer_id,
+                'display_name' => $lawyer->user->full_name . ' - ' . $lawyer->license_number
+            ];
+        });
+
+    Log::info("Available Lawyers: ", $lawyers->toArray());
+
+    return response()->json($lawyers);
+}
+
+
+
+
+
+
+public function getComplainants(Request $request)
+{
+    $complainants = Complainant::all()
+        ->map(function ($complainant) {
+            return [
+                'id' => $complainant->Complainant_id,
+                'complainant_name' => $complainant->complainant_name,
+                'email' => $complainant->email,
+                'phone' => $complainant->phone,
+            ];
+        });
+
+    Log::info("Available Complainants: ", $complainants->toArray());
+
+    return response()->json($complainants);
+}
+
 
 public function getLastSequence($case_id)
 {

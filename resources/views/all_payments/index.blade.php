@@ -274,11 +274,46 @@
                             </div>
 
 
+                             <div class="form-group mt-2">
+                                    <label for="payer_type">Payee (Payment Recipient) <span class="text-danger">*</span></label>
+                                    <select name="payee" id="payee" class="form-control" required>
+                                        <option value="">Select Payment From</option>
+                                        <option value="kenyatta_university">Kenyatta University</option>
+                                        <option value="complainant">Complainant</option>
+                                        <option value="lawyer">Lawyer</option>
+                                        <option value="other">Other Payment</option>
+                                    </select>
+                                </div>
+
+
                             </div>
 
 
                             
                             <div class="col-md-6">
+
+                                <!-- Complainant Select -->
+                            <div class="form-group mt-2 d-none" id="complainant_select_group">
+                                <label for="complainant_id">Select Complainant</label>
+                                <select name="payee_id" id="complainant_id" class="form-control">
+                                    <option value="">Select Complainant</option>
+                                </select>
+                            </div>
+
+                            <!-- Lawyer Select -->
+                            <div class="form-group mt-2 d-none" id="lawyer_select_group">
+                                <label for="lawyer_id">Select Lawyer</label>
+                                <select name="payee_id" id="lawyer_id" class="form-control">
+                                    <option value="">Select Lawyer</option>
+                                </select>
+                            </div>
+
+
+                                 <div class="form-group mt-2">
+                                    <label for="payment_date">Expected Payment Date <span class="text-danger">*</span></label>
+                                    <input type="datetime-local" name="due_date" id="edit_due_date" class="form-control" required>
+                                </div>
+                                
                                 
                                 <div class="form-group mt-2">
                                     <label for="payment_date">Payment Date <span class="text-danger">*</span></label>
@@ -406,18 +441,22 @@
                     let payment = response.payment;
                     let attachments = response.attachments;
                     let case_name = response.case_name;
+                    let recipient_name = response.recipient_name;
 
                     let content = `
                         <div class="row">
                             <div class="col-md-6">
                                 <strong>Case Name:</strong> ${case_name ?? 'N/A'}<br>
                                 <strong>Payment Date:</strong> ${payment.payment_date ?? 'N/A'}<br>
-                                <strong>Payment Date:</strong> ${payment.payment_time ?? 'N/A'}<br>
+                                <strong>Payment Time:</strong> ${payment.payment_time ?? 'N/A'}<br>
+                                <strong>Expected Payment Date:</strong> ${payment.due_date ?? 'N/A'}<br>
+                                <strong>Expected Payment Time:</strong> ${payment.due_time ?? 'N/A'}<br>
                                 <strong>Amount Paid:</strong> ${payment.amount_paid ?? 'N/A'}<br>
                                 <strong>Payment Method:</strong> ${payment.payment_method ?? 'N/A'}<br>
                                 <strong>Transaction ID:</strong> ${payment.transaction ?? 'N/A'}<br>
                             </div>
                             <div class="col-md-6">
+                                <strong>Payment To:</strong> ${recipient_name ?? 'N/A'}<br>
                                 <strong>Created At:</strong> ${payment.created_at ?? 'N/A'}<br>
                                 <strong>Updated At:</strong> ${payment.updated_at ?? 'N/A'}<br>
                                 <strong>Auctioneer Involvement:</strong> <p>${payment.auctioneer_involvement ?? 'N/A'}</p>
@@ -463,6 +502,7 @@
             success: function (response) {
                 let payment= response.payment;
                 let formattedDateTime = response.formattedDateTime;
+                let formattedDateDueTime = response.formattedDateDueTime;
                 let attachments = response.attachments; // Get attachments correctly
                 let case_name = response.case_name;
                 console.log("Thepayment method is: "+payment.payment_method);
@@ -479,6 +519,7 @@
 
                 $('#edit_auctioneer_involvement').val(payment.auctioneer_involvement);
                 $('#edit_payment_date').val(formattedDateTime);
+                $('#edit_due_date').val(formattedDateDueTime);
                 $('#edit_amount_paid').val(payment.amount_paid);
 
 
@@ -731,4 +772,70 @@ $(document).ready(function () {
         );
     });
 </script>
+
+
+
+<script>
+$(document).ready(function () {
+    $('#payee').on('change', function () {
+        let selected = $(this).val();
+        let case_id = $('#case_id').val(); // Assuming it's already filled and not disabled in JS context
+        
+        // Hide all select groups initially
+        $('#complainant_select_group').addClass('d-none');
+        $('#lawyer_select_group').addClass('d-none');
+
+        // Clear select options
+        $('#complainant_id').empty().append('<option value="">Select Complainant</option>');
+        $('#lawyer_id').empty().append('<option value="">Select Lawyer</option>');
+
+        if (selected === 'complainant') {
+
+          
+            // Show and fetch complainants
+            $('#complainant_select_group').removeClass('d-none');
+
+            $.ajax({
+                url: '/cases/' + case_id + '/available-complainants',
+                type: 'GET',
+                success: function (response) {
+                    $.each(response, function (index, complainant) {
+                        
+                        $('#complainant_id').append(
+                            `<option value="${complainant.id}">${complainant.complainant_name} - ${complainant.phone}
+                            </option>`
+                        );
+                    });
+                },
+                error: function () {
+                    alert("Failed to fetch complainants. Please try again.");
+                }
+            });
+
+        } else if (selected === 'lawyer') {
+
+            alert("Lawyer selected");
+            // Show and fetch lawyers
+            $('#lawyer_select_group').removeClass('d-none');
+
+            $.ajax({
+                url: '/cases/' + case_id + '/all-available-lawyers',
+                type: 'GET',
+                success: function (response) {
+                    $.each(response, function (index, lawyer) {
+                        $('#lawyer_id').append(
+                            `<option value="${lawyer.lawyer_id}">${lawyer.display_name || lawyer.user?.full_name}</option>`
+                        );
+                    });
+                },
+                error: function () {
+                    alert("Failed to fetch lawyers. Please try again.");
+                }
+            });
+        }
+    });
+});
+</script>
+
+
 @endpush
