@@ -15,7 +15,36 @@
 	.table tbody tr {
 	  border-bottom: 1px solid #fff; /* White border */
 	}
-  
+
+
+	.chartBox {
+  padding: 20px;
+  border-radius: 20px;
+  border: solid 5px rgba(255, 26, 104,1);
+  background: white;
+
+}
+
+.chartWrapper > canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+}
+
+.container {
+  max-height: 400px;       /* Defines vertical limit */
+  overflow-y: auto;        /* Enables vertical scroll if content exceeds height */
+  overflow-x: hidden;      /* Prevents unwanted horizontal scroll */
+  direction: rtl;
+}
+
+.containerBody {
+  height: auto;            /* Let JS control this dynamically */
+  width: 100%;             /* Chart fills container horizontally */
+   direction: ltr;
+}
+
 	
   </style>
 @endpush
@@ -53,7 +82,7 @@
 	<div class="row">
 		<!-- BEGIN col-3 -->
 		<div class="col-xl-3 col-md-6">
-	<div class="widget widget-stats bg-teal">
+		<div class="widget widget-stats bg-teal">
 		<div class="stats-icon stats-icon-lg"><i class="fa fa-balance-scale fa-fw"></i></div>
 		<div class="stats-content">
 		<div class="stats-title">CLOSED CASES</div>
@@ -212,6 +241,102 @@
 	</div>
 	<!-- END row -->
 
+		<div class="row mt-4">
+
+		   <!-- Total Payments -->
+<!-- Total Payments -->
+<div class="col-xl-3 col-md-6 mb-4">
+  <a href="{{ url('/all_payments') }}" class="text-decoration-none">
+    <div class="widget widget-stats bg-dark text-white shadow rounded-lg h-100 position-relative overflow-hidden">
+      <div class="stats-icon stats-icon-lg text-white"><i class="fa fa-money-bill-wave fa-fw"></i></div>
+      <div class="stats-content ps-4">
+        <div class="stats-title text-uppercase fs-6 text-white">Total Payments</div>
+        <div id="total-payments" class="stats-number fs-3 fw-bold text-white">Loading...</div>
+        <div class="stats-desc text-light">All processed payments</div>
+      </div>
+    </div>
+  </a>
+</div>
+
+<!-- Payments to University -->
+<div class="col-xl-3 col-md-6 mb-4">
+  <a href="{{ url('/all_payments?filter=kenyatta_university') }}" class="text-decoration-none">
+    <div class="widget widget-stats bg-purple text-white shadow rounded-lg h-100 position-relative overflow-hidden">
+      <div class="stats-icon stats-icon-lg text-white"><i class="fa fa-university fa-fw"></i></div>
+      <div class="stats-content ps-4">
+        <div class="stats-title text-uppercase fs-6 text-white">To University</div>
+        <div id="university-payments" class="stats-number fs-3 fw-bold text-white">Loading...</div>
+        <div class="stats-desc text-light">Received by university</div>
+      </div>
+    </div>
+  </a>
+</div>
+
+<!-- Payment Overdues -->
+<div class="col-xl-3 col-md-6 mb-4">
+  <a href="{{ url('/all_payments?filter=overdue') }}" class="text-decoration-none">
+    <div class="widget widget-stats bg-danger text-white shadow rounded-lg h-100 position-relative overflow-hidden">
+      <div class="stats-icon stats-icon-lg text-white"><i class="fa fa-exclamation-triangle fa-fw"></i></div>
+      <div class="stats-content ps-4">
+        <div class="stats-title text-uppercase fs-6 text-white">Overdue Payments</div>
+        <div id="overdue-payments" class="stats-number fs-3 fw-bold text-white">Loading...</div>
+        <div class="stats-desc text-light">Unsettled past due</div>
+      </div>
+    </div>
+  </a>
+</div>
+
+
+
+		    <!-- Pie Chart: Payment Distribution -->
+		    <div class="col-xl-3 col-md-6">
+		        <div class="widget widget-stats bg-white text-dark">
+		            <div class="stats-icon stats-icon-lg"><i class="fa fa-chart-pie fa-fw"></i></div>
+		            <div class="stats-content">
+		                <div class="stats-title">PAYMENT DISTRIBUTION</div>
+		                <div><canvas id="paymentDistributionChart" height="100"></canvas></div>
+		                <div class="stats-desc">Lawyers, Complainants, Others</div>
+		            </div>
+		        </div>
+		    </div>
+
+		</div>
+
+
+<div class="row mb-3">
+  <div class="col-md-3">
+    <label>Start Date</label>
+    <input type="date" id="startDate" class="form-control">
+  </div>
+  <div class="col-md-3">
+    <label>End Date</label>
+    <input type="date" id="endDate" class="form-control">
+  </div>
+  <div class="col-md-3">
+    <label>Group By</label>
+    <select id="groupBy" class="form-control">
+      <option value="daily">Daily</option>
+      <option value="weekly">Weekly</option>
+      <option value="monthly">Monthly</option>
+    </select>
+  </div>
+  <div class="col-md-3 d-flex align-items-end">
+    <button id="filterButton" class="btn btn-primary w-100">Apply Filters</button>
+  </div>
+</div>
+
+
+<div class="chartCard">
+	<div class="chartBox">
+		<div class="container">
+			<div class="containerBody">
+				<canvas id="paymentsBarChart"></canvas>
+			</div>
+		</div>
+	</div>
+</div>
+
+
 
 	<!-- Modal for showing case names -->
 <!-- Modal for showing case names -->
@@ -288,6 +413,35 @@
     </div>
   </div>
 </div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="paymentsModal" tabindex="-1" aria-labelledby="paymentsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="paymentsModalLabel">Payments</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <table class="table table-bordered table-striped" id="paymentsTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Case Name</th>
+              <th>Payee</th>
+              <th>Amount</th>
+              <th>Method</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
 
   
 @endsection
@@ -771,6 +925,242 @@ tableBody.addEventListener('click', function (e) {
 			.catch(error => console.error("Failed to fetch new cases stats:", error));
 	});
 	</script>
+
+	<script>
+		
+		document.addEventListener('DOMContentLoaded', function () {
+    $.ajax({
+        url: '/dashboard/payment-stats',
+        type: 'GET',
+        success: function (data) {
+            // Update widgets
+            $('#total-payments').text(data.totalPayments + ' KSH');
+            $('#university-payments').text(data.universityPayments + ' KSH');
+            $('#overdue-payments').text(data.overduePayments + '');
+
+            // Create pie chart
+            // Create pie chart
+							const ctx = document.getElementById('paymentDistributionChart').getContext('2d');
+
+							const paymentChart = new Chart(ctx, {
+							    type: 'doughnut',
+							    data: {
+							        labels: ['Lawyers', 'Complainants', 'Others'],
+							        datasets: [{
+							            data: [
+							                data.chartData.lawyers,
+							                data.chartData.complainants,
+							                data.chartData.others
+							            ],
+							            backgroundColor: ['#007bff', '#28a745', '#ffc107'],
+							            borderWidth: 1
+							        }]
+							    },
+							    options: {
+							        responsive: true,
+							        plugins: {
+							            legend: {
+							                position: 'bottom'
+							            },
+							            tooltip: {
+							                callbacks: {
+							                    label: function (context) {
+							                        return context.label + ': $' + context.formattedValue;
+							                    }
+							                }
+							            }
+							        },
+							        // Add click handler
+							        onClick: function (evt, elements) {
+							            if (elements.length > 0) {
+							                const index = elements[0].index;
+							                const label = this.data.labels[index];
+
+							                // Map label to payee query
+							                let payeeType = '';
+							                switch (label.toLowerCase()) {
+							                    case 'lawyers':
+							                        payeeType = 'lawyer';
+							                        break;
+							                    case 'complainants':
+							                        payeeType = 'complainant';
+							                        break;
+							                    case 'others':
+							                        payeeType = 'other';
+							                        break;
+							                }
+
+							                if (payeeType) {
+							                    window.location.href = `/all_payments?payee=${payeeType}`;
+							                }
+							            }
+							        }
+							    }
+							});
+
+
+
+        },
+        error: function () {
+            console.error('Failed to fetch payment stats');
+        }
+    });
+});
+
+
+
+
+
+
+	</script>
 	
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+let paymentsChart;
+
+function fetchAndRenderChart(start = '', end = '', group = 'daily') {
+  fetch(`/dashboard/payment-dates?start=${start}&end=${end}&groupBy=${group}`)
+    .then(res => res.json())
+    .then(data => {
+      const ctx = document.getElementById('paymentsBarChart').getContext('2d');
+
+      const colors = data.labels.map(() => {
+        return '#' + Math.floor(Math.random() * 16777215).toString(16);
+      });
+
+      if (paymentsChart) paymentsChart.destroy();
+
+      paymentsChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: data.labels,
+          datasets: [{
+            label: 'Payments Made ($)',
+            data: data.amounts,
+            backgroundColor: colors,
+            borderRadius: 4
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: ctx => `$${ctx.formattedValue}`
+              }
+            },
+            legend: { display: false }
+          },
+          scales: {
+
+            x: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Amount ($)'
+              }
+            },
+            y: {
+              ticks: {
+                autoSkip: false
+              }
+            }
+          },
+          onClick: async function (evt, elements) {
+						  if (elements.length > 0) {
+						    const index = elements[0].index;
+						    const selectedDate = data.labels[index];
+
+						     const selectedLabel = data.labels[index]; // could be a single date or a range string
+						     dayjs.extend(dayjs_plugin_customParseFormat);
+
+
+						     let url = '';
+									if (selectedLabel.includes(' - ')) {
+									  // Date range (weekly)
+									  const [startDate, endDate] = selectedLabel.split(' - ').map(s => s.trim());
+									  url = `/dashboard/payments/by-date?startDate=${startDate}&endDate=${endDate}`;
+									} else if (/^[A-Za-z]+ \d{4}$/.test(selectedLabel)) {
+									  // Monthly format like "March 2025"
+									  const startDate = dayjs(selectedLabel, "MMMM YYYY").startOf('month').format('YYYY-MM-DD');
+									  const endDate = dayjs(selectedLabel, "MMMM YYYY").endOf('month').format('YYYY-MM-DD');
+									  url = `/dashboard/payments/by-date?startDate=${startDate}&endDate=${endDate}`;
+									} else {
+									  // Assume single date (daily)
+									  url = `/dashboard/payments/by-date?date=${selectedLabel}`;
+									}
+
+
+						    try {
+						      const response = await fetch(url);
+						      const payments = await response.json();
+						      console.log(payments);
+
+						      const tbody = document.querySelector('#paymentsTable tbody');
+						      tbody.innerHTML = '';
+
+						      if (payments.length === 0) {
+						        tbody.innerHTML = `<tr><td colspan="5" class="text-center">No payments found for ${selectedDate}</td></tr>`;
+						      } else {
+						        payments.forEach((payment, idx) => {
+						          const row = `
+						            <tr>
+						              <td>${idx + 1}</td>
+						          		<td>${payment.case_name}</td>
+						              <td>${payment.payee}</td>
+						              <td>$${payment.amount_paid}</td>
+						              <td>${payment.payment_method}</td>
+						              <td>${payment.payment_status}</td>
+						            </tr>`;
+						          tbody.insertAdjacentHTML('beforeend', row);
+						        });
+						      }
+
+						      document.getElementById('paymentsModalLabel').textContent = `Payments on ${selectedDate}`;
+						      const modal = new bootstrap.Modal(document.getElementById('paymentsModal'));
+						      modal.show();
+
+						    } catch (error) {
+						      console.error('Error fetching payments by date:', error);
+						      alert('Could not fetch payment details.');
+						    }
+						  }
+						}
+
+        }
+      });
+
+	      const containerBody = document.querySelector('.containerBody');
+	const totalLabels = paymentsChart.data.labels.length;
+
+	if (totalLabels > 7) {
+	  const newHeight = 300 + ((totalLabels - 7) * 40);
+	  containerBody.style.height = `${newHeight}px`;
+	} else {
+	  containerBody.style.height = '400px';
+	}
+    })
+    .catch(() => console.error('Failed to fetch payment data.'));
+
+
+    
+
+
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  fetchAndRenderChart();
+
+  document.getElementById('filterButton').addEventListener('click', function () {
+    const start = document.getElementById('startDate').value;
+    const end = document.getElementById('endDate').value;
+    const group = document.getElementById('groupBy').value;
+    fetchAndRenderChart(start, end, group);
+  });
+});
+</script>
+
 	
 @endpush

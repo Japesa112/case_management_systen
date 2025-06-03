@@ -79,6 +79,16 @@
                                     </select>
                                     
                                 </div>
+
+                                <div class="form-group mt-2">
+                                    <label for="payment_status">Payment Status <span class="text-danger">*</span></label>
+                                    <select name="payment_status" id="payment_status" class="form-control" required>
+                                        <option value="">Select Payment Status</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="completed">Completed</option>
+                                    </select>
+                                    
+                                </div>
                                <!-- Payer Type -->
                                 <div class="form-group mt-2">
                                     <label for="payer_type">Payee (Payment Recipient) <span class="text-danger">*</span></label>
@@ -103,7 +113,7 @@
                                     <select name="payee_id" id="complainant_id" class="form-control">
                                         <option value="">Select Complainant</option>
                                         @foreach ($complainants as $complainant)
-                                            <option value="{{ $complainant->Complainant_id }}">{{ $complainant->complainant_name." ".$complainant->phone}}</option>
+                                            <option value="{{ $complainant->Complainant_id }}">{{ $complainant->complainant_name."-:".$complainant->phone}}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -274,21 +284,28 @@
    
 
    <script>
-    $(document).ready(function () {
-        $('#payee').on('change', function () {
-            const type = $(this).val();
-            $('#complainant_select_group, #lawyer_select_group').addClass('d-none');
-            $('#complainant_id, #lawyer_id').prop('disabled', true);
+  $(document).ready(function () {
+    $('#payee').on('change', function () {
+        let selected = $(this).val();
 
-            if (type === 'complainant') {
-                $('#complainant_select_group').removeClass('d-none');
-                $('#complainant_id').prop('disabled', false);
-            } else if (type === 'lawyer') {
-                $('#lawyer_select_group').removeClass('d-none');
-                $('#lawyer_id').prop('disabled', false);
-            }
-        });
+        // Hide both and remove name
+        $('#complainant_select_group').addClass('d-none');
+        $('#lawyer_select_group').addClass('d-none');
+
+        $('#complainant_id').removeAttr('name');
+        $('#lawyer_id').removeAttr('name');
+
+        // Show appropriate and add name="payee_id"
+        if (selected === 'complainant') {
+            $('#complainant_select_group').removeClass('d-none');
+            $('#complainant_id').attr('name', 'payee_id');
+        } else if (selected === 'lawyer') {
+            $('#lawyer_select_group').removeClass('d-none');
+            $('#lawyer_id').attr('name', 'payee_id');
+        }
     });
+});
+
 </script>
  
     

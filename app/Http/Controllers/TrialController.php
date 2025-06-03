@@ -21,8 +21,12 @@ class TrialController extends Controller
 
     public function index()
     {
-        $trials = Trial::with('case')->get();
-        return view('trials.index', compact('trials'));
+       $trials = Trial::with('case')
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    return view('trials.index', compact('trials'));
+
     }
 
     /**

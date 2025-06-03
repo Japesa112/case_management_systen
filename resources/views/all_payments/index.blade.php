@@ -135,6 +135,7 @@
                         <tr>
                             <th>ID</th>
                             <th>Case Name</th>
+                            <th>Recipient</th>
                             <th>Amount Paid</th>
                             <th>Payment Method</th>
                             <th>Payment Date</th>
@@ -156,6 +157,34 @@
                                     <span class="text-muted">N/A</span>
                                 @endif
                                  </td>
+                               @php
+                                switch ($payment->payee) {
+                                    case 'lawyer':
+                                        $payeeName = $payment->lawyer && $payment->lawyer->user
+                                            ? $payment->lawyer->user->full_name . ' - ' . $payment->lawyer->license_number
+                                            : 'Lawyer';
+                                        break;
+
+                                    case 'complainant':
+                                        $payeeName = $payment->complainant
+                                            ? $payment->complainant->complainant_name.":"." Complainant"
+                                            : 'Complainant';
+                                        break;
+
+                                    case 'kenyatta_university':
+                                        $payeeName = 'Kenyatta University';
+                                        break;
+
+                                    case 'other':
+                                        $payeeName = 'Other';
+                                        break;
+
+                                    default:
+                                        $payeeName = 'Unknown';
+                                }
+                            @endphp
+
+                            <td class="text-center">{{ $payeeName }}</td>
 
                                 <td class="text-center">{{ $payment->amount_paid }}</td>
                                 <td class="text-center">{{ $payment->payment_method }}</td>
@@ -260,6 +289,16 @@
                                 <label for="amount_paid">Amount Paid <span class="text-danger">*</span></label>
                                 <input type="number" name="amount_paid" id="edit_amount_paid" class="form-control" required>
                             </div>
+
+                             <div class="form-group mt-2">
+                                    <label for="payment_status">Payment Status <span class="text-danger">*</span></label>
+                                    <select name="payment_status" id="edit_payment_status" class="form-control" required>
+                                        <option value="">Select Payment Status</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="completed">Completed</option>
+                                    </select>
+                                    
+                             </div>
                 
                             <div class="form-group mt-2">
                                 <label for="payment_method">Payment Method <span class="text-danger">*</span></label>
@@ -291,6 +330,9 @@
 
                             
                             <div class="col-md-6">
+
+                                <input type="hidden" name="payee_id" id="payee_id_hidden">
+
 
                                 <!-- Complainant Select -->
                             <div class="form-group mt-2 d-none" id="complainant_select_group">
@@ -456,6 +498,7 @@
                                 <strong>Transaction ID:</strong> ${payment.transaction ?? 'N/A'}<br>
                             </div>
                             <div class="col-md-6">
+                              <strong>Payment Status:</strong> ${payment.payment_status ?? 'N/A'}<br> 
                                 <strong>Payment To:</strong> ${recipient_name ?? 'N/A'}<br>
                                 <strong>Created At:</strong> ${payment.created_at ?? 'N/A'}<br>
                                 <strong>Updated At:</strong> ${payment.updated_at ?? 'N/A'}<br>
@@ -516,6 +559,7 @@
 
                     // Set the select value
                     $('#edit_payment_method').val(payment.payment_method);
+                      $('#edit_payment_status').val(payment.payment_status);
 
                 $('#edit_auctioneer_involvement').val(payment.auctioneer_involvement);
                 $('#edit_payment_date').val(formattedDateTime);
@@ -779,30 +823,28 @@ $(document).ready(function () {
 $(document).ready(function () {
     $('#payee').on('change', function () {
         let selected = $(this).val();
-        let case_id = $('#case_id').val(); // Assuming it's already filled and not disabled in JS context
-        
-        // Hide all select groups initially
+        let case_id = $('#case_id').val(); // Ensure case_id is valid
+
+        // Hide and reset both select groups
         $('#complainant_select_group').addClass('d-none');
         $('#lawyer_select_group').addClass('d-none');
 
-        // Clear select options
-        $('#complainant_id').empty().append('<option value="">Select Complainant</option>');
-        $('#lawyer_id').empty().append('<option value="">Select Lawyer</option>');
+        // Clear and remove name attributes
+        $('#complainant_id').empty().append('<option value="">Select Complainant</option>').removeAttr('name');
+        $('#lawyer_id').empty().append('<option value="">Select Lawyer</option>').removeAttr('name');
 
         if (selected === 'complainant') {
-
-          
-            // Show and fetch complainants
             $('#complainant_select_group').removeClass('d-none');
+            $('#complainant_id').attr('name', 'payee_id');
 
             $.ajax({
                 url: '/cases/' + case_id + '/available-complainants',
                 type: 'GET',
                 success: function (response) {
                     $.each(response, function (index, complainant) {
-                        
                         $('#complainant_id').append(
-                            `<option value="${complainant.id}">${complainant.complainant_name} - ${complainant.phone}
+                            `<option value="${complainant.Complainant_id}">
+                                ${complainant.complainant_name} - ${complainant.phone}
                             </option>`
                         );
                     });
@@ -813,10 +855,8 @@ $(document).ready(function () {
             });
 
         } else if (selected === 'lawyer') {
-
-            alert("Lawyer selected");
-            // Show and fetch lawyers
             $('#lawyer_select_group').removeClass('d-none');
+            $('#lawyer_id').attr('name', 'payee_id');
 
             $.ajax({
                 url: '/cases/' + case_id + '/all-available-lawyers',
@@ -824,7 +864,9 @@ $(document).ready(function () {
                 success: function (response) {
                     $.each(response, function (index, lawyer) {
                         $('#lawyer_id').append(
-                            `<option value="${lawyer.lawyer_id}">${lawyer.display_name || lawyer.user?.full_name}</option>`
+                            `<option value="${lawyer.lawyer_id}">
+                                ${lawyer.display_name || lawyer.user?.full_name}
+                            </option>`
                         );
                     });
                 },
@@ -835,6 +877,7 @@ $(document).ready(function () {
         }
     });
 });
+
 </script>
 
 

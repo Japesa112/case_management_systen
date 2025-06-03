@@ -16,11 +16,12 @@ class UserController extends Controller
      */
 
      
-    public function index()
-    {
-        $users = User::paginate(10);;
-        return view('users.index', compact('users'));
-    }
+   public function index()
+{
+    $users = User::orderBy('created_at', 'desc')->paginate(10);
+    return view('users.index', compact('users'));
+}
+
 
     /**
      * Show the form for creating a new user.

@@ -21,8 +21,12 @@ class CaseClosureController extends Controller
 
     public function index()
     {
-        $closedCases = CaseClosure::with('case')->get();
+       $closedCases = CaseClosure::with('case')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return view('closed_cases.index', compact('closedCases'));
+
     }
 
     /**

@@ -654,7 +654,7 @@ public function getComplainants(Request $request)
     $complainants = Complainant::all()
         ->map(function ($complainant) {
             return [
-                'id' => $complainant->Complainant_id,
+                'Complainant_id' => $complainant->Complainant_id,
                 'complainant_name' => $complainant->complainant_name,
                 'email' => $complainant->email,
                 'phone' => $complainant->phone,

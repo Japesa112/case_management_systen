@@ -20,10 +20,14 @@ class WitnessController extends Controller
     }
 
     public function index()
-    {
-        $witnesses = Witness::with('attachments')->get();
-        return view('witnesses.index', compact('witnesses'));
-    }
+{
+    $witnesses = Witness::with('attachments')
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    return view('witnesses.index', compact('witnesses'));
+}
+
 
     // Show form to create a new witness
     public function create($case_id) {

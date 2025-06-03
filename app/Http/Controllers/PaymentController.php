@@ -10,6 +10,8 @@ use App\Models\Lawyer;
 use App\Models\Complainant;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
 
 class PaymentController extends Controller
 {
@@ -22,11 +24,24 @@ class PaymentController extends Controller
         $this->middleware('auth'); // Applies to all methods in the controller
     }
 
-    public function index()
-    {
-        $payments = Payment::with('attachments')->get();
-        return view('all_payments.index', compact('payments'));
+ public function index(Request $request)
+{
+    $filter = $request->query('filter');
+
+    $query = Payment::with(['attachments', 'lawyer.user', 'complainant']);
+
+    if ($filter === 'overdue') {
+        $query->where('payment_status', '!=', 'completed')
+              ->whereDate('due_date', '<', now());
+    } elseif ($filter === 'kenyatta_university') {
+        $query->where('payee', 'kenyatta_university');
     }
+
+    $payments = $query->get();
+
+    return view('all_payments.index', compact('payments'));
+}
+
 
     /**
      * Show the form for creating a new payment.
@@ -62,6 +77,7 @@ class PaymentController extends Controller
                         'payee_id' => 'nullable|integer', // Will be validated conditionally below
                         'amount_paid' => 'required|numeric',
                         'payment_method' => 'required|string',
+                         'payment_status' => 'required|string',
                         'transaction' => 'nullable|string',
                         'payment_date' => 'required|date_format:Y-m-d\TH:i',
                         'due_date' => 'required|date_format:Y-m-d\TH:i',
@@ -173,10 +189,13 @@ class PaymentController extends Controller
                         'amount_paid' => 'required|numeric',
                         'payment_method' => 'required|string',
                         'transaction' => 'nullable|string',
+                        'payment_status' => 'required|string',
                         'payment_date' => 'required|date_format:Y-m-d\TH:i',
                         'due_date' => 'required|date_format:Y-m-d\TH:i',
                         'auctioneer_involvement' => 'nullable|string'
         ]);
+
+        Log::info("The payee_id is: ".$request->payee_id);
 
         $dateTime = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->payment_date);
         $validatedData['payment_date'] = $dateTime->toDateString();
@@ -291,6 +310,161 @@ class PaymentController extends Controller
 
         
     }
+
+
+
+
+        public function getPaymentStats()
+        {
+            $now = Carbon::now();
+
+            // Total amount paid (all completed payments)
+            $totalPayments = Payment::where('payment_status', 'completed')->sum('amount_paid');
+
+            // Total paid to Kenyatta University
+            $universityPayments = Payment::where('payment_status', 'completed')
+                ->where('payee', 'kenyatta_university')
+                ->sum('amount_paid');
+
+            // Overdue payments: pending and due date passed
+            $overduePayments = Payment::where('payment_status', 'pending')
+                ->whereDate('due_date', '<', $now)
+                ->count();
+
+            // Pie chart data
+            $paymentToLawyers = Payment::where('payment_status', 'completed')
+                ->where('payee', 'lawyer')
+                ->sum('amount_paid');
+
+            $paymentToComplainants = Payment::where('payment_status', 'completed')
+                ->where('payee', 'complainant')
+
+                ->sum('amount_paid');
+
+            $paymentToOthers = Payment::where('payment_status', 'completed')
+                ->where('payee', 'other')
+                ->sum('amount_paid');
+
+            return response()->json([
+                'totalPayments' => number_format($totalPayments, 2),
+                'universityPayments' => number_format($universityPayments, 2),
+                'overduePayments' => $overduePayments,
+                'chartData' => [
+                    'lawyers' => $paymentToLawyers,
+                    'complainants' => $paymentToComplainants,
+                    'others' => $paymentToOthers,
+                ]
+            ]);
+        }
+
+public function getPaymentDates(Request $request)
+{
+    $start = $request->query('start');
+    $end   = $request->query('end');
+    $group = $request->query('groupBy', 'daily');
+
+    $q = Payment::where('payment_status', 'completed');
+
+    if ($start) $q->whereDate('payment_date', '>=', $start);
+    if ($end)   $q->whereDate('payment_date', '<=', $end);
+
+    $payments = $q->get();
+
+    // group & sum
+    $grouped = $payments
+        ->groupBy(function($p) use ($group) {
+            $d = \Carbon\Carbon::parse($p->payment_date);
+            return match($group) {
+                'weekly'  => $d->startOfWeek()->format('Y-m-d') . ' – ' . $d->endOfWeek()->format('Y-m-d'),
+                'monthly' => $d->format('F Y'),
+                default   => $d->format('Y-m-d'),
+            };
+        })
+        ->map(function($group) {
+            // sum up amount_paid (cast to float)
+            return $group->sum(fn($p)=>(float)$p->amount_paid);
+        });
+
+    return response()->json([
+        'labels'  => $grouped->keys()->all(),
+        'amounts' => $grouped->values()->all(),
+    ]);
+}
+
+
+
+
+public function getPaymentsByDate(Request $request)
+{
+    
+
+     try {
+        $startDate = $request->input('startDate');
+        $endDate = $request->input('endDate');
+        $singleDate = $request->input('date'); // fallback for single date
+
+        $query = Payment::query()->with(['lawyer.user', 'complainant', 'case']);
+
+        if ($startDate && $endDate) {
+            // Filter between start and end date
+            $query->whereBetween('payment_date', [$startDate, $endDate]);
+        } elseif ($singleDate) {
+            // Filter by a single date
+            $query->whereDate('payment_date', $singleDate);
+        } else {
+            // No filter - optional: return empty or all (up to you)
+            return response()->json([]);
+        }
+
+        $payments = $query->get();
+
+        $data = $payments->map(function ($payment) {
+            $payeeName = 'Unknown';
+
+            switch ($payment->payee) {
+                case 'lawyer':
+                    $payeeName = $payment->lawyer && $payment->lawyer->user
+                        ? $payment->lawyer->user->full_name . " - " . $payment->lawyer->license_number
+                        : 'Lawyer';
+                    break;
+
+                case 'complainant':
+                    $payeeName = $payment->complainant
+                        ? $payment->complainant->complainant_name
+                        : 'Complainant';
+                    break;
+
+                case 'kenyatta_university':
+                    $payeeName = 'Kenyatta University';
+                    break;
+
+                case 'other':
+                    $payeeName = 'Other';
+                    break;
+            }
+
+            return [
+                'case_name' => $payment->case ? $payment->case->case_name : 'N/A',
+                'payee' => $payeeName,
+                'amount_paid' => $payment->amount_paid,
+                'payment_method' => $payment->payment_method,
+                'payment_status' => $payment->payment_status,
+                'payment_date' => $payment->payment_date,
+            ];
+        });
+
+        return response()->json($data);
+
+    } catch (\Exception $e) {
+        Log::error('Error in getPaymentsByDateRange: ' . $e->getMessage(), [
+            'stack' => $e->getTraceAsString()
+        ]);
+
+        return response()->json(['error' => 'Failed to fetch payments'], 500);
+    }
+
+
+}
 
 
 }

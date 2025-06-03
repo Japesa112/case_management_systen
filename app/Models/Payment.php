@@ -12,9 +12,9 @@ class Payment extends Model
     protected $primaryKey = 'payment_id';
 
     protected $fillable = [
-         'case_id',
-        'payee',            // e.g., 'complainant', 'lawyer', 'kenyatta_university', 'other'
-        'payee_id',         // nullable, used only if payee is 'complainant' or 'lawyer'
+        'case_id',
+        'payee',
+        'payee_id',
         'amount_paid',
         'payment_method',
         'transaction',
@@ -22,6 +22,7 @@ class Payment extends Model
         'payment_time',
         'due_date',
         'due_time',
+        'payment_status',
         'auctioneer_involvement',
     ];
 
@@ -29,6 +30,7 @@ class Payment extends Model
     {
         return $this->hasMany(PaymentAttachment::class, 'payment_id');
     }
+
     public function case()
     {
         return $this->belongsTo(CaseModel::class, 'case_id');
@@ -36,11 +38,12 @@ class Payment extends Model
 
     public function complainant()
     {
-        return $this->belongsTo(Complainant::class, 'payee_id')->where('payee', 'complainant');
+        return $this->belongsTo(Complainant::class, 'payee_id');
     }
 
     public function lawyer()
     {
-        return $this->belongsTo(Lawyer::class, 'payee_id')->where('payee', 'lawyer');
+        return $this->belongsTo(Lawyer::class, 'payee_id');
     }
 }
+

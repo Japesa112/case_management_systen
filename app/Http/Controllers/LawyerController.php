@@ -122,8 +122,10 @@ public function getCasesAwaitingAction()
 
     public function index()
     {
-        $lawyers = Lawyer::paginate(10); // Instead of get(), use paginate()
-        return view('lawyers.index', compact('lawyers')); // Direct to lawyers listing page
+        $lawyers = Lawyer::orderBy('created_at', 'desc')->paginate(10);
+
+        return view('lawyers.index', compact('lawyers'));
+
     }
 
     public function dashboard()

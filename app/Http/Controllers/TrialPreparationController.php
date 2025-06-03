@@ -21,8 +21,12 @@ class TrialPreparationController extends Controller
 
     public function index()
     {
-        $trialPreparations = TrialPreparation::with(['case', 'lawyer'])->get();
+        $trialPreparations = TrialPreparation::with(['case', 'lawyer'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return view('preparations.index', compact('trialPreparations'));
+
     }
 
     /**

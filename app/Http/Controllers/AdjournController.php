@@ -21,8 +21,12 @@ class AdjournController extends Controller
 
     public function index()
     {
-        $adjourns = Adjourn::with('attachments')->get();
+      $adjourns = Adjourn::with('attachments')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return view('adjourns.index', compact('adjourns'));
+
     }
 
     public function create($case_id) {

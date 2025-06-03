@@ -20,9 +20,12 @@ class ForwardingController extends Controller
 
     public function index()
     {
-        $forwardings = Forwarding::with(['case', 'lawyer'])->get();
-        
+        $forwardings = Forwarding::with(['case', 'lawyer'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return view('dvc_appointments.index', compact('forwardings'));
+
     }
     public function create($case_id, $evaluation_id)
     {

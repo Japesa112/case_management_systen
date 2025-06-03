@@ -72,6 +72,11 @@ Route::get('/auth/google/callback', [LoginController::class, 'handleGoogleCallba
 
 Route::get('/dashboard/lawyer', [LawyerController::class, 'dashboard'])->name('dashboard-v2-lawyer');
 
+Route::get('/dashboard/payment-stats', [PaymentController::class, 'getPaymentStats']);
+Route::get('/dashboard/payment-dates', [PaymentController::class, 'getPaymentDates']);
+Route::get('/dashboard/payments/by-date', [PaymentController::class, 'getPaymentsByDate']);
+
+
 
 Route::get('/dashboard/v1', 'MainController@dashboardV1')->name('dashboard-v1');
 Route::get('/dashboard/v2', 'MainController@dashboardV2')->name('dashboard-v2');

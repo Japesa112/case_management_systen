@@ -23,7 +23,7 @@ class PanelEvaluationController extends Controller
 
     if ($isLawyer) {
         // Get the lawyer_id from the authenticated user
-        $lawyerId = $user->lawyer ? $user->lawyer->lawyer_id : null;
+        $lawyerId = $user->user_id;
 
         if ($lawyerId) {
             // Fetch evaluations for the logged-in lawyer

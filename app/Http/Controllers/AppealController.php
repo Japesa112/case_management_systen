@@ -18,8 +18,12 @@ class AppealController extends Controller
 
     public function index()
     {
-        $appeals = Appeal::with(['case', 'attachments'])->get();
-        return view('appeals.index', compact('appeals'));
+       $appeals = Appeal::with(['case', 'attachments'])
+    ->orderBy('created_at', 'desc')
+    ->get();
+
+    return view('appeals.index', compact('appeals'));
+
 
     }
 
