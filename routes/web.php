@@ -35,7 +35,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\CaseClosureController;
 use \App\Http\Controllers\ForwardingController;
 use \App\Http\Controllers\DvcAppointmentController;
-;
+use App\Http\Controllers\PreTrialController;
 use App\Http\Controllers\AGAdviceController;
 use Illuminate\Support\Facades\Log;
 
@@ -550,4 +550,11 @@ Route::prefix('dvc')->group(function () {
 
 
 
+});
+
+
+Route::prefix('pretrials')->group(function () {
+   Route::get('/{case_id}', [PreTrialController::class, 'index'])->name('pretrials.index');   
+    Route::post('/store', [PreTrialController::class, 'store'])->name('pretrials.store');      
+    Route::get('/{id}', [PreTrialController::class, 'show']);     // GET single pretrial by ID
 });

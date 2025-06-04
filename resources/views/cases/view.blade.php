@@ -459,6 +459,17 @@
 
                             
                         </div>
+
+                          <div class="col-md-6 mb-2">
+
+                           <a href="{{ route('pretrials.index', $case->case_id) }}" class="btn btn-info btn-sm w-100 text-start text-truncate" title="PreTrials">
+                                PreTrials
+                            </a>
+
+
+                                                        
+                        </div>
+
                     </div>
                 </div>
                 <!-- END tab-pane -->
