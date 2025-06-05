@@ -22,8 +22,11 @@ class PreTrialAttachment extends Model
     public $timestamps = true;
 
     // Relationships
-    public function preTrial()
-    {
-        return $this->belongsTo(PreTrial::class, 'pretrial_id');
-    }
+    
+
+    public function pretrial()
+{
+    return $this->belongsTo(PreTrial::class, 'pretrial_id', 'pretrial_id');
+}
+
 }

@@ -31,7 +31,8 @@ class PreTrial extends Model
     }
 
     public function attachments()
-    {
-        return $this->hasMany(PreTrialAttachment::class, 'pretrial_id');
-    }
+{
+    return $this->hasMany(PreTrialAttachment::class, 'pretrial_id', 'pretrial_id');
+}
+
 }

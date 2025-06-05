@@ -305,5 +305,18 @@ public function uploadAttachment(Request $request)
    
 }
 
+public function getWitnesses()
+{
+    $witnesses = Witness::all()->map(function ($witness) {
+        return [
+            'witness_id' => $witness->witness_id,
+            'display_name' => $witness->witness_name . ' (' . $witness->phone . ')',
+        ];
+    });
+
+    return response()->json($witnesses);
+}
+
+
     
 }

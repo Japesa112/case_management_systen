@@ -420,6 +420,9 @@ Route::prefix('appeals')->group(function () {
     Route::put('/update/{witness}', [WitnessController::class, 'update'])->name('witnesses.update');
     Route::post('/uploadAttachment', [WitnessController::class, 'uploadAttachment'])->name('witnesses.uploadAttachment');
 
+    Route::get('/all-available-witnesses', [WitnessController::class, 'getWitnesses']);
+
+
  });
 
 
@@ -554,7 +557,18 @@ Route::prefix('dvc')->group(function () {
 
 
 Route::prefix('pretrials')->group(function () {
-   Route::get('/{case_id}', [PreTrialController::class, 'index'])->name('pretrials.index');   
+   Route::get('/{case_id}', [PreTrialController::class, 'index'])->name('pretrials.index');  
+   Route::get('/', [PreTrialController::class, 'all'])->name('pretrials.all');   
     Route::post('/store', [PreTrialController::class, 'store'])->name('pretrials.store');      
     Route::get('/{id}', [PreTrialController::class, 'show']);     // GET single pretrial by ID
+
+Route::post('/members/delete-by-name', [PreTrialController::class, 'deleteByName']);
+Route::delete('/attachments/delete/{attachmentId}', [PreTrialController::class, 'destroyDocument'])->name('pretrials.attachments.delete');
+
+
+Route::post('/{pretrial_id}/attachments', [PreTrialController::class, 'addAttachment']);
+Route::post('/{pretrial}/members', [PreTrialController::class, 'storeMembers']);
+Route::put('/{pretrial}', [PreTrialController::class, 'update'])->name('pretrials.update');
+
+
 });
