@@ -57,5 +57,6 @@ class Kernel extends HttpKernel
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'block-lawyer' => \App\Http\Middleware\BlockLawyerAccess::class,
+        'block-lawyer-from-users' => \App\Http\Middleware\BlockLawyerFromUsers::class,
     ];
 }

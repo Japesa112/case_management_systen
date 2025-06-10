@@ -63,7 +63,7 @@ return [
 		],
 		[
 			'icon' => 'fa-solid fa-balance-scale', // Case-related icon
-			'title' => 'Panel Evaluation',
+			'title' => 'Offers',
 			'url' => '/evaluations',
 			
 			'route-prefix' => 'evaluations.',
@@ -184,7 +184,7 @@ return [
 		
 		[
             'icon' => 'fa fa-calendar-alt',
-            'title' => 'Calender',
+            'title' => 'Calendar',
             'url' => '/calendar',
 		    'route-name' => 'calendar'
         ],

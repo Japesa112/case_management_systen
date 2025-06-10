@@ -14,6 +14,8 @@ use App\Models\Lawyer;
 use App\User;
 use App\Models\PanelEvaluation;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Auth;
+
 
 class DvcAppointmentController extends Controller
 {
@@ -26,13 +28,20 @@ class DvcAppointmentController extends Controller
         $this->middleware(['auth', 'block-lawyer']); // Applies to all methods in the controller
     }
     
-    public function index()
+   public function index()
     {
-        //
-        $appointments = DvcAppointment::orderBy('created_at', 'desc')
-            ->get();
+        $user = Auth::user();
+
+        // Block access for lawyers entirely
+        if ($user && $user->role === 'Lawyer') {
+            abort(403, 'Unauthorized access. Lawyers cannot view this page.');
+        }
+
+        $appointments = DvcAppointment::orderBy('created_at', 'desc')->get();
+
         return view('dvc.index', compact('appointments'));
     }
+
 
     /**
      * Show the form for creating a new resource.

@@ -12,7 +12,9 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 
+use App\Models\CaseLawyer;
 class PaymentController extends Controller
 {
     /**
@@ -21,27 +23,38 @@ class PaymentController extends Controller
 
      public function __construct()
     {
-        $this->middleware('auth'); // Applies to all methods in the controller
+        $this->middleware(['auth', 'block-lawyer'])->except(['getPaymentsByDate','getPaymentStats','getPaymentDates']); // Applies to all methods in the controller
     }
 
- public function index(Request $request)
-{
-    $filter = $request->query('filter');
+    public function index(Request $request)
+    {
+        $filter = $request->query('filter');
+        $user = Auth::user();
 
-    $query = Payment::with(['attachments', 'lawyer.user', 'complainant']);
+        $query = Payment::with(['attachments', 'lawyer.user', 'complainant']);
 
-    if ($filter === 'overdue') {
-        $query->where('payment_status', '!=', 'completed')
-              ->whereDate('due_date', '<', now());
-    } elseif ($filter === 'kenyatta_university') {
-        $query->where('payee', 'kenyatta_university');
+        // If user is a lawyer, limit to their assigned cases
+        if ($user && $user->role === 'Lawyer') {
+            $lawyerId = $user->lawyer->lawyer_id ?? null;
+
+            // Get all case_ids assigned to this lawyer
+            $caseIds = CaseLawyer::where('lawyer_id', $lawyerId)->pluck('case_id');
+
+            $query->whereIn('case_id', $caseIds);
+        }
+
+        // Apply optional filters
+        if ($filter === 'overdue') {
+            $query->where('payment_status', '!=', 'completed')
+                  ->whereDate('due_date', '<', now());
+        } elseif ($filter === 'kenyatta_university') {
+            $query->where('payee', 'kenyatta_university');
+        }
+
+        $payments = $query->get();
+
+        return view('all_payments.index', compact('payments'));
     }
-
-    $payments = $query->get();
-
-    return view('all_payments.index', compact('payments'));
-}
-
 
     /**
      * Show the form for creating a new payment.
@@ -78,6 +91,7 @@ class PaymentController extends Controller
                         'amount_paid' => 'required|numeric',
                         'payment_method' => 'required|string',
                          'payment_status' => 'required|string',
+                         'payment_type'=> 'nullable|string',
                         'transaction' => 'nullable|string',
                         'payment_date' => 'required|date_format:Y-m-d\TH:i',
                         'due_date' => 'required|date_format:Y-m-d\TH:i',
@@ -190,6 +204,7 @@ class PaymentController extends Controller
                         'payment_method' => 'required|string',
                         'transaction' => 'nullable|string',
                         'payment_status' => 'required|string',
+                         'payment_type'=> 'required|string',
                         'payment_date' => 'required|date_format:Y-m-d\TH:i',
                         'due_date' => 'required|date_format:Y-m-d\TH:i',
                         'auctioneer_involvement' => 'nullable|string'

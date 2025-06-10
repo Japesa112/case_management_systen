@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Log;
 use App\Models\AppealAttachment;
 use Illuminate\Support\Facades\Storage;
 use App\Models\CaseModel;
+use Illuminate\Support\Facades\Auth;
+
 class AppealController extends Controller
 {
 
@@ -18,14 +20,29 @@ class AppealController extends Controller
 
     public function index()
     {
-       $appeals = Appeal::with(['case', 'attachments'])
-    ->orderBy('created_at', 'desc')
-    ->get();
+        $user = Auth::user();
 
-    return view('appeals.index', compact('appeals'));
+        if ($user && $user->role === 'Lawyer') {
+            $lawyerId = $user->lawyer->lawyer_id ?? null;
 
+            // Get case_ids assigned to this lawyer
+            $caseIds = \App\Models\CaseLawyer::where('lawyer_id', $lawyerId)->pluck('case_id');
 
+            // Filter appeals for those cases
+            $appeals = \App\Models\Appeal::with(['case', 'attachments'])
+                ->whereIn('case_id', $caseIds)
+                ->orderBy('created_at', 'desc')
+                ->get();
+        } else {
+            // Non-lawyers see all appeals
+            $appeals = \App\Models\Appeal::with(['case', 'attachments'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
+
+        return view('appeals.index', compact('appeals'));
     }
+
 
     
         public function create($case_id) {

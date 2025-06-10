@@ -14,6 +14,7 @@ use App\Models\CaseClosure;
 use App\Models\PanelEvaluation;
 use App\Models\DvcAppointment;
 
+
 class LawyerController extends Controller
 {
     /**
@@ -22,7 +23,7 @@ class LawyerController extends Controller
 
      public function __construct()
     {
-        $this->middleware('auth'); // Applies to all methods in the controller
+        $this->middleware(['auth', 'block-lawyer']); // Applies to all methods in the controller
     }
 
 public function getCasesAwaitingEvaluationStats()
@@ -121,12 +122,18 @@ public function getCasesAwaitingAction()
 }
 
     public function index()
-    {
-        $lawyers = Lawyer::orderBy('created_at', 'desc')->paginate(10);
+{
+    $user = Auth::user();
 
-        return view('lawyers.index', compact('lawyers'));
-
+    // Restrict lawyers from viewing the list
+    if ($user && $user->role === 'Lawyer') {
+        abort(403, 'Unauthorized access. Lawyers are not allowed to view the list of lawyers.');
     }
+
+    $lawyers = Lawyer::orderBy('created_at', 'desc')->paginate(10);
+
+    return view('lawyers.index', compact('lawyers'));
+}
 
     public function dashboard()
     {
@@ -175,7 +182,14 @@ public function getCasesAwaitingAction()
      */
     public function create()
     {
-        return view('lawyers.create'); // Direct to add lawyer form
+        $user = Auth::user();
+
+        // Restrict access for lawyers
+        if ($user && $user->role === 'Lawyer') {
+            abort(403, 'Unauthorized access. Lawyers are not allowed to add new lawyers.');
+        }
+
+        return view('lawyers.create');
     }
 
     /**
@@ -204,9 +218,20 @@ public function getCasesAwaitingAction()
      */
     public function edit(Lawyer $lawyer)
     {
-        
-        return view('lawyers.edit', ['lawyer'=> $lawyer]);
+        $user = Auth::user();
+
+        // If the user is a lawyer, ensure they can only edit their own record
+        if ($user && $user->role === 'Lawyer') {
+            $authenticatedLawyerId = $user->lawyer->lawyer_id ?? null;
+
+            if ($authenticatedLawyerId !== $lawyer->lawyer_id) {
+                abort(403, 'Unauthorized access. You can only edit your own profile.');
+            }
+        }
+
+        return view('lawyers.edit', ['lawyer' => $lawyer]);
     }
+
 
     /**
      * Update a lawyer’s details.

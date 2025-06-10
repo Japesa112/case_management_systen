@@ -22,7 +22,7 @@ return [
         ],
         [
             'icon' => 'fa-solid fa-balance-scale',
-            'title' => 'My Evaluated Cases',
+            'title' => 'My Submitted Offers',
             'url' => '/evaluations',
             'route-name' => 'evaluations.index'
         ],

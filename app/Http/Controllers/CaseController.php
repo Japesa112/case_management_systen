@@ -46,14 +46,15 @@ class CaseController extends Controller
     public function __construct()
     {
         $this->middleware('auth'); // Applies to all methods in the controller
-        $this->middleware('block-lawyer')->except(['index', 'show', 'getEventsCase', 'getCalenderEvents']);
+        $this->middleware('block-lawyer')->except(['index', 'show', 'getEventsCase', 'getCalenderEvents', 'getHandledBy']);
     }
 
 
 
 public function index(Request $request)
 {
-    $query = CaseModel::orderBy('created_at', 'desc');
+    $query = $query = CaseModel::with('caseLawyers.lawyer')->orderBy('created_at', 'desc');
+
 
     // Filter active cases (not closed by status)
     if ($request->has('status') && $request->status === 'active') {
@@ -2483,7 +2484,25 @@ try {
     }
 
 
+        
+
+
 }
+
+public function getHandledBy($id)
+        {
+            $lawyers = CaseLawyer::with('lawyer')
+                ->where('case_id', $id)
+                ->get()
+                ->pluck('lawyer')
+                ->filter()
+                ->map(function ($lawyer) {
+                    return $lawyer->first_name . ' ' . $lawyer->last_name;
+                })
+                ->values();
+
+            return response()->json($lawyers);
+        }
 
 
 

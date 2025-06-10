@@ -23,6 +23,7 @@ class Payment extends Model
         'due_date',
         'due_time',
         'payment_status',
+        'payment_type',
         'auctioneer_involvement',
     ];
 

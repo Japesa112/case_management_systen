@@ -105,8 +105,8 @@
     </li>
     <li class="nav-item" role="presentation">
         <a href="#nav-pills-tab-2" data-bs-toggle="tab" class="nav-link" aria-selected="false" role="tab" tabindex="-1">
-            <span class="d-sm-none">Complainant Details</span>
-            <span class="d-sm-block d-none">Complainant Details</span>
+            <span class="d-sm-none">Claimantt Details</span>
+            <span class="d-sm-block d-none">Claimant Details</span>
         </a>
     </li>
     <li class="nav-item" role="presentation">
@@ -169,6 +169,22 @@
                 <p><strong>Received Date:</strong> <span id="date_received_display">{{ $case->date_received }}</span></p>
                 <p><strong>Category:</strong> <span id="case_category_display">{{ ucfirst($case->case_category) }}</span></p>
                 <p><strong>Initial Status:</strong> <span id="initial_status_display">{{ ucfirst($case->initial_status) }}</span></p>
+
+                {{-- Appended Lawyer Information --}}
+                <p><strong>Lawyer(s) Assigned:</strong>
+                    @if(count($case->caseLawyers) == 0)
+                        <span class="text-muted">Not assigned</span>
+                    @elseif(count($case->caseLawyers) == 1)
+                        {{ $case->caseLawyers->first()->lawyer->user->full_name }}:-{{ $case->caseLawyers->first()->lawyer->license_number }}
+                    @else
+                        <ul class="list-styled mb-0">
+                            @foreach($case->caseLawyers as $caseLawyer)
+                                <li>{{ $caseLawyer->lawyer->user->full_name }}:-{{ $caseLawyer->lawyer->license_number }}</li>
+                            @endforeach
+                        </ul>
+                    @endif
+                </p>
+
                 <p class="text-muted">
                     Created at: {{ $case->created_at->format('F d, Y h:i A') }} <br>
                     Last updated: <span id="updated_at_display">{{ $case->updated_at->diffForHumans() }}</span>
@@ -177,38 +193,7 @@
 
             <!-- Right Column: Action Buttons with Vertical Line -->
             
-            @if ($isLawyer)
-            @php
-              $lawyer_id = Auth::user()->lawyer->lawyer_id;
-              $lawyer_name =  Auth::user()->full_name;
-             
-            @endphp
-            <div class="col-md-5 border-start">
-                <div class="text-center align-center items-center mt-5">
-                    <div class="mt-5">
-                       
-                    <button 
-                    id="evaluateCaseBtn"                     
-                    class="btn btn-success btn-sm w-75 mx-auto mt-4 evaluate-case" 
-                        data-case-id="{{ $case->case_id }}" 
-                        data-case-name="{{ $case->case_name }}"
-                        data-lawyer-id="{{ $lawyer_id }}" 
-                        data-lawyer-name="{{ $lawyer_name }}">
-                        Evaluate this Case
-                    </button>
-
-                    
-                    
-                    
-                    </div>
-                    
-                   
-                  
-                </div>
-            </div>
-            @else
-                
-            @endif
+            
 
              
             
@@ -251,7 +236,7 @@
                         <div class="tab-pane fade" id="nav-pills-tab-2" role="tabpanel">
                             <div class="card shadow-lg mb-4">
                 <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0">Complainant Details</h4>
+                    <h4 class="mb-0">Claimant Details</h4>
                      
                                         @if ($isLawyer)
                                             

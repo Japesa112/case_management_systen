@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\AGAdvice;
 use App\Models\CaseModel;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 class AGAdviceController extends Controller
 {
     /**
@@ -17,12 +18,31 @@ class AGAdviceController extends Controller
         $this->middleware(['auth', 'block-lawyer']); // Applies to all methods in the controller
     }
 
-    public function index()
+   public function index()
     {
-        $advices = AGAdvice::with('case', 'evaluation')->orderBy('created_at', 'asc')->get();
-        
+        $user = Auth::user();
+
+        if ($user && $user->role === 'Lawyer') {
+            $lawyerId = $user->lawyer->lawyer_id ?? null;
+
+            // Get case_ids assigned to this lawyer
+            $caseIds = \App\Models\CaseLawyer::where('lawyer_id', $lawyerId)->pluck('case_id');
+
+            // Filter AG Advice entries for those cases
+            $advices = \App\Models\AGAdvice::with('case', 'evaluation')
+                ->whereIn('case_id', $caseIds)
+                ->orderBy('created_at', 'asc')
+                ->get();
+        } else {
+            // Non-lawyers see all AG Advice entries
+            $advices = \App\Models\AGAdvice::with('case', 'evaluation')
+                ->orderBy('created_at', 'asc')
+                ->get();
+        }
+
         return view('ag_advice.index', compact('advices'));
     }
+
 
     /**
      * Show the form for creating a new AG Advice.

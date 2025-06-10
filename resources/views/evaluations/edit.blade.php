@@ -102,7 +102,7 @@
                         <div class="form-group text-center mt-4">
                             <a href="{{ route('evaluations.index') }}" class="btn btn-secondary"><i class="fa fa-arrow-left"></i> Back</a>
                      
-                            <button type="submit" class="btn btn-success"><i class="fa fa-save"></i> Update Evaluation</button>
+                            <button type="submit" class="btn btn-success" disabled><i class="fa fa-save"></i> Update Evaluation</button>
                         </div>
                     </form>
                 </div>

@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Forwarding;
 use \App\Models\CaseModel;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use App\Models\CaseLawyer;
 
 class ForwardingController extends Controller
 {
@@ -19,14 +21,20 @@ class ForwardingController extends Controller
     }
 
     public function index()
-    {
-        $forwardings = Forwarding::with(['case', 'lawyer'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+{
+    $user = Auth::user();
 
-        return view('dvc_appointments.index', compact('forwardings'));
-
+    // Block lawyers entirely from accessing this page
+    if ($user && $user->role === 'Lawyer') {
+        abort(403, 'Unauthorized access. Lawyers cannot view this page.');
     }
+
+    $forwardings = Forwarding::with(['case', 'lawyer'])
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    return view('dvc_appointments.index', compact('forwardings'));
+}
     public function create($case_id, $evaluation_id)
     {
         $case_name = null;

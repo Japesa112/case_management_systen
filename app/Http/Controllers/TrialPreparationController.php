@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\TrialPreparationAttachment;
 use Illuminate\Support\Facades\Log;
 use App\Models\CaseModel;
+use Illuminate\Support\Facades\Auth;
+use App\Models\CaseLawyer;
+
+
 class TrialPreparationController extends Controller
 {
     /**
@@ -16,19 +20,33 @@ class TrialPreparationController extends Controller
 
      public function __construct()
     {
-        $this->middleware('auth'); // Applies to all methods in the controller
+        $this->middleware(['auth', 'block-lawyer']); // Applies to all methods in the controller
     }
 
-    public function index()
+    public function index() 
     {
-        $trialPreparations = TrialPreparation::with(['case', 'lawyer'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $user = Auth::user();
+
+        if ($user && $user->role === 'Lawyer') {
+            $lawyerId = $user->lawyer->lawyer_id ?? null;
+
+            // Get all case_ids assigned to this lawyer
+            $caseIds = CaseLawyer::where('lawyer_id', $lawyerId)->pluck('case_id');
+
+            // Get trial preparations where the case_id is one of the lawyer's assigned ones
+            $trialPreparations = TrialPreparation::with(['case', 'lawyer'])
+                ->whereIn('case_id', $caseIds)
+                ->orderBy('created_at', 'desc')
+                ->get();
+        } else {
+            // For non-lawyers, show all
+            $trialPreparations = TrialPreparation::with(['case', 'lawyer'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
 
         return view('preparations.index', compact('trialPreparations'));
-
     }
-
     /**
      * Show the form for creating a new trial preparation.
      */

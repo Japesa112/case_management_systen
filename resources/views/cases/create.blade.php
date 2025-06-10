@@ -43,7 +43,7 @@
           
             <div class="nav nav-fill my-3">
                 <label class="nav-link shadow-sm step0 border mx-2">Case</label>
-                <label class="nav-link shadow-sm step1 border mx-2">Complainant Details</label>
+                <label class="nav-link shadow-sm step1 border mx-2">Claimant Details</label>
                 <label class="nav-link shadow-sm step2 border mx-2">Documents</label>
             </div>
             
@@ -64,7 +64,7 @@
         </div>
         <div class="col-md-4">
             <div class="form-group mt-3 mb-2">
-                <label for="case_number" class="control-label">Track Number</label>
+                <label for="case_number" class="control-label">Track Number/Reference Number</label>
                 <input type="text" name="track_number" class="form-control" placeholder="Enter track number" required>
             </div>
             
@@ -101,7 +101,7 @@
                 <select name="initial_status" class="form-control">
                     <option value="Under Review">Under Review</option>
                     <option value="Approved">Approved</option>
-                    <option value="Rejected">Rejected</option>
+                   
                     <option value="Needs Negotiation">Needs Negotiation</option>
                 </select>
             </div>
@@ -165,7 +165,7 @@
                     <div class="row">
     <div class="col-md-6">
         <div class="form-group mt-3 mb-2">
-            <label for="complainant_name" class="control-label">Complainant Name</label>
+            <label for="complainant_name" class="control-label">Claimant Name</label>
             <input type="text" name="complainant_name" class="form-control" placeholder="Enter complainant name" required>
         </div>
     </div>

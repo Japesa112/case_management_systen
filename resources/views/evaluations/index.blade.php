@@ -1,6 +1,6 @@
 @extends('layouts.default')
 
-@section('title', 'Evaluations List')
+@section('title', 'Offers List')
 
 @push('script')
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script> 
@@ -47,7 +47,7 @@
     @endphp
     
     <div class="mt-4">
-        <h1 class="page-header">Evaluations</h1>
+        <h1 class="page-header">Lawyers' Offers</h1>
         <div class="panel panel-inverse">
             <div class="panel-heading d-flex justify-content-between align-items-center">
                 @if ($isLawyer)
@@ -63,7 +63,7 @@
               <div class="panel-heading-btn d-flex gap-2 flex-wrap">
                 <!-- Add New Evaluation Button -->
                 <button class="btn btn-success btn-sm d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#addEvaluationModal">
-                    <i class="fa fa-plus"></i> <span>Add New Evaluation</span>
+                    <i class="fa fa-plus"></i> <span>Add New Offer</span>
                 </button>
 
                <!-- Seek AG Advice Button -->
@@ -125,7 +125,7 @@
 
                                 <td>
                                 @if($evaluation->case)
-                                    <a href="{{ route('cases.show', $evaluation->case->case_name) }}" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center" title="View Case">
+                                    <a href="{{ route('cases.show', $evaluation->case->case_id) }}" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center" title="View Case">
                                         <i class="fa fa-eye me-1"></i> {{ $evaluation->case->case_name }}
                                     </a>
                                 @else
@@ -183,12 +183,7 @@
                                         </button>
 
                                         <!-- Edit Button -->
-                                        <a href="{{ route('evaluations.edit', $evaluation) }}" 
-                                           class="btn btn-warning btn-sm d-inline-flex align-items-center gap-1" 
-                                           title="Edit Evaluation">
-                                            <i class="fa fa-edit"></i> <span>Edit</span>
-                                        </a>
-                                    </div>
+                                </div>
                                 </td>
 
                             </tr>

@@ -27,8 +27,8 @@
         box-shadow: none;
         outline: none;
         transition: border-color 0.3s ease-in-out;
-        width: 250px; /* 👈 You can increase this */
-        max-width: 100%; /* Make sure it doesn’t overflow on smaller screens */
+        width: 250px; 
+        max-width: 100%;
     }
 
     /* Optional: Highlight on focus */

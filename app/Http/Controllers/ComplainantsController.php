@@ -13,7 +13,7 @@ class ComplainantsController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth'); // Applies to all methods in the controller
+        $this->middleware(['auth', 'block-lawyer']); // Applies to all methods in the controller
     }
 
     public function index()

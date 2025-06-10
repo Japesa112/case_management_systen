@@ -8,14 +8,18 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\Lawyer;
 use Exception;
 use Illuminate\Support\Facades\Log;
-
+use Illuminate\Support\Facades\Auth;
 class UserController extends Controller
 {
     /**
      * Display a listing of the users.
      */
+public function __construct()
+    {
+        $this->middleware(['auth', 'block-lawyer','block-lawyer-from-users'])->except(['showLoginForm']); // Applies to all methods in the controller
 
-     
+        
+}     
    public function index()
 {
     $users = User::orderBy('created_at', 'desc')->paginate(10);

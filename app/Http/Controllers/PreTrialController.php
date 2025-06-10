@@ -9,14 +9,16 @@ use App\Models\PreTrialAttachment;
 use App\Models\CaseModel;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+use App\Models\CaseLawyer;
 class PreTrialController extends Controller
 {
     
 
     
-     public function __construct()
+    public function __construct()
     {
-        $this->middleware('auth'); // Applies to all methods in the controller
+        $this->middleware(['auth', 'block-lawyer']); // Applies to all methods in the controller
     }
     // Show all pre-trials
   public function index($case_id)
@@ -53,9 +55,23 @@ class PreTrialController extends Controller
             return view('pretrials.view', compact('preTrials', 'case', 'documentsByPretrial', 'membersByPretrial'));
         }
 
-        public function all()
+       public function all()
         {
-            $preTrials = PreTrial::with(['members', 'attachments', 'case'])->get();
+            $user = Auth::user();
+
+            if ($user && $user->role === 'Lawyer') {
+                $lawyerId = $user->lawyer->lawyer_id ?? null;
+
+                // Fetch only pretrials for cases the lawyer is assigned to
+                $caseIds = CaseLawyer::where('lawyer_id', $lawyerId)->pluck('case_id');
+
+                $preTrials = PreTrial::with(['members', 'attachments', 'case'])
+                    ->whereIn('case_id', $caseIds)
+                    ->get();
+            } else {
+                // Admins and others get all
+                $preTrials = PreTrial::with(['members', 'attachments', 'case'])->get();
+            }
 
             // Group documents by pretrial_id
             $documentsByPretrial = [];
@@ -82,7 +98,6 @@ class PreTrialController extends Controller
 
             return view('pretrials.index', compact('preTrials', 'documentsByPretrial', 'membersByPretrial'));
         }
-
 
 
     // Store a new pre-trial with members and attachments

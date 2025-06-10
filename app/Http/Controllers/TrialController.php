@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\TrialAttachment;
 use Illuminate\Support\Facades\Log;
 use App\Models\CaseModel;
+use Illuminate\Support\Facades\Auth;
+use App\Models\CaseLawyer;
+
 class TrialController extends Controller
 {
     /**
@@ -20,14 +23,29 @@ class TrialController extends Controller
     }
 
     public function index()
-    {
-       $trials = Trial::with('case')
-        ->orderBy('created_at', 'desc')
-        ->get();
+{
+    $user = Auth::user();
+
+    if ($user && $user->role === 'Lawyer') {
+        $lawyerId = $user->lawyer->lawyer_id ?? null;
+
+        // Get all case_ids assigned to this lawyer
+        $caseIds = CaseLawyer::where('lawyer_id', $lawyerId)->pluck('case_id');
+
+        // Get only trials related to the lawyer's cases
+        $trials = Trial::with('case')
+            ->whereIn('case_id', $caseIds)
+            ->orderBy('created_at', 'desc')
+            ->get();
+    } else {
+        // For non-lawyers, return all trials
+        $trials = Trial::with('case')
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
 
     return view('trials.index', compact('trials'));
-
-    }
+}
 
     /**
      * Show the form for creating a new trial.

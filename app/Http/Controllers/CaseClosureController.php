@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\CaseClosureAttachment;
 use Illuminate\Support\Facades\Log;
 use App\Models\CaseModel;
+use Illuminate\Support\Facades\Auth;
+
 class CaseClosureController extends Controller
 {
     /**
@@ -20,14 +22,30 @@ class CaseClosureController extends Controller
     }
 
     public function index()
-    {
-       $closedCases = CaseClosure::with('case')
+{
+    $user = Auth::user();
+
+    if ($user && $user->role === 'Lawyer') {
+        $lawyerId = $user->lawyer->lawyer_id ?? null;
+
+        // Get only case_ids assigned to this lawyer
+        $caseIds = \App\Models\CaseLawyer::where('lawyer_id', $lawyerId)->pluck('case_id');
+
+        // Fetch only closed cases for these case_ids
+        $closedCases = \App\Models\CaseClosure::with('case')
+            ->whereIn('case_id', $caseIds)
             ->orderBy('created_at', 'desc')
             ->get();
-
-        return view('closed_cases.index', compact('closedCases'));
-
+    } else {
+        // Non-lawyers see all closed cases
+        $closedCases = \App\Models\CaseClosure::with('case')
+            ->orderBy('created_at', 'desc')
+            ->get();
     }
+
+    return view('closed_cases.index', compact('closedCases'));
+}
+
 
     /**
      * Show the form for creating a new case closure.

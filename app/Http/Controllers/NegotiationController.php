@@ -7,6 +7,9 @@ use Dotenv\Util\Str;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use App\Models\CaseModel;
+use App\Models\CaseLawyer;
+use Illuminate\Support\Facades\Auth;
+
 class NegotiationController extends Controller
 {
     /**
@@ -19,11 +22,24 @@ class NegotiationController extends Controller
     }
 
     public function index()
-    {
-        $negotiations = Negotiation::with(['attachments', 'caseRecord'])->orderBy('created_at', 'desc')->get();
+{
+    $user = Auth::user();
 
-        return view('negotiations.index', compact('negotiations'));
+    $query = Negotiation::with(['attachments', 'caseRecord'])->orderBy('created_at', 'desc');
+
+    // If the user is a lawyer, restrict to their assigned case_ids
+    if ($user && $user->role === 'Lawyer') {
+        $lawyerId = $user->lawyer->lawyer_id ?? null;
+
+        $caseIds = CaseLawyer::where('lawyer_id', $lawyerId)->pluck('case_id');
+
+        $query->whereIn('case_id', $caseIds);
     }
+
+    $negotiations = $query->get();
+
+    return view('negotiations.index', compact('negotiations'));
+}
     
 
     public function create(Request $request)

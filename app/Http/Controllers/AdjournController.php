@@ -8,6 +8,7 @@ use App\Models\AdjournAttachment;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use App\Models\CaseModel;
+use Illuminate\Support\Facades\Auth;
 class AdjournController extends Controller
 {
     /**
@@ -21,13 +22,29 @@ class AdjournController extends Controller
 
     public function index()
     {
-      $adjourns = Adjourn::with('attachments')
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $user = Auth::user();
+
+        if ($user && $user->role === 'Lawyer') {
+            $lawyerId = $user->lawyer->lawyer_id ?? null;
+
+            // Get case_ids assigned to this lawyer
+            $caseIds = \App\Models\CaseLawyer::where('lawyer_id', $lawyerId)->pluck('case_id');
+
+            // Fetch only adjournments related to those cases
+            $adjourns = \App\Models\Adjourn::with('attachments')
+                ->whereIn('case_id', $caseIds)
+                ->orderBy('created_at', 'desc')
+                ->get();
+        } else {
+            // For other roles, show all adjournments
+            $adjourns = \App\Models\Adjourn::with('attachments')
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
 
         return view('adjourns.index', compact('adjourns'));
-
     }
+
 
     public function create($case_id) {
         $case_name = null;

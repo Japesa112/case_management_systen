@@ -7,7 +7,8 @@ use App\Models\Witness;
 use Illuminate\Support\Facades\Log;
 use App\Models\WitnessAttachment;
 use Illuminate\Support\Facades\Storage;
-
+use App\Models\CaseLawyer;
+use Illuminate\Support\Facades\Auth;
 class WitnessController extends Controller
 {
     // Display list of witnesses
@@ -16,17 +17,40 @@ class WitnessController extends Controller
     {
         $this->middleware(['auth', 'block-lawyer']); // Applies to all methods in the controller
 
+         $user = Auth::user();
+
+  
+
 
     }
 
-    public function index()
+ public function index()
 {
-    $witnesses = Witness::with('attachments')
-        ->orderBy('created_at', 'desc')
-        ->get();
+    $user = Auth::user();
+
+    // If the user is a lawyer, restrict witnesses to their assigned cases
+    if ($user->role === 'Lawyer') {
+        $lawyerId = $user->lawyer->lawyer_id ?? null;
+
+        // Get all case_ids assigned to this lawyer
+        $caseIds = CaseLawyer::where('lawyer_id', $lawyerId)
+            ->pluck('case_id');
+
+        // Get witnesses related to those cases only
+        $witnesses = Witness::with('attachments')
+            ->whereIn('case_id', $caseIds)
+            ->orderBy('created_at', 'desc')
+            ->get();
+    } else {
+        // For non-lawyers, show all witnesses
+        $witnesses = Witness::with('attachments')
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
 
     return view('witnesses.index', compact('witnesses'));
 }
+
 
 
     // Show form to create a new witness

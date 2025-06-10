@@ -47,6 +47,7 @@ use Illuminate\Support\Facades\Mail;
 
 
 Route::get('/', function () {
+    Log::info("Home page: ");
     if (!Auth::check()) {
         return redirect('/login/v2');
     }
@@ -286,6 +287,8 @@ Route::delete('/cases/{case_id}/remove-lawyer/{lawyer_id}', [CaseController::cla
 Route::get('/evaluations/available-cases', [CaseController::class, 'getEvaluationCases'])->name('cases.available-evaluation-cases');
 
 Route::middleware(['auth'])->prefix('cases')->group(function () {
+    Route::get('/{id}/lawyers', [CaseController::class, 'getHandledBy'])->name('cases.lawyers');
+
     Route::post('/{case_id}/submit-panel-evaluation', [CaseController::class, 'submitToPanelEvaluation'])->name('cases.submitToPanelEvaluation');
     Route::get('/{case_id}/panel-evaluation', [CaseController::class, 'showPanelEvaluation'])->name('cases.panelEvaluation');
 

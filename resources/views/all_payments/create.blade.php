@@ -13,16 +13,16 @@
 </style>
 @endpush
 
-@section('title', 'Create Payment')
+@section('title', 'Payment Evidence')
 
 @section('content')
 <div class="container-fluid">
     <div class="row mt-4" style="margin-left: 10%; margin-right: 10%;">
         <div class="col-md-12 mt-4">
-            <h1 class="page-header mt-4">Create Payment</h1>
+            <h1 class="page-header mt-4">Payment Evidence</h1>
             <div class="panel panel-inverse">
                 <div class="panel-heading">
-                    <h4 class="panel-title">Payment Form</h4>
+                    <h4 class="panel-title">Payment Evidence Form</h4>
                     <div class="panel-heading-btn">
                         <a href="javascript:;" class="btn btn-xs btn-icon btn-circle btn-default" data-click="panel-expand">
                             <i class="fa fa-expand"></i>
@@ -95,7 +95,7 @@
                                     <select name="payee" id="payee" class="form-control" required>
                                         <option value="">Select Payment From</option>
                                         <option value="kenyatta_university">Kenyatta University</option>
-                                        <option value="complainant">Complainant</option>
+                                        <option value="complainant">Claimant</option>
                                         <option value="lawyer">Lawyer</option>
                                         <option value="other">Other Payment</option>
                                     </select>
@@ -111,7 +111,7 @@
                                 <div class="form-group mt-2 d-none" id="complainant_select_group">
                                     <label for="complainant_id">Select Complainant</label>
                                     <select name="payee_id" id="complainant_id" class="form-control">
-                                        <option value="">Select Complainant</option>
+                                        <option value="">Select Claimant</option>
                                         @foreach ($complainants as $complainant)
                                             <option value="{{ $complainant->Complainant_id }}">{{ $complainant->complainant_name."-:".$complainant->phone}}</option>
                                         @endforeach
@@ -124,10 +124,21 @@
                                     <select name="payee_id" id="lawyer_id" class="form-control">
                                         <option value="">Select Lawyer</option>
                                         @foreach ($lawyers as $lawyer)
-                                            <option value="{{ $lawyer->lawyer_id }}">{{ $lawyer->user->full_name }}</option>
+                                            <option value="{{ $lawyer->lawyer_id }}">{{ $lawyer->user->full_name."-".$lawyer->license_number }}</option>
                                         @endforeach
                                     </select>
                                 </div>
+
+                                <!-- Payment Type Select (Only for Lawyer) -->
+                                <div class="form-group mt-2 d-none" id="payment_type_group">
+                                    <label for="payment_type">Payment Type <span class="text-danger">*</span></label>
+                                    <select id="payment_type" name="payment_type" class="form-control">
+                                        <option value="">Select Payment Type</option>
+                                        <option value="deposit">Deposit</option>
+                                        <option value="final">Final Payment</option>
+                                    </select>
+                                </div>
+
 
 
 
@@ -283,31 +294,86 @@
     </script>
    
 
-   <script>
-  $(document).ready(function () {
+<script>
+$(document).ready(function () {
     $('#payee').on('change', function () {
         let selected = $(this).val();
 
-        // Hide both and remove name
+        // Hide and reset all conditionally displayed fields
         $('#complainant_select_group').addClass('d-none');
         $('#lawyer_select_group').addClass('d-none');
+        $('#payment_type_group').addClass('d-none');
 
-        $('#complainant_id').removeAttr('name');
-        $('#lawyer_id').removeAttr('name');
+        $('#complainant_id').removeAttr('name').prop('required', false);
+        $('#lawyer_id').removeAttr('name').prop('required', false);
+        $('#payment_type').removeAttr('name').prop('required', false);
 
-        // Show appropriate and add name="payee_id"
+        // Show based on selection
         if (selected === 'complainant') {
             $('#complainant_select_group').removeClass('d-none');
-            $('#complainant_id').attr('name', 'payee_id');
+            $('#complainant_id').attr('name', 'payee_id').prop('required', true);
         } else if (selected === 'lawyer') {
             $('#lawyer_select_group').removeClass('d-none');
-            $('#lawyer_id').attr('name', 'payee_id');
+            $('#lawyer_id').attr('name', 'payee_id').prop('required', true);
+
+            // Show payment type for lawyer
+            $('#payment_type_group').removeClass('d-none');
+            $('#payment_type').attr('name', 'payment_type').prop('required', true);
         }
     });
 });
-
 </script>
- 
-    
+
+
+
+<script>
+$(document).ready(function () {
+    let complainantSelectInstance = null;
+    let lawyerSelectInstance = null;
+
+    $('#payee').on('change', function () {
+        let selected = $(this).val();
+
+        // Hide both groups and clean up
+        $('#complainant_select_group').addClass('d-none');
+        $('#lawyer_select_group').addClass('d-none');
+
+        $('#complainant_id').removeAttr('name').prop('required', false);
+        $('#lawyer_id').removeAttr('name').prop('required', false);
+
+        // Destroy existing TomSelect instances if they exist
+        if (complainantSelectInstance) {
+            complainantSelectInstance.destroy();
+            complainantSelectInstance = null;
+        }
+        if (lawyerSelectInstance) {
+            lawyerSelectInstance.destroy();
+            lawyerSelectInstance = null;
+        }
+
+        // Show and initialize TomSelect on the selected group
+        if (selected === 'complainant') {
+            $('#complainant_select_group').removeClass('d-none');
+            $('#complainant_id').attr('name', 'payee_id').prop('required', true);
+
+            complainantSelectInstance = new TomSelect('#complainant_id', {
+                placeholder: "Search Claimant...",
+                allowEmptyOption: true
+            });
+
+        } else if (selected === 'lawyer') {
+            $('#lawyer_select_group').removeClass('d-none');
+            $('#lawyer_id').attr('name', 'payee_id').prop('required', true);
+
+            lawyerSelectInstance = new TomSelect('#lawyer_id', {
+                placeholder: "Search Lawyer...",
+                allowEmptyOption: true
+            });
+        }
+    });
+});
+</script>
+
+
 @endpush
 

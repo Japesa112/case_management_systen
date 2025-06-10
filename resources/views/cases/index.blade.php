@@ -102,6 +102,38 @@
                     </script>
             @endif
         
+
+
+        {{-- ====================================================== --}}
+{{--                  NEW FILTER BAR                        --}}
+{{-- ====================================================== --}}
+
+    <div class="d-flex align-items-center mb-3">
+        <strong class="me-3">Filter by Status:</strong>
+        <div class="btn-group" role="group" aria-label="Case Status Filters">
+            @php
+                // Define the filters to display
+                $filters = ['Won', 'Lost', 'Adjourned', 'Appealed', 'Closed', 'Negotiation', 'Assigned'];
+                $currentFilter = request('status_filter'); // Get the current filter from the URL
+            @endphp
+
+            {{-- "All" button to clear the filter --}}
+            <a href="{{ route('cases.index') }}" 
+               class="btn btn-sm {{ !$currentFilter ? 'btn-primary' : 'btn-outline-secondary' }}">
+               All Cases
+            </a>
+
+            {{-- Loop through and create a button for each filter --}}
+            @foreach ($filters as $filter)
+                <a href="{{ route('cases.index', ['status_filter' => strtolower($filter)]) }}" 
+                   class="btn btn-sm {{ $currentFilter == strtolower($filter) ? 'btn-primary' : 'btn-outline-secondary' }}">
+                    {{ $filter }}
+                </a>
+            @endforeach
+        </div>
+    </div>
+
+   
          
             <div class="table-responsive">
 
@@ -113,6 +145,7 @@
                 </form>
 
             -->
+
                 
                 
                 <table id="data-table" class="table table-striped table-bordered">
@@ -125,7 +158,7 @@
                             <th>Registered At</th>
                             <th>Status</th>
                             <th>View</th>
-                            <th>Next Step</th>
+                            <th>Handled By</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -172,26 +205,21 @@
                                 </a>
                             </td>
                         <td class="text-nowrap">
-                            <div class="d-flex flex-column gap-1">
-                              
-                                @php
-                                    $isLawyer = Auth::check() && Auth::user()->role === 'Lawyer';
-                                    $lawyerId = $isLawyer ? Auth::user()->lawyer->lawyer_id : null;
-                                    $alreadyEvaluated = $isLawyer && \App\Models\PanelEvaluation::where('case_id', $case->case_id)
-                                                        ->where('lawyer_id', $lawyerId)
-                                                        ->exists();
-                                @endphp
-
-                                @if ($isLawyer)
-                                    <a href="{{ route('evaluations.create', $case->case_id) }}" 
-                                       class="btn btn-outline-primary btn-sm d-flex align-items-center gap-2" 
-                                       title="{{ $alreadyEvaluated ? 'Edit your evaluation' : 'Evaluate this case' }}">
-                                        <i class="fa fa-star"></i> 
-                                        <span>{{ $alreadyEvaluated ? 'Edit Evaluation' : 'Evaluate' }}</span>
-                                    </a>
+                            <span class="text-muted">
+                                @if(count($case->caseLawyers) == 0)
+                                    Not Assigned
+                                @elseif(count($case->caseLawyers)==1)
+                                {{
+                                    $case->caseLawyers->first()->lawyer->user->full_name.":-".$case->caseLawyers->first()->lawyer->license_number
+                                }}
+                                @else
+                                More than 1 Lawyer Assigned
                                 @endif
-                            </div>
-                    </td>
+
+                                   
+                            </span>
+                        </td>
+
 
                              </tr>
                         @endforeach
@@ -250,4 +278,40 @@
         );
     });
 </script>
+
+
+
+
+
 @endsection
+
+@push("scripts")
+<script>
+$(document).ready(function () {
+    
+    $('.handled-by').each(function () {
+        let $cell = $(this);
+        let caseId = $cell.data('case-id');
+        console.log(caseId);
+
+        $.ajax({
+            url: `/cases/${caseId}/lawyers`,
+            method: 'GET',
+            success: function (data) {
+                if (data.length > 0) {
+                    let badges = data.map(name => `<span class="badge bg-secondary d-block mb-1">${name}</span>`);
+                    $cell.html(badges.join(''));
+                } else {
+                    $cell.html('<span class="text-muted">Not assigned</span>');
+                }
+            },
+            error: function () {
+                $cell.html('<span class="text-danger">Error loading</span>');
+            }
+        });
+    });
+});
+</script>
+
+
+@endpush
