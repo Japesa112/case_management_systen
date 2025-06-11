@@ -53,7 +53,21 @@ class CaseController extends Controller
 
 public function index(Request $request)
 {
+    
+   try{
+
+
     $query = $query = CaseModel::with('caseLawyers.lawyer')->orderBy('created_at', 'desc');
+
+    if ($request->filled('outcome_filter')) {
+    $query->whereHas('closure', function ($q) use ($request) {
+        $q->whereRaw('LOWER(final_outcome) = ?', [strtolower($request->outcome_filter)]);
+    });
+    }
+
+    if ($request->has('status_filter') && $request->status_filter !== '') {
+        $query->whereRaw('LOWER(case_status) = ?', [strtolower($request->status_filter)]);
+    }
 
 
     // Filter active cases (not closed by status)
@@ -61,33 +75,33 @@ public function index(Request $request)
         $query->where('case_status', '!=', 'Closed');
     }
 
-  // Filter for upcoming hearings or mentions (for the logged-in lawyer)
-if ($request->has('filter') && $request->filter === 'upcoming_hearings') {
-    $isLawyer = Auth::user() && Auth::user()->role === 'Lawyer';
+          // Filter for upcoming hearings or mentions (for the logged-in lawyer)
+        if ($request->has('filter') && $request->filter === 'upcoming_hearings') {
+            $isLawyer = Auth::user() && Auth::user()->role === 'Lawyer';
 
-    if ($isLawyer) {
-        $lawyerId = Auth::user()->lawyer->lawyer_id;
+            if ($isLawyer) {
+                $lawyerId = Auth::user()->lawyer->lawyer_id;
 
-        // Get case IDs assigned to this lawyer
-        $lawyerCaseIds = CaseLawyer::where('lawyer_id', $lawyerId)
-            ->pluck('case_id')
-            ->unique();
+                // Get case IDs assigned to this lawyer
+                $lawyerCaseIds = CaseLawyer::where('lawyer_id', $lawyerId)
+                    ->pluck('case_id')
+                    ->unique();
 
-        // Get case IDs with upcoming hearings or mentions
-        $upcomingCaseIds = CaseActivity::whereDate('date', '>=', Carbon::today())
-            ->where(function ($q) {
-                $q->where('type', 'like', '%hearing%')
-                  ->orWhere('type', 'like', '%mention%');
-            })
-            ->pluck('case_id')
-            ->unique();
+                // Get case IDs with upcoming hearings or mentions
+                $upcomingCaseIds = CaseActivity::whereDate('date', '>=', Carbon::today())
+                    ->where(function ($q) {
+                        $q->where('type', 'like', '%hearing%')
+                          ->orWhere('type', 'like', '%mention%');
+                    })
+                    ->pluck('case_id')
+                    ->unique();
 
-        // Intersect to get only those relevant to the logged-in lawyer
-        $filteredCaseIds = $lawyerCaseIds->intersect($upcomingCaseIds);
+                // Intersect to get only those relevant to the logged-in lawyer
+                $filteredCaseIds = $lawyerCaseIds->intersect($upcomingCaseIds);
 
-        $query->whereIn('case_id', $filteredCaseIds);
-    }
-}
+                $query->whereIn('case_id', $filteredCaseIds);
+            }
+        }
 
 
     // Filter for cases created this month
@@ -125,19 +139,19 @@ if ($request->has('filter') && $request->filter === 'upcoming_hearings') {
         }
     }
 
-    if ($request->has('filter') && $request->filter === 'awaiting_evaluation') {
-    $isLawyer = Auth::user() && Auth::user()->role === 'Lawyer';
+            if ($request->has('filter') && $request->filter === 'awaiting_evaluation') {
+            $isLawyer = Auth::user() && Auth::user()->role === 'Lawyer';
 
-    if ($isLawyer) {
-        $lawyerId = Auth::user()->lawyer->lawyer_id;
+            if ($isLawyer) {
+                $lawyerId = Auth::user()->lawyer->lawyer_id;
 
-        // Get case_ids that the lawyer has already evaluated
-        $evaluatedCaseIds = PanelEvaluation::where('lawyer_id', $lawyerId)->pluck('case_id');
+                // Get case_ids that the lawyer has already evaluated
+                $evaluatedCaseIds = PanelEvaluation::where('lawyer_id', $lawyerId)->pluck('case_id');
 
-        // Get all cases that have NOT been evaluated by this lawyer
-        $query->whereNotIn('case_id', $evaluatedCaseIds);
-    }
-}
+                // Get all cases that have NOT been evaluated by this lawyer
+                $query->whereNotIn('case_id', $evaluatedCaseIds);
+            }
+        }
 
 
     $cases = $query->get();
@@ -159,7 +173,17 @@ if ($request->has('filter') && $request->filter === 'upcoming_hearings') {
         }
     }
 
+    Log::info('Filtered cases:', ['count' => $cases->count()]);
+
+
     return view("cases.index", compact('cases'));
+
+    }
+    catch (\Exception $e) {
+
+            Log::error('Error getting Cases: ' . $e->getMessage());
+
+        }
 }
 
 
@@ -167,13 +191,45 @@ if ($request->has('filter') && $request->filter === 'upcoming_hearings') {
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+   public function create()
     {
-        //
+        // Default list of statuses
+        $defaultStatuses = [
+            'Hearing', 'Application', 'Mention', 'Review',
+            'Panel Evaluation', 'Waiting for Panel Evaluation', 'Waiting for AG Advice',
+            'Forwarded to DVC', 'Appeal', 'Trial', 'Adjourned',
+            'Under Trial', 'Negotiation', 'Closed', 'Other',
+        ];
 
-        return view('cases.create');
+        // Get and normalize DB statuses
+        $dbStatuses = \App\Models\CaseModel::query()
+            ->distinct()
+            ->pluck('case_status')
+            ->map(function ($status) {
+                return trim(ucwords(strtolower($status)));
+            })
+            ->filter()
+            ->toArray();
 
+        // Normalize default statuses too
+        $normalizedDefaults = collect($defaultStatuses)
+            ->map(function ($status) {
+                return trim(ucwords(strtolower($status)));
+            });
+
+        // Merge and deduplicate (case-insensitive)
+        $allStatuses = $normalizedDefaults
+            ->merge($dbStatuses)
+            ->unique(function ($status) {
+                return strtolower($status);
+            })
+            ->sort()
+            ->values();
+
+
+        return view('cases.create', compact('allStatuses'));
     }
+
 
     /**
      * Store a newly created resource in storage.
@@ -341,24 +397,28 @@ if ($request->has('filter') && $request->filter === 'upcoming_hearings') {
     {
         try {
             // Validate case details
-            $caseData = $request->validate([
-                'track_number' =>  'required|string|max:255|unique:cases,track_number',
-                'case_number'      => 'required|string|max:255|unique:cases,case_number',
-                'case_name'        => 'required|string|max:255',
-                'date_received' => 'required|date_format:Y-m-d\TH:i',
-                'case_description' => 'required|string',
-                'case_status'      => 'required|string|max:255',
-                'case_category'    => 'required|in:Academic,Disciplinary,Administrative,student,staff,supplier,staff union',
-                'initial_status'   => 'required|in:Under Review,Approved,Rejected,Needs Negotiation',
-                
-            ]);
+           $caseData = $request->validate([
+            'track_number'     => 'required|string|max:255|unique:cases,track_number',
+            'case_number'      => 'required|string|max:255|unique:cases,case_number',
+            'case_name'        => 'required|string|max:255',
+            'date_received'    => 'required|date_format:Y-m-d\TH:i',
+            'case_description' => 'required|string',
+            'case_status'      => 'required|string|max:255',
+            'case_category'    => 'required|in:Academic,Disciplinary,Administrative,student,staff,supplier,staff union',
+            'initial_status'   => 'required|in:Under Review,Approved,Rejected,Needs Negotiation'
+        ]);
 
-            $dateTime = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->date_received);
+        // If 'Other' was selected, replace case_status with the custom one
+        if ($caseData['case_status'] === 'Other' && !empty($request->other_case_status)) {
+            $caseData['case_status'] = $request->other_case_status;
+        }
 
-    
-            $caseData['created_by'] = Auth::id();
-            $caseData['date_received'] = $dateTime->toDateString();
-            $caseData['time_received'] = $dateTime->toTimeString();
+        $dateTime = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->date_received);
+
+        $caseData['created_by'] = Auth::id();
+        $caseData['date_received'] = $dateTime->toDateString();
+        $caseData['time_received'] = $dateTime->toTimeString();
+
             // Validate complainant details
             $complainantData = $request->validate([
                 'complainant_name' => 'required|string|max:255',
@@ -521,6 +581,10 @@ if ($request->has('filter') && $request->filter === 'upcoming_hearings') {
             'case_status'       => 'required|string',
             'initial_status'    => 'required|string',
         ]);
+        // If 'Other' was selected, replace case_status with the custom one
+        if ($validatedData['case_status'] === 'Other' && !empty($request->other_case_status)) {
+            $validatedData['case_status'] = $request->other_case_status;
+        }
 
         // Find case and update
         $case = CaseModel::where('case_id', $case_id)->firstOrFail();
@@ -2489,20 +2553,71 @@ try {
 
 }
 
-public function getHandledBy($id)
-        {
-            $lawyers = CaseLawyer::with('lawyer')
-                ->where('case_id', $id)
-                ->get()
-                ->pluck('lawyer')
-                ->filter()
-                ->map(function ($lawyer) {
-                    return $lawyer->first_name . ' ' . $lawyer->last_name;
-                })
-                ->values();
+    public function getHandledBy($id)
+            {
+                $lawyers = CaseLawyer::with('lawyer')
+                    ->where('case_id', $id)
+                    ->get()
+                    ->pluck('lawyer')
+                    ->filter()
+                    ->map(function ($lawyer) {
+                        return $lawyer->first_name . ' ' . $lawyer->last_name;
+                    })
+                    ->values();
 
-            return response()->json($lawyers);
-        }
+                return response()->json($lawyers);
+            }
+
+
+            public function getAllCaseStatuses()
+            {
+                $defaultStatuses = [
+                    'Hearing', 'Application', 'Mention', 'Review',
+                    'Panel Evaluation', 'Waiting for Panel Evaluation', 'Waiting for AG Advice',
+                    'Forwarded to DVC', 'Appeal', 'Trial', 'Adjourned',
+                    'Under Trial', 'Negotiation', 'Closed', 'Other',
+                ];
+
+                $dbStatuses = \App\Models\CaseModel::query()
+                    ->distinct()
+                    ->pluck('case_status')
+                    ->map(function ($status) {
+                        return trim(ucwords(strtolower($status)));
+                    })
+                    ->filter()
+                    ->toArray();
+
+                $normalizedDefaults = collect($defaultStatuses)
+                    ->map(function ($status) {
+                        return trim(ucwords(strtolower($status)));
+                    });
+
+                $allStatuses = $normalizedDefaults
+                    ->merge($dbStatuses)
+                    ->unique(function ($status) {
+                        return strtolower($status);
+                    })
+                    ->sort()
+                    ->values();
+
+                return response()->json($allStatuses);
+            }
+
+            public function getDbCaseStatuses()
+            {
+                $statuses = \App\Models\CaseModel::query()
+                    ->whereNotNull('case_status')
+                    ->distinct()
+                    ->pluck('case_status')
+                    ->map(function ($status) {
+                        return trim(ucwords(strtolower($status)));
+                    })
+                    ->unique()
+                    ->sort()
+                    ->values();
+
+                return response()->json($statuses);
+            }
 
 
 

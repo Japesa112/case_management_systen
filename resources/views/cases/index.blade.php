@@ -1,5 +1,5 @@
 @extends('layouts.default')
-@section('title', 'Case')
+@section('title', 'Case List')
 
 
 @push('styles')
@@ -103,129 +103,83 @@
             @endif
         
 
+               <div class="row mb-3">
+                <!-- Left: Case Status Filter -->
+                <div class="col-md-6">
+                    <label for="statusFilter" class="form-label fw-bold">Filter by Case Status:</label>
+                    <select id="statusFilter" class="form-control" data-current="{{ request('status_filter') }}">
+                        <option value="">All Cases</option>
+                        <!-- Options will be populated via JS -->
+                    </select>
+                </div>
 
-        {{-- ====================================================== --}}
-{{--                  NEW FILTER BAR                        --}}
-{{-- ====================================================== --}}
+                <!-- Right: Final Outcome Filter -->
+                <div class="col-md-6">
+                    <label for="outcomeFilter" class="form-label fw-bold">Filter by Final Outcome:</label>
+                    <select id="outcomeFilter" class="form-control" data-current="{{ request('outcome_filter') }}">
+                        <option value="">All Outcomes</option>
+                        <!-- Options will be populated via JS -->
+                    </select>
+                </div>
+            </div>
 
-    <div class="d-flex align-items-center mb-3">
-        <strong class="me-3">Filter by Status:</strong>
-        <div class="btn-group" role="group" aria-label="Case Status Filters">
-            @php
-                // Define the filters to display
-                $filters = ['Won', 'Lost', 'Adjourned', 'Appealed', 'Closed', 'Negotiation', 'Assigned'];
-                $currentFilter = request('status_filter'); // Get the current filter from the URL
-            @endphp
 
-            {{-- "All" button to clear the filter --}}
-            <a href="{{ route('cases.index') }}" 
-               class="btn btn-sm {{ !$currentFilter ? 'btn-primary' : 'btn-outline-secondary' }}">
-               All Cases
-            </a>
-
-            {{-- Loop through and create a button for each filter --}}
-            @foreach ($filters as $filter)
-                <a href="{{ route('cases.index', ['status_filter' => strtolower($filter)]) }}" 
-                   class="btn btn-sm {{ $currentFilter == strtolower($filter) ? 'btn-primary' : 'btn-outline-secondary' }}">
-                    {{ $filter }}
-                </a>
-            @endforeach
-        </div>
-    </div>
 
    
          
-            <div class="table-responsive">
-
-                <!--
-              
-                <form method="POST" action="{{ route('cases.sendEmail', $cases[0]->case_id) }}">
-                    @csrf
-                    <button type="submit" class="btn btn-primary">Send Email</button>
-                </form>
-
-            -->
-
-                
-                
-                <table id="data-table" class="table table-striped table-bordered">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Number</th>
-                            <th>Name</th>
-                            <th>Description</th>
-                            <th>Registered At</th>
-                            <th>Status</th>
-                            <th>View</th>
-                            <th>Handled By</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($cases as $key => $case)
-                        <tr>
-                            <td>{{ $key + 1 }}</td>
-                            <td>{{ $case->case_number}}</td>
-                            <td>{{ $case->case_name }}</td>
-                            <td>{{ Str::limit($case->case_description, 50) }}</td>
-                            <td>{{ $case->created_at }}</td>
-                            <td>
-                                
-
-                                @php
-                                switch ($case->status) {
-                                    case 'open':
-                                        $bgColor = 'background-color: #007bff; color: white;'; // Blue (Bootstrap primary)
-                                        break;
-                                    case 'closed':
-                                        $bgColor = 'background-color: #dc3545; color: white;'; // Red (Bootstrap danger)
-                                        break;
-                                    case 'pending':
-                                        $bgColor = 'background-color: #ffc107; color: black;'; // Yellow (Bootstrap warning)
-                                        break;
-                                    default:
-                                        $bgColor = 'background-color: #6c757d; color: white;'; // Grey (Bootstrap secondary)
-                                    }
-                                @endphp
-                            
-                            <span style="{{ $bgColor }} padding: 5px 10px; border-radius: 5px;">
-                                @if (!empty($case->seq_num) && !empty($case->seq_suffix))
-                                    {{ $case->seq_num }}<sup>{{ $case->seq_suffix }}</sup> {{ ucfirst($case->type)." ".$case->matter }} 
-                                @else
-                                    {{ ucfirst($case->case_status) }}
-                                @endif
-                            </span>
-                            
-                            
-                            </td>
-                           
-                            <td>
-                                <a href="{{ route('cases.show', $case) }}" class="btn btn-info btn-sm">
-                                    <i class="fa fa-eye"></i>
-                                </a>
-                            </td>
+           <div class="table-responsive">
+    @if ($cases->isNotEmpty())
+        <table id="data-table" class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Number</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Registered At</th>
+                    <th>Status</th>
+                    <th>View</th>
+                    <th>Handled By</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($cases as $key => $case)
+                    <tr>
+                        <td>{{ $key + 1 }}</td>
+                        <td>{{ $case->case_number}}</td>
+                        <td>{{ $case->case_name }}</td>
+                        <td>{{ Str::limit($case->case_description, 50) }}</td>
+                        <td>{{ $case->created_at }}</td>
+                        <td>
+                            {{ $case->case_status }}
+                        </td>
+                        <td>
+                            <a href="{{ route('cases.show', $case) }}" class="btn btn-info btn-sm">
+                                <i class="fa fa-eye"></i>
+                            </a>
+                        </td>
                         <td class="text-nowrap">
                             <span class="text-muted">
                                 @if(count($case->caseLawyers) == 0)
                                     Not Assigned
                                 @elseif(count($case->caseLawyers)==1)
-                                {{
-                                    $case->caseLawyers->first()->lawyer->user->full_name.":-".$case->caseLawyers->first()->lawyer->license_number
-                                }}
+                                    {{ $case->caseLawyers->first()->lawyer->user->full_name . ":-" . $case->caseLawyers->first()->lawyer->license_number }}
                                 @else
-                                More than 1 Lawyer Assigned
+                                    More than 1 Lawyer Assigned
                                 @endif
-
-                                   
                             </span>
                         </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @else
+        <div class="alert alert-warning text-center">
+            No cases found for the selected filters.
+        </div>
+    @endif
+</div>
 
-
-                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
            
 
         </div>
@@ -310,6 +264,72 @@ $(document).ready(function () {
             }
         });
     });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    fetch('/cases/case-statuses/db')
+        .then(response => response.json())
+        .then(statuses => {
+            const select = document.getElementById('statusFilter');
+            const current = select.dataset.current;
+
+            statuses.forEach(status => {
+                const option = document.createElement('option');
+                option.value = status.toLowerCase();
+                option.textContent = status;
+                if (status.toLowerCase() === current) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            });
+
+            const tomSelect = new TomSelect('#statusFilter', {
+                placeholder: 'Select case status...',
+                allowEmptyOption: true,
+                plugins: ['dropdown_input'],
+            });
+
+            // Handle selection change
+            select.addEventListener('change', function () {
+                const url = new URL(window.location.href);
+                if (this.value) {
+                    url.searchParams.set('status_filter', this.value);
+                } else {
+                    url.searchParams.delete('status_filter');
+                }
+                window.location.href = url.toString();
+            });
+        });
+
+
+        fetch('{{ route("case_closures.final_outcomes") }}')
+        .then(res => res.json())
+        .then(outcomes => {
+            const outcomeFilter = document.getElementById('outcomeFilter');
+            const currentOutcome = outcomeFilter.dataset.current;
+
+            outcomes.forEach(outcome => {
+                const option = document.createElement('option');
+                option.value = outcome;
+                option.textContent = outcome;
+                if (outcome === currentOutcome) option.selected = true;
+                outcomeFilter.appendChild(option);
+            });
+        });
+
+        document.getElementById('outcomeFilter').addEventListener('change', applyFilters);
+        function applyFilters() {
+       
+        const outcome = document.getElementById('outcomeFilter').value;
+
+        let url = new URL(window.location.href);
+       
+        url.searchParams.set('outcome_filter', outcome);
+
+        window.location.href = url.toString();
+    }
 });
 </script>
 

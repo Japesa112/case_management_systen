@@ -62,11 +62,72 @@
             <div class="d-flex align-items-center gap-3">
                 <!-- Notifications -->
                 <div class="dropdown">
-                    <a href="#" data-bs-toggle="dropdown" class="btn btn-info position-relative">
+                   <a href="#" id="notificationDropdownToggle" data-bs-toggle="dropdown" class="btn btn-info position-relative">
+
                         <i class="fa fa-bell"></i>
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">5</span>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">7</span>
                     </a>
                     @include('includes.component.header-dropdown-notification')
+                    @push('scripts')
+<script>
+$(document).ready(function () {
+    $('#notificationDropdownToggle').on('click', function () {
+        $.get('{{ route('notifications.fetch') }}', function (data) {
+            let html = '';
+            let count = data.length;
+
+            alert("I am clicked");
+
+            data.forEach(item => {
+                let iconHtml = item.icon 
+                    ? `<i class="${item.icon} media-object bg-gray-500"></i>` 
+                    : `<i class="fa fa-info-circle media-object bg-gray-500"></i>`;
+
+                html += `
+                    <a href="javascript:;" class="dropdown-item media" data-id="${item.notification_id}">
+                        <div class="media-left">
+                            ${iconHtml}
+                        </div>
+                        <div class="media-body">
+                            <h6 class="media-heading">${item.title}</h6>
+                            <p>${item.message ?? ''}</p>
+                            <div class="text-muted fs-10px">${timeAgo(item.created_at)}</div>
+                        </div>
+                    </a>
+                `;
+            });
+
+            $('#notification-list').html(html);
+            $('#notification-count').text(count);
+        });
+    });
+
+    function timeAgo(dateString) {
+        let date = new Date(dateString);
+        let now = new Date();
+        let seconds = Math.floor((now - date) / 1000);
+
+        let interval = Math.floor(seconds / 31536000);
+        if (interval >= 1) return interval + " year" + (interval > 1 ? "s" : "") + " ago";
+
+        interval = Math.floor(seconds / 2592000);
+        if (interval >= 1) return interval + " month" + (interval > 1 ? "s" : "") + " ago";
+
+        interval = Math.floor(seconds / 86400);
+        if (interval >= 1) return interval + " day" + (interval > 1 ? "s" : "") + " ago";
+
+        interval = Math.floor(seconds / 3600);
+        if (interval >= 1) return interval + " hour" + (interval > 1 ? "s" : "") + " ago";
+
+        interval = Math.floor(seconds / 60);
+        if (interval >= 1) return interval + " minute" + (interval > 1 ? "s" : "") + " ago";
+
+        return "Just now";
+    }
+});
+</script>
+@endpush
+
                 </div>
 
                 <!-- Language Bar -->
@@ -97,3 +158,5 @@
     </div>
 </header>
 <!-- END #header -->
+
+

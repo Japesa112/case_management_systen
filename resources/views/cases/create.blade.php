@@ -106,28 +106,23 @@
                 </select>
             </div>
         </div>
-        
-        <div class="col-md-4">
-            <div class="form-group mt-3 mb-2">
+            <div class="col-md-4">
+               <div class="form-group mt-3 mb-2">
                 <label for="case_status" class="control-label">Case Status</label>
-                <select name="case_status" class="form-control">
-                    <option value="Hearing">Hearing</option>
-                    <option value="Application">Application</option>
-                    <option value="Mention">Mention</option>
-                    <option value="Review">Review</option>
-                    <option value="Panel Evaluation">Panel Evaluation</option>
-                    <option value="Waiting for Panel Evaluation">Waiting for Panel Evaluation</option>
-                    <option value="Waiting for AG Advice">Waiting for AG Advice</option>
-                    <option value="Forwarded to DVC">Forwarded to DVC</option>
-                    <option value="Appeal">Appeal</option>
-                    <option value="Trial">Trial</option>
-                    <option value="Adjourned">Adjourned</option>
-                    <option value="Under Trial">Under Trial</option>
-                    <option value="Negotiation">Negotiation</option>
-                    <option value="Closed">Closed</option>
+                <select name="case_status" id="case_status" class="form-control">
+                    <option value="">-- Select Status --</option>
+                    @foreach ($allStatuses as $status)
+                        <option value="{{ $status }}">{{ $status }}</option>
+                    @endforeach
                 </select>
             </div>
-        </div>
+
+                <!-- Hidden field for custom case status -->
+                <div class="form-group mt-2" id="other_case_status_wrapper" style="display: none;">
+                    <label for="other_case_status" class="control-label">Specify Other Case Status</label>
+                    <input type="text" name="other_case_status" id="other_case_status" class="form-control">
+                </div>
+            </div>
 
       
     </div>
@@ -337,4 +332,35 @@
     });
 
 </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const caseStatus = document.getElementById('case_status');
+        const otherWrapper = document.getElementById('other_case_status_wrapper');
+        const otherInput = document.getElementById('other_case_status');
+
+        caseStatus.addEventListener('change', function () {
+            if (this.value === 'Other') {
+                otherWrapper.style.display = 'block';
+                otherInput.setAttribute('required', 'required');
+            } else {
+                otherWrapper.style.display = 'none';
+                otherInput.removeAttribute('required');
+                otherInput.value = '';
+            }
+        });
+    });
+</script>
+
+<script>
+    let CaseStatusSelectInstance = null;
+document.addEventListener('DOMContentLoaded', function () {
+    CaseStatusSelectInstance = new TomSelect("#case_status", {
+        placeholder: "Select or search case status...",
+        allowEmptyOption: true,
+        create: false // Set to true if you want to allow custom entries
+    });
+});
+</script>
+
 @endpush

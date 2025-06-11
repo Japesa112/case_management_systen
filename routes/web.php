@@ -39,7 +39,7 @@ use App\Http\Controllers\PreTrialController;
 use App\Http\Controllers\AGAdviceController;
 use Illuminate\Support\Facades\Log;
 
-
+use App\Http\Controllers\NotificationController;
 
 use App\Mail\TestEmail;
 use Illuminate\Support\Facades\Mail;
@@ -288,6 +288,8 @@ Route::get('/evaluations/available-cases', [CaseController::class, 'getEvaluatio
 
 Route::middleware(['auth'])->prefix('cases')->group(function () {
     Route::get('/{id}/lawyers', [CaseController::class, 'getHandledBy'])->name('cases.lawyers');
+    Route::get('/case-statuses', [CaseController::class, 'getAllCaseStatuses'])->name('case.statuses');
+    Route::get('/case-statuses/db', [CaseController::class, 'getDbCaseStatuses'])->name('cases.statuses.db');
 
     Route::post('/{case_id}/submit-panel-evaluation', [CaseController::class, 'submitToPanelEvaluation'])->name('cases.submitToPanelEvaluation');
     Route::get('/{case_id}/panel-evaluation', [CaseController::class, 'showPanelEvaluation'])->name('cases.panelEvaluation');
@@ -468,7 +470,17 @@ Route::prefix('appeals')->group(function () {
 
 
 
-  Route::prefix("closed_cases")->group(function () {     
+
+
+  Route::prefix("closed_cases")->group(function () {   
+
+          Route::get('/case-closures/final-outcomes', function () {
+            $outcomes = \App\Models\CaseClosure::pluck('final_outcome')->unique()->filter()->values();
+            return response()->json($outcomes);
+        })->name('case_closures.final_outcomes');
+
+
+  
     Route::get('/', [CaseClosureController::class, 'index'])->name('closed_cases.index');
     Route::get('/edit/{closure}', [CaseClosureController::class, 'edit'])->name('closed_cases.edit');
     Route::get('/check-case', [CaseClosureController::class, 'checkCase'])->name('closed_cases.checkCase');
@@ -574,4 +586,12 @@ Route::post('/{pretrial}/members', [PreTrialController::class, 'storeMembers']);
 Route::put('/{pretrial}', [PreTrialController::class, 'update'])->name('pretrials.update');
 
 
+});
+
+
+Route::middleware('auth')->group(function () {
+    Route::get('/notifications/fetch', [NotificationController::class, 'fetch'])->name('notifications.fetch');
+    Route::post('/notifications/mark-read', [NotificationController::class, 'markAsRead'])->name('notifications.markRead');
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllRead');
+    Route::delete('/notifications/clean-old', [NotificationController::class, 'cleanOld'])->name('notifications.cleanOld');
 });

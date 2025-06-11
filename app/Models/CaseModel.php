@@ -72,6 +72,10 @@ public function forwardings()
 {
     return $this->hasMany(Forwarding::class, 'case_id', 'case_id');
 }
+public function closure()
+{
+    return $this->hasOne(CaseClosure::class, 'case_id');
+}
 
 
 

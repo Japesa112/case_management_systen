@@ -71,27 +71,34 @@ class CaseClosureController extends Controller
     public function store(Request $request) 
     {
         try {
-            $validatedData = $request->validate([
+                       $validatedData = $request->validate([
                 'case_id' => 'required|exists:cases,case_id',
                 'closure_date' => 'required|date',
-                'final_outcome' => 'required|string|in:Win,Loss,Dismissed,Settled',
+                'final_outcome' => 'required|string|in:Win,Loss,Dismissed,Settled,Other',
+                'final_outcome_other' => 'required_if:final_outcome,Other|string|nullable',
                 'follow_up_actions' => 'nullable|string',
                 'lawyer_payment_confirmed' => 'required|string|in:Yes,No',
                 'closureAttachments.*' => 'file|mimes:pdf,doc,docx,jpg,png|max:2048'
             ]);
-    
+
             Log::info('Case Closure Request Data:', $request->all());
-    
+
+            // Determine the actual outcome
+            $finalOutcome = $request->final_outcome === 'Other'
+                ? $request->final_outcome_other
+                : $request->final_outcome;
+
             // Create case closure record
             $caseClosure = CaseClosure::create([
                 'case_id' => $request->case_id,
                 'closure_date' => $request->closure_date,
-                'final_outcome' => $request->final_outcome,
+                'final_outcome' => $finalOutcome,
                 'follow_up_actions' => $request->follow_up_actions,
                 'lawyer_payment_confirmed' => $request->lawyer_payment_confirmed,
                 'created_at' => now(),
                 'updated_at' => now()
             ]);
+
     
             Log::info('Case Closure Created:', $caseClosure->toArray());
     
@@ -224,22 +231,28 @@ class CaseClosureController extends Controller
         Log::info("The data received is: ".$caseClosure->closure_id);
     
         try {
-            $validatedData = $request->validate([
-                'closure_date' => 'required|date',
-                'final_outcome' => 'required|string',
-                'follow_up_actions' => 'nullable|string',
-                'lawyer_payment_confirmed' => 'required|in:Yes,No',
-               
-            ]);
-    
-            // Update case closure details
-            $caseClosure->update([
-                'closure_date' => $validatedData['closure_date'],
-                'final_outcome' => $validatedData['final_outcome'],                
-                'follow_up_actions' => $validatedData['follow_up_actions'] ?? null,
-                'lawyer_payment_confirmed' => $validatedData['lawyer_payment_confirmed'],
-                'updated_at' => now(),
-            ]);
+           $validatedData = $request->validate([
+            'closure_date' => 'required|date',
+            'final_outcome' => 'required|string|in:Win,Loss,Dismissed,Settled,Other',
+            'final_outcome_other' => 'required_if:final_outcome,Other|string|nullable',
+            'follow_up_actions' => 'nullable|string',
+            'lawyer_payment_confirmed' => 'required|in:Yes,No',
+        ]);
+
+        // Determine the final outcome to store
+        $finalOutcome = $validatedData['final_outcome'] === 'Other'
+            ? $validatedData['final_outcome_other']
+            : $validatedData['final_outcome'];
+
+        // Update case closure details
+        $caseClosure->update([
+            'closure_date' => $validatedData['closure_date'],
+            'final_outcome' => $finalOutcome,
+            'follow_up_actions' => $validatedData['follow_up_actions'] ?? null,
+            'lawyer_payment_confirmed' => $validatedData['lawyer_payment_confirmed'],
+            'updated_at' => now(),
+        ]);
+
             
             /*
             // Handle attachments

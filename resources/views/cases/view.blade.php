@@ -169,6 +169,7 @@
                 <p><strong>Received Date:</strong> <span id="date_received_display">{{ $case->date_received }}</span></p>
                 <p><strong>Category:</strong> <span id="case_category_display">{{ ucfirst($case->case_category) }}</span></p>
                 <p><strong>Initial Status:</strong> <span id="initial_status_display">{{ ucfirst($case->initial_status) }}</span></p>
+                <p><strong>Current Case Status:</strong> <span id="current_status_display">{{ ucfirst($case->case_status) }}</span></p>
 
                 {{-- Appended Lawyer Information --}}
                 <p><strong>Lawyer(s) Assigned:</strong>
@@ -582,17 +583,16 @@
                                             <div class="form-group mt-3 mb-2">
                                                 <label for="modal_case_status" class="control-label">Case Status</label>
                                                 <select id="modal_case_status" name="case_status" class="form-control">
-                                                    <option value="Waiting for First Hearing">Waiting for First Hearing</option>
-                                                    <option value="Under Review">Under Review</option>
-                                                    <option value="Waiting for Panel Evaluation">Waiting for Panel Evaluation</option>
-                                                    <option value="Waiting for AG Advice">Waiting for AG Advice</option>
-                                                    <option value="Forwarded to DVC">Forwarded to DVC</option>
-                                                    <option value="Under Trial">Under Trial</option>
-                                                    <option value="Judgement Rendered">Judgement Rendered</option>
-                                                    <option value="Closed">Closed</option>
+                                                    <option value="">Loading...</option>
                                                 </select>
                                             </div>
+
+                                             <div class="form-group mt-2" id="other_case_status_wrapper" style="display: none;">
+                                                <label for="other_case_status" class="control-label">Specify Other Case Status</label>
+                                                <input type="text" name="other_case_status" id="other_case_status" class="form-control">
+                                            </div>
                                         </div>
+
                                     </div>
 
                                     <!-- Initial Status, First Hearing Date & Date Received -->
@@ -603,7 +603,7 @@
                                                 <select id="modal_initial_status" name="initial_status" class="form-control">
                                                     <option value="Under Review">Under Review</option>
                                                     <option value="Approved">Approved</option>
-                                                    <option value="Rejected">Rejected</option>
+                                                    
                                                     <option value="Needs Negotiation">Needs Negotiation</option>
                                                 </select>
                                             </div>
@@ -1354,10 +1354,19 @@ $("#assignCaseForm").on("submit", function (e) {
 
 
 
+
+
     $(document).ready(function () {
     $(".edit-case").on("click", function () {
         let caseId = $(this).data("case-id");  
-        
+
+         let status = $(this).data("case-status");
+          if (modalCaseStatusTomSelect) {
+                if (!modalCaseStatusTomSelect.options[status]) {
+                    modalCaseStatusTomSelect.addOption({ value: status, text: status });
+                }
+                modalCaseStatusTomSelect.setValue(status);
+            }
         
        
         // Ensure data-case-id exists in the button
@@ -1366,7 +1375,7 @@ $("#assignCaseForm").on("submit", function (e) {
         $("#modal_case_number").val($(this).data("case-number"));
         $("#modal_case_name").val($(this).data("case-name"));
         $("#modal_case_category").val($(this).data("case-category"));
-        $("#modal_case_status").val($(this).data("case-status"));
+       
         $("#modal_initial_status").val($(this).data("initial-status"));
         $("#modal_first_hearing_date").val($(this).data("first-hearing-date"));
         $("#modal_date_received").val($(this).data("date-received"));
@@ -1404,6 +1413,7 @@ $("#updateCaseForm").on("submit", function (e) {
                 $("#date_received_display").text(response.case.date_received);
                 $("#case_category_display").text(response.case.case_category);
                 $("#initial_status_display").text(response.case.initial_status);
+                $("#current_status_display").text(response.case.case_status);
                 $("#updated_at_display").text("Just now");
 
                 // Close the modal
@@ -2220,6 +2230,45 @@ $('#deleteApplicationBtn').on('click', function (e) {
                 }
             });
         }
+    });
+</script>
+
+<script>
+let modalCaseStatusTomSelect;
+
+document.addEventListener('DOMContentLoaded', function () {
+    fetch('/cases/case-statuses')
+        .then(response => response.json())
+        .then(statuses => {
+            modalCaseStatusTomSelect = new TomSelect('#modal_case_status', {
+                options: statuses.map(status => ({
+                    value: status,
+                    text: status
+                })),
+                placeholder: "Select or search case status...",
+                allowEmptyOption: true,
+                create: false
+            });
+        });
+});
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const caseStatus = document.getElementById('modal_case_status');
+        const otherWrapper = document.getElementById('other_case_status_wrapper');
+        const otherInput = document.getElementById('other_case_status');
+
+        caseStatus.addEventListener('change', function () {
+            if (this.value === 'Other') {
+                otherWrapper.style.display = 'block';
+                otherInput.setAttribute('required', 'required');
+            } else {
+                otherWrapper.style.display = 'none';
+                otherInput.removeAttribute('required');
+                otherInput.value = '';
+            }
+        });
     });
 </script>
 

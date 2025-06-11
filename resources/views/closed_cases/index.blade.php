@@ -251,9 +251,15 @@
                                             <option value="">Select Outcome</option>
                                             <option value="Win">Win</option>
                                             <option value="Loss">Loss</option>
+                                            <option value="Other">Other</option>
                                           
                                         </select>
                                     </div>
+                                    <div class="mb-3 d-none" id="edit_final_outcome_other_group">
+                                        <label for="edit_final_outcome_other" class="form-label">Specify Other Outcome</label>
+                                        <input type="text" class="form-control" id="edit_final_outcome_other" name="final_outcome_other" placeholder="Enter final outcome">
+                                    </div>
+
 
 
                                     <div class="mb-3">
@@ -702,4 +708,44 @@ $(document).ready(function () {
         );
     });
 </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Load final outcomes from DB and populate the edit dropdown
+    fetch('{{ route('case_closures.final_outcomes') }}')
+        .then(response => response.json())
+        .then(outcomes => {
+            const select = document.getElementById('edit_final_outcome');
+            const defaultOptions = ['Win', 'Loss', 'Dismissed', 'Settled']; // Always show these
+
+            const seen = new Set();
+            // Add DB outcomes if not in default
+            outcomes.forEach(outcome => {
+                const cleaned = outcome.trim();
+                if (!defaultOptions.includes(cleaned) && !seen.has(cleaned)) {
+                    const opt = document.createElement('option');
+                    opt.value = cleaned;
+                    opt.textContent = cleaned;
+                    select.insertBefore(opt, select.querySelector('option[value="Other"]'));
+                    seen.add(cleaned);
+                }
+            });
+        });
+
+    // Toggle "Other" input field visibility
+    const outcomeSelect = document.getElementById('edit_final_outcome');
+    const otherGroup = document.getElementById('edit_final_outcome_other_group');
+
+    outcomeSelect.addEventListener('change', function () {
+        if (this.value === 'Other') {
+            otherGroup.classList.remove('d-none');
+            document.getElementById('edit_final_outcome_other').required = true;
+        } else {
+            otherGroup.classList.add('d-none');
+            document.getElementById('edit_final_outcome_other').required = false;
+        }
+    });
+});
+</script>
+
 @endpush

@@ -28,4 +28,12 @@ class User extends Authenticatable
     return $this->hasOne(Lawyer::class, 'user_id');
 }
 
+public function notifications(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+{
+    return $this->belongsToMany(Notification::class, 'user_notification', 'user_id', 'notification_id')
+                ->withPivot('is_read', 'read_at')
+                ->withTimestamps();
+}
+
+
 }
