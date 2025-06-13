@@ -9,6 +9,11 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Models\CaseLawyer;
 
+use App\User;
+use App\Models\Notification;
+use App\Models\UserNotification;
+use Illuminate\Support\Facades\DB;
+
 class ForwardingController extends Controller
 {
     /**
@@ -103,6 +108,27 @@ class ForwardingController extends Controller
  // Assuming you want to set the case status to "Scheduled" when a hearing is added
             $case->case_status = "Forwarded to DVC/VC"; // Change this as needed
             $case->save();
+
+            // 🔔 Create the notification
+            $notification = Notification::create([
+                'title'   => 'Case Forwarded to DVC/VC',
+                'message' => "Case #{$case->case_id} has been forwarded to the DVC/VC for further action.",
+                'type'    => 'forwarding',
+                'icon'    => 'fa fa-share-square',
+            ]);
+
+            // 🔗 Notify all assigned lawyers
+            if ($case->lawyers1->isNotEmpty()) {
+                foreach ($case->lawyers1 as $lawyer) {
+                    DB::table('user_notification')->insert([
+                        'user_id'         => $lawyer->user_id,
+                        'notification_id' => $notification->notification_id,
+                        'is_read'         => false,
+                        'created_at'      => now(),
+                        'updated_at'      => now(),
+                    ]);
+                }
+            }
         } 
 
         return redirect()->route('dvc_appointments.index', [

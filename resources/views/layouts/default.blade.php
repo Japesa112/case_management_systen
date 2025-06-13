@@ -2,6 +2,8 @@
 <html lang="{{ app()->getLocale() }}">
 <head>
 	<meta name="csrf-token" content="{{ csrf_token() }}">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
@@ -39,6 +41,21 @@
 <!-- Tom Select JS -->
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 
+		<style>
+		    @media (max-width: 768px) {
+		        .app-content {
+		            padding: 10px;
+		        }
+
+		        .mobile-message {
+		            font-size: 0.95rem;
+		        }
+
+		        .video-container video {
+		            object-fit: cover;
+		        }
+		    }
+		</style>
 
 	@include('includes.head')
 	@if (!empty($showVideo) && $showVideo)
@@ -150,6 +167,9 @@
 		@includeWhen($appSidebarTwo, 'includes.sidebar-right')
 		
 		<div id="content" class="app-content {{ $appContentClass }}">
+			<div class="mobile-message d-md-none d-block alert alert-info text-center p-2">
+		        Welcome to Kenyatta University Case System. Swipe right to open the menu.
+		    </div>
 			@yield('content')
 		</div>
 		

@@ -5,6 +5,11 @@ use Illuminate\Support\Facades\Log;
 
 use Illuminate\Http\Request;
 use App\Models\Complainant;
+use App\Mail\CaseNotification;
+use App\Models\Notification;
+use App\Models\UserNotification;
+use Illuminate\Support\Facades\DB;
+use App\User;
 
 class ComplainantsController extends Controller
 {
@@ -78,6 +83,38 @@ class ComplainantsController extends Controller
         $complainant->update($validatedData);
 
         Log::info('Updated complainant:', $complainant->toArray());
+
+        // 🔔 Create Notification
+        $notification = Notification::create([
+            'title'   => 'Complainant Updated',
+            'message' => "The complainant '{$validatedData['complainant_name']}' has been updated for case ID {$validatedData['case_id']}.",
+            'type'    => 'complainant_updated',
+            'icon'    => 'fa fa-user-edit', // FontAwesome icon
+        ]);
+
+        $totalNotified = 0;
+        User::select('user_id')->chunkById(200, function ($users) use ($notification, &$totalNotified) {
+            $now = now();
+            $insertData = $users->map(function ($user) use ($notification, $now) {
+                return [
+                    'user_id'         => $user->user_id,
+                    'notification_id' => $notification->notification_id,
+                    'is_read'         => false,
+                    'created_at'      => $now,
+                    'updated_at'      => $now,
+                ];
+            })->toArray();
+
+            DB::table('user_notification')->insert($insertData);
+            $totalNotified += count($insertData);
+        });
+
+        Log::info("Complainant update notification sent to {$totalNotified} users", [
+            'notification_id' => $notification->notification_id,
+            'complainant_id'  => $complainant_id,
+            'case_id'         => $validatedData['case_id'],
+        ]);
+
         return response()->json([
             'success' => 'Complainant updated successfully!',
             'complainant' => $complainant

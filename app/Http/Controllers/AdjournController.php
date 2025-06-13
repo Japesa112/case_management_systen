@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use App\Models\CaseModel;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Notification;
+use App\Models\UserNotification;
+use Illuminate\Support\Facades\DB;
+use App\User;
 class AdjournController extends Controller
 {
     /**
@@ -118,6 +122,38 @@ class AdjournController extends Controller
                 $case->case_status = "Adjourned"; // Change this as needed
                 $case->save();
             }
+
+            // 🔔 Notification logic
+            $notification = Notification::create([
+                'title'   => 'Case Adjourned',
+                'message' => "The case '{$case->case_name}' has been adjourned.",
+                'type'    => 'case_adjourned',
+                'icon'    => 'fa fa-clock' // Choose appropriate icon
+            ]);
+
+            $totalNotified = 0;
+
+            User::select('user_id')->chunkById(200, function ($users) use ($notification, &$totalNotified) {
+                $now = now();
+                $insertData = $users->map(function ($user) use ($notification, $now) {
+                    return [
+                        'user_id'         => $user->user_id,
+                        'notification_id' => $notification->notification_id,
+                        'is_read'         => false,
+                        'created_at'      => $now,
+                        'updated_at'      => $now,
+                    ];
+                })->toArray();
+
+                DB::table('user_notification')->insert($insertData);
+                $totalNotified += count($insertData);
+            });
+
+            Log::info("Adjournment notification sent to {$totalNotified} users", [
+                'notification_id' => $notification->notification_id,
+                'adjourn_id'      => $adjourn->adjourns_id
+            ]);
+
             return redirect()->route('adjourns.index', [
                 'case_id' => $request->case_id, 
                 'adjourn' => $adjourn->adjourn_id
@@ -167,6 +203,41 @@ class AdjournController extends Controller
                 'next_hearing_time' => $next_hearing_time,
                 'adjourn_comments' => $request->adjourn_comments,
             ]);
+
+             // 🔔 Notification logic
+            $case = CaseModel::find($request->case_id);
+
+            if ($case) {
+                $notification = Notification::create([
+                    'title'   => 'Adjournment Updated',
+                    'message' => "The adjournment for case '{$case->case_name}' has been updated.",
+                    'type'    => 'adjournment_updated',
+                    'icon'    => 'fa fa-pen' // Choose an appropriate icon
+                ]);
+
+                $totalNotified = 0;
+
+                User::select('user_id')->chunkById(200, function ($users) use ($notification, &$totalNotified) {
+                    $now = now();
+                    $insertData = $users->map(function ($user) use ($notification, $now) {
+                        return [
+                            'user_id'         => $user->user_id,
+                            'notification_id' => $notification->notification_id,
+                            'is_read'         => false,
+                            'created_at'      => $now,
+                            'updated_at'      => $now,
+                        ];
+                    })->toArray();
+
+                    DB::table('user_notification')->insert($insertData);
+                    $totalNotified += count($insertData);
+                });
+
+                Log::info("Adjournment update notification sent to {$totalNotified} users", [
+                    'notification_id' => $notification->notification_id,
+                    'adjourn_id'      => $adjourn->adjourns_id
+                ]);
+            }
             
         
             return response()->json(['message' => 'Adjourn updated successfully.']);

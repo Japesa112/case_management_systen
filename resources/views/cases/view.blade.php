@@ -252,7 +252,7 @@
                                         data-phone="{{ $complainant->phone }}"
                                         data-email="{{ $complainant->email }}"
                                         data-address="{{ $complainant->address }}">
-                                         <i class="fas fa-edit"></i> Edit Complainant
+                                         <i class="fas fa-edit"></i> Edit Claimant 
                                          </button>
                                          @endif
                                 
@@ -372,7 +372,7 @@
                         <div class="col-md-6 mb-2">
 
                             <a href="{{ route('cases.panelEvaluation', $case->case_id) }}" class="btn btn-primary btn-sm w-100 text-start text-truncate" title="Evaluate this case">
-                                Evaluate
+                               Message Lawyers
                             </a>
 
                             

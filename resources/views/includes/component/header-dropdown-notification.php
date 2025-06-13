@@ -7,8 +7,9 @@
 	<div id="notification-list">
 		<!-- Notifications will be loaded here via AJAX -->
 	</div>
-	<div class="dropdown-footer text-center">
-		<a href="{{ route('notifications.fetch') }}" class="text-decoration-none">View more</a>
+	<div class="dropdown-footer text-center" style="display: none;">
+	  <a href="{{ route('notifications.fetch') }}" class="text-decoration-none">View more</a>
 	</div>
+
 </div>
 

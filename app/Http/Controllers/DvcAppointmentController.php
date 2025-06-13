@@ -11,11 +11,14 @@ use App\Models\CaseModel;
 use App\Mail\LawyerAssignedNotification;
 use App\Models\CaseLawyer;
 use App\Models\Lawyer;
-use App\User;
+
 use App\Models\PanelEvaluation;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
-
+use App\User;
+use App\Models\Notification;
+use App\Models\UserNotification;
+use Illuminate\Support\Facades\DB;
 
 class DvcAppointmentController extends Controller
 {
@@ -163,6 +166,29 @@ class DvcAppointmentController extends Controller
                 Log::info("Lawyer assigned and notified via email (no queue)", [
                     'case_id' => $case->case_id,
                     'lawyer_email' => $lawyer->email
+                ]);
+
+
+                // 🔔 Create a system notification
+                $notification = Notification::create([
+                    'title'   => 'Lawyer Assigned to Case',
+                    'message' => "You have been assigned to Case #{$case->case_id}. Please review the DVC appointment details.",
+                    'type'    => 'lawyer_assignment',
+                    'icon'    => 'fa fa-briefcase',
+                ]);
+
+                // Link notification to the lawyer
+                DB::table('user_notification')->insert([
+                    'user_id'         => $lawyer->user_id,
+                    'notification_id' => $notification->notification_id,
+                    'is_read'         => false,
+                    'created_at'      => now(),
+                    'updated_at'      => now(),
+                ]);
+
+                Log::info("Notification created and linked to lawyer", [
+                    'user_id' => $lawyer->user_id,
+                    'notification_id' => $notification->notification_id,
                 ]);
             }
         

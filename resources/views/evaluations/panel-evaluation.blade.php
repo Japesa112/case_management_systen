@@ -12,12 +12,13 @@
       @csrf
       <input type="hidden" name="case_id" id="caseId" value="{{ $caseId ?? '' }}">
 
-      <div class="mb-3">
-        <label for="payment_lawyer" class="form-label">Select Lawyer <span class="text-danger">*</span></label>
-        <select id="payment_lawyer" name="lawyer_id" class="form-control" required>
+     <div class="mb-3">
+        <label for="payment_lawyer" class="form-label">Select Lawyer(s) <span class="text-danger">*</span></label>
+        <select id="payment_lawyer" name="lawyer_id[]" class="form-control" multiple required>
           <option value="">Loading lawyers...</option>
         </select>
       </div>
+
 
 
       <div class="mb-3">
@@ -58,6 +59,12 @@
 
       const caseId = $('#caseId').val();
       const message = $('#panelMessage').val().trim();
+      const selectedLawyers = $('#payment_lawyer').val(); // Get selected lawyers
+
+      if (!selectedLawyers || selectedLawyers.length === 0) {
+        Swal.fire('Warning', 'Please select at least one lawyer.', 'warning');
+        return;
+      }
 
       if (message === '') {
         Swal.fire('Warning', 'Please enter a message to send.', 'warning');
@@ -70,7 +77,10 @@
         headers: {
           'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         },
-        data: { message: message },
+        data: {
+          message: message,
+          lawyer_ids: selectedLawyers // Send the array of lawyer IDs
+        },
         success: function (response) {
           Swal.fire({
             title: 'Success',
@@ -78,7 +88,6 @@
             icon: 'success',
             confirmButtonText: 'Go to Evaluations'
           }).then(() => {
-            // Redirect to the evaluations list
             window.location.href = '/evaluations';
           });
         },
@@ -93,6 +102,7 @@
     });
   });
 </script>
+
 
 
 <script>

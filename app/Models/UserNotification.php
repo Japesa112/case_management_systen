@@ -13,9 +13,11 @@ class UserNotification extends Pivot
         'notification_id',
         'is_read',
         'read_at',
+        'created_at',
+        'updated_at'
     ];
 
-    public $timestamps = false;
+    //public $timestamps = false;
 
     /**
      * Optional: relationships back to User or Notification

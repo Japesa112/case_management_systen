@@ -5,6 +5,8 @@ namespace App;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Models\Lawyer;
+use App\Models\Notification;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class User extends Authenticatable
 {
     use Notifiable;
@@ -28,7 +30,7 @@ class User extends Authenticatable
     return $this->hasOne(Lawyer::class, 'user_id');
 }
 
-public function notifications(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+public function notifications()
 {
     return $this->belongsToMany(Notification::class, 'user_notification', 'user_id', 'notification_id')
                 ->withPivot('is_read', 'read_at')

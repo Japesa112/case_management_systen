@@ -9,7 +9,10 @@ use App\Models\AppealAttachment;
 use Illuminate\Support\Facades\Storage;
 use App\Models\CaseModel;
 use Illuminate\Support\Facades\Auth;
-
+use App\Models\Notification;
+use App\Models\UserNotification;
+use Illuminate\Support\Facades\DB;
+use App\User;
 class AppealController extends Controller
 {
 
@@ -115,6 +118,38 @@ class AppealController extends Controller
                 $case->case_status = "Appeal"; // Change this as needed
                 $case->save();
             }
+
+            // 🔔 Notification for Appeal
+            $notification = Notification::create([
+                'title'   => 'New Appeal Added',
+                'message' => "An appeal has been added to the case: '{$case->case_name}'.",
+                'type'    => 'appeal_created',
+                'icon'    => 'fa fa-balance-scale', // Example icon
+            ]);
+
+            $totalNotified = 0;
+
+            User::select('user_id')->chunkById(200, function ($users) use ($notification, &$totalNotified) {
+                $now = now();
+                $insertData = $users->map(function ($user) use ($notification, $now) {
+                    return [
+                        'user_id'         => $user->user_id,
+                        'notification_id' => $notification->notification_id,
+                        'is_read'         => false,
+                        'created_at'      => $now,
+                        'updated_at'      => $now,
+                    ];
+                })->toArray();
+
+                DB::table('user_notification')->insert($insertData);
+                $totalNotified += count($insertData);
+            });
+
+            Log::info("Appeal notification sent to {$totalNotified} users", [
+                'notification_id' => $notification->notification_id,
+                'appeal_id' => $appeal->appeal_id
+            ]);
+
         
         
                 return redirect()->route('appeals.index', [
@@ -172,7 +207,36 @@ class AppealController extends Controller
             'next_hearing_time' => $next_hearing_time,
             'appeal_comments' => $request->appeal_comments,
         ]);
-        
+        $notification = Notification::create([
+                'title'   => 'New Appeal Updated',
+                'message' => "An appeal for '{$appeal->case->case_name}' has been updated: .",
+                'type'    => 'appeal_created',
+                'icon'    => 'fa fa-balance-scale', // Example icon
+            ]);
+
+            $totalNotified = 0;
+
+            User::select('user_id')->chunkById(200, function ($users) use ($notification, &$totalNotified) {
+                $now = now();
+                $insertData = $users->map(function ($user) use ($notification, $now) {
+                    return [
+                        'user_id'         => $user->user_id,
+                        'notification_id' => $notification->notification_id,
+                        'is_read'         => false,
+                        'created_at'      => $now,
+                        'updated_at'      => $now,
+                    ];
+                })->toArray();
+
+                DB::table('user_notification')->insert($insertData);
+                $totalNotified += count($insertData);
+            });
+
+            Log::info("Appeal notification sent to {$totalNotified} users", [
+                'notification_id' => $notification->notification_id,
+                'appeal_id' => $appeal->appeal_id
+            ]);
+
     
         return response()->json(['message' => 'Appeal updated successfully.']);
     }
