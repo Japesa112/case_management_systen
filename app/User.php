@@ -7,9 +7,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Models\Lawyer;
 use App\Models\Notification;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+
+
+
 class User extends Authenticatable
 {
-    use Notifiable;
+    use  Notifiable;
 
     protected $table = 'users'; // Specify the table name explicitly
 
@@ -36,6 +39,16 @@ public function notifications()
                 ->withPivot('is_read', 'read_at')
                 ->withTimestamps();
 }
+
+ public function getAuthPassword()
+    {
+        return $this->password_hash;
+    }
+
+     public function getAuthIdentifierName()
+    {
+        return 'user_id';
+    }
 
 
 }

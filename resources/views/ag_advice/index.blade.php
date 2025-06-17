@@ -622,7 +622,7 @@ $(document).ready(function () {
             return;
         }
 
-        window.location.href = `/ag_advice/create/{case_id}${caseNumber}`;
+        window.location.href = `/ag_advice/create/${caseNumber}`;
 
 
     });

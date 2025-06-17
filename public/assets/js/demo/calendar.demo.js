@@ -206,6 +206,69 @@ var handleCalendarDemo = function () {
 				});
 			}
 
+				else if (parts[1] === 'pretrial') {
+				    $('#viewPreTrialModal').modal('show');
+				    $('#pretrial-content').html('<div class="text-center p-4"><i class="fa fa-spinner fa-spin fa-2x"></i> Loading details...</div>');
+
+				    $.ajax({
+				        url: `/pretrials/cases/pretrial/${eventId}`,
+				        type: "GET",
+				        success: function (response) {
+				            const pretrial = response.pretrial;
+				            const caseName = response.case_name;
+				            const caseNumber = response.case_number;
+
+				            let membersList = '';
+				            if (pretrial.members && pretrial.members.length > 0) {
+				                pretrial.members.forEach((m) => {
+				                    membersList += `<li>${m.role_or_position}: ${m.name}</li>`;
+				                });
+				            } else {
+				                membersList = '<li>No members listed</li>';
+				            }
+
+				            let attachmentsList = '';
+				            if (pretrial.attachments && pretrial.attachments.length > 0) {
+				                pretrial.attachments.forEach((a) => {
+				                    attachmentsList += `<li><a href="${a.url}" target="_blank">${a.name}</a></li>`;
+				                });
+				            } else {
+				                attachmentsList = '<li>No attachments</li>';
+				            }
+
+				            let content = `
+				                <div class="row">
+				                    <div class="col-md-6">
+				                        <p><strong>Case Number:</strong> ${caseNumber}</p>
+				                        <p><strong>Case Name:</strong> ${caseName}</p>
+				                        <p><strong>Date:</strong> ${pretrial.pretrial_date}</p>
+				                        <p><strong>Time:</strong> ${pretrial.pretrial_time}</p>
+				                        <p><strong>Location:</strong> ${pretrial.location}</p>
+				                    </div>
+				                    <div class="col-md-6">
+				                        <p><strong>Comments:</strong> ${pretrial.comments || 'N/A'}</p>
+				                        <p><strong>Created At:</strong> ${pretrial.created_at}</p>
+				                        <p><strong>Updated At:</strong> ${pretrial.updated_at}</p>
+				                    </div>
+				                </div>
+				                <hr>
+				                <h6>Pre-Trial Members</h6>
+				                <ul>${membersList}</ul>
+				                <h6>Attachments</h6>
+				                <ul>${attachmentsList}</ul>
+				            `;
+
+				            $('#viewPreTrialModalLabel').text("Pre-Trial Details");
+				            $('#pretrial-content').html(content);
+				        },
+				        error: function () {
+				            $('#pretrial-content').html('<div class="text-danger text-center">Error loading Pre-Trial details.</div>');
+				        }
+				    });
+				}
+
+
+
 			else if (parts[1]==='preparation') {
 				let preparationId = eventId;
 				$('#viewPreparationModal').modal('show');

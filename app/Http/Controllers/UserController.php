@@ -54,6 +54,13 @@ public function __construct()
      {
         
         try{
+
+            $request->merge([
+                'email' => trim($request->email),
+                'phone' => trim($request->phone),
+                'full_name' => trim($request->full_name),
+            ]);
+
             $request->validate([
                 'full_name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users',

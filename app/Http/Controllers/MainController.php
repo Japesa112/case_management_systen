@@ -24,6 +24,7 @@ use App\Models\Adjourn;
 
 use App\Models\TrialPreparation;
 use App\Models\Trial;
+use App\Models\PreTrial;
 use Illuminate\Support\Facades\Storage;
 use App\User;
 use App\Mail\NewCaseNotification;
@@ -365,6 +366,17 @@ public function getNewCasesStats()
                     'description' => $p->briefing_notes,
                     'datetime' => Carbon::parse($p->preparation_date . ' ' . $p->preparation_time)->toDateTimeString(),
                     'badge_color' => '#445D48'
+                ])
+        );
+
+         $upcoming = $upcoming->merge(
+            PreTrial::all()
+                ->filter(fn($p) => Carbon::parse($p->pretrial_date . ' ' . $p->pretrial_time)->isFuture())
+                ->map(fn($p) => [
+                    'type' => 'PreTrial',
+                    'description' => $p->comments,
+                    'datetime' => Carbon::parse($p->pretrial_date . ' ' . $p->pretrial_time)->toDateTimeString(),
+                    'badge_color' => '#454d46'
                 ])
         );
 

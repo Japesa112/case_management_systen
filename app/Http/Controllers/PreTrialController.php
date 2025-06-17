@@ -154,12 +154,37 @@ class PreTrialController extends Controller
         return response()->json(['message' => 'Pre-trial created successfully', 'pretrial' => $preTrial]);
     }
 
-    // Show a single pre-trial
-    public function show($id)
-    {
-        $preTrial = PreTrial::with(['members', 'attachments'])->findOrFail($id);
-        return response()->json($preTrial);
-    }
+            // Show a single pre-trial
+        public function show($id)
+        {
+            $pretrial = PreTrial::with(['case', 'members', 'attachments'])->findOrFail($id);
+
+            // Transform attachments to include URLs
+            $attachments = $pretrial->attachments->map(function ($attachment) {
+                return [
+                    'attachment_id' => $attachment->attachment_id,
+                    'name' => $attachment->file_name,
+                    'url' => asset('storage/documents/pretrial_attachments/' . $attachment->file_name),
+                ];
+            });
+
+            return response()->json([
+                'pretrial' => [
+                    'pretrial_id' => $pretrial->pretrial_id,
+                    'pretrial_date' => $pretrial->pretrial_date,
+                    'pretrial_time' => $pretrial->pretrial_time,
+                    'created_at' => $pretrial->updated_at,
+                    'updated_at' => $pretrial->created_at,
+                    'comments' => $pretrial->comments,
+                    'location' => $pretrial->location,
+                    'members' => $pretrial->members,
+                    'attachments' => $attachments,
+                ],
+                'case_name' => $pretrial->case->case_name ?? 'N/A',
+                'case_number' => $pretrial->case->case_number ?? 'N/A',
+            ]);
+        }
+
 
     // Optional: update or delete methods can be added as needed
 

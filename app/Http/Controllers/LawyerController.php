@@ -197,6 +197,13 @@ public function getCasesAwaitingAction()
      */
     public function store(Request $request)
     {
+
+         $request->merge([
+                'email' => trim($request->email),
+                'phone' => trim($request->phone)
+               
+            ]);
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:lawyers',

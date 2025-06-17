@@ -572,6 +572,9 @@ Route::prefix('dvc')->group(function () {
 
 
 Route::prefix('pretrials')->group(function () {
+
+Route::get('/cases/pretrial/{id}', [PreTrialController::class, 'show'])->name('pretrials.show');
+
    Route::get('/{case_id}', [PreTrialController::class, 'index'])->name('pretrials.index');  
    Route::get('/', [PreTrialController::class, 'all'])->name('pretrials.all');   
     Route::post('/store', [PreTrialController::class, 'store'])->name('pretrials.store');      

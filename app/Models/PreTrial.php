@@ -17,6 +17,8 @@ class PreTrial extends Model
         'pretrial_time',
         'comments',
         'location',
+        'created_at',
+        'updated_at'
     ];
 
     // Relationships

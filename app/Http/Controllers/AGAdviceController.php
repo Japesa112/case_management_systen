@@ -56,7 +56,8 @@ class AGAdviceController extends Controller
 
         if ($case_id) {
             // Retrieve the case record based on the provided case_id
-            $caseRecord = \App\Models\CaseModel::find($case_id);
+            $caseRecord = CaseModel::find($case_id);
+            Log::info("Case Name for AG: inside: ". $case_id);
             if ($caseRecord) {
                 $case_name = $caseRecord->case_name;
                 $case_number = $caseRecord->case_number;
@@ -64,6 +65,8 @@ class AGAdviceController extends Controller
     
             }
         }
+
+        Log::info("Case Name for AG: ".$case_id);
 
         return view('ag_advice.create', compact('case_id', 'case_name', 'case_number', 'advice'));
     }

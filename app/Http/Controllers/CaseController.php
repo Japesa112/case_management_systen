@@ -34,7 +34,7 @@ use Illuminate\Support\Str;
 use App\Mail\GeneralLawyerMessage;
 use App\helper\Events;
 
-
+use App\Models\PreTrial;
 use App\Mail\CaseNotification;
 use App\Models\Notification;
 use App\Models\UserNotification;
@@ -465,7 +465,7 @@ public function index(Request $request)
                     // Safely get recipients with case-insensitive check
                     $totalRecipients = 0;
 
-                    User::whereIn('role', ['Admin'])
+                    User::whereIn('role', ['Admin', 'Lawyer'])
                         ->whereNotNull('email')
                         ->chunkById(200, function ($users) use ($case, &$totalRecipients) {
                             $totalRecipients += $users->count();
@@ -1390,32 +1390,7 @@ public function getCalenderEvents()
             Log::info('Lawyer id is: '.$lawyerId.' Jaba');
 
         $caseIds = \App\Models\CaseLawyer::where('lawyer_id', $lawyerId)->pluck('case_id');
-     /*
-        // Step 2: Get activities where the case_id is in the case_ids retrieved above
-        $activities = CaseActivity::whereIn('case_id', $caseIds)->get();
     
-        $events = $activities->map(function ($activity) {
-            // Get the ordinal parts for the sequence number
-            $parts = $this->ordinalParts($activity->sequence_number);
-            $activity->seq_num = $parts['number'];
-            $activity->seq_suffix = $parts['suffix'];
-
-            // Format the title and content
-            $title = $this->getOrdinal($activity->sequence_number) . ' ' . ucfirst($activity->type);
-            $titleContent = $activity->seq_num . '<sup>' . $activity->seq_suffix . '</sup>' . ' ' . ucfirst($activity->type);
-
-            return [
-                'id' => $activity->id,
-                'title' => $title,
-                'titleContent' => $titleContent,
-                'start' => $activity->date->format('Y-m-d') . 'T' . $activity->time, // Combine date and time
-                'allDay' => false, // Set true if it's a full-day event
-                'color' => $this->getTypeColor($activity->type),
-            ];
-        });
-
-        return response()->json($events);
-     */
              
 
             //Negotiations
@@ -1616,6 +1591,29 @@ public function getCalenderEvents()
             });
 
 
+            $activities_pretrials = $activities_pretrials = PreTrial::whereIn('case_id', $caseIds)->get();
+
+            $events_pretrials = $activities_pretrials->map(function ($activity_pretrial) {
+                // Get the ordinal parts for the sequence number
+                
+                // Format the title and content
+                $title = " PreTrial" ;
+                $titleContent = $activity_pretrial->comments;
+    
+                return [
+                    'id' => $activity_pretrial->pretrial_id. '.pretrial',
+                    'title' => $title,
+                    'titleContent' => $titleContent,
+                    'start' => \Carbon\Carbon::parse($activity_pretrial->pretrial_date)->format('Y-m-d') . 'T' . $activity_pretrial->pretrial_time,
+                    'allDay' => false, // Set true if it's a full-day event
+                    'color' => '#8bbdf0',
+                    
+
+
+                ];
+            });
+
+
 
             //Appeal Events
              $activities_appeal = $activities_appeal = Appeal::whereIn('case_id', $caseIds)->get();
@@ -1662,15 +1660,23 @@ public function getCalenderEvents()
                 ];
             });
     
-            $combinedEvents = $events->merge($events_appeal);
-            $combinedEvents = $combinedEvents->merge($events_adjourn);
-            $combinedEvents = $combinedEvents->merge($events_preparation);
-            $combinedEvents = $combinedEvents->merge($events_trial);
-            $combinedEvents = $combinedEvents->merge($events_appointment);
-            $combinedEvents = $combinedEvents->merge($events_advice);
-            $combinedEvents = $combinedEvents->merge($events_all);
-            $combinedEvents = $combinedEvents->merge($events_lawyerpay);
-            $combinedEvents = $combinedEvents->merge($events_negotiate);
+          $combinedEvents = collect(); // Start with empty Laravel Collection
+
+        $combinedEvents = $combinedEvents
+            ->merge($events instanceof Collection ? $events : collect($events))
+            ->merge($events_appeal instanceof Collection ? $events_appeal : collect($events_appeal))
+            ->merge($events_adjourn instanceof Collection ? $events_adjourn : collect($events_adjourn))
+            ->merge($events_preparation instanceof Collection ? $events_preparation : collect($events_preparation))
+            ->merge($events_trial instanceof Collection ? $events_trial : collect($events_trial))
+            ->merge($events_pretrials instanceof Collection ? $events_pretrials : collect($events_pretrials))
+            ->merge($events_appointment instanceof Collection ? $events_appointment : collect($events_appointment))
+            ->merge($events_advice instanceof Collection ? $events_advice : collect($events_advice))
+            ->merge($events_all instanceof Collection ? $events_all : collect($events_all))
+            ->merge($events_lawyerpay instanceof Collection ? $events_lawyerpay : collect($events_lawyerpay))
+            ->merge($events_negotiate instanceof Collection ? $events_negotiate : collect($events_negotiate))
+            ->merge($events_dvc_appointment instanceof Collection ? $events_dvc_appointment : collect($events_dvc_appointment))
+            ->sortByDesc('start')
+            ->values();
 
             return response()->json($combinedEvents);
 
@@ -1900,6 +1906,29 @@ public function getCalenderEvents()
             });
 
 
+             $activities_pretrials = $activities_pretrials = PreTrial::all();
+
+            $events_pretrials = $activities_pretrials->map(function ($activity_pretrial) {
+                // Get the ordinal parts for the sequence number
+                
+                // Format the title and content
+                $title = " PreTrial" ;
+                $titleContent = $activity_pretrial->comments;
+    
+                return [
+                    'id' => $activity_pretrial->pretrial_id. '.pretrial',
+                    'title' => $title,
+                    'titleContent' => $titleContent,
+                    'start' => \Carbon\Carbon::parse($activity_pretrial->pretial_date)->format('Y-m-d') . 'T' . $activity_pretrial->pretrial_time,
+                    'allDay' => false, // Set true if it's a full-day event
+                    'color' => '#8bbdf0',
+                    
+                ];
+            });
+
+
+
+
             $activities = $activities = CaseActivity::all();
 
             $events = $activities->map(function ($activity) {
@@ -1940,17 +1969,23 @@ public function getCalenderEvents()
                 ];
             });
 
-    
-            $combinedEvents = $events->merge($events_appeal);
-            $combinedEvents = $combinedEvents->merge($events_adjourn);
-            $combinedEvents = $combinedEvents->merge($events_preparation);
-            $combinedEvents = $combinedEvents->merge($events_trial);
-            $combinedEvents = $combinedEvents->merge($events_appointment);
-            $combinedEvents = $combinedEvents->merge($events_advice);
-            $combinedEvents = $combinedEvents->merge($events_all);
-            $combinedEvents = $combinedEvents->merge($events_lawyerpay);
-            $combinedEvents = $combinedEvents->merge($events_negotiate);
-            $combinedEvents = $combinedEvents->merge($events_dvc_appointment);
+    $combinedEvents = collect(); // Start with empty Laravel Collection
+
+        $combinedEvents = $combinedEvents
+            ->merge($events instanceof Collection ? $events : collect($events))
+            ->merge($events_appeal instanceof Collection ? $events_appeal : collect($events_appeal))
+            ->merge($events_adjourn instanceof Collection ? $events_adjourn : collect($events_adjourn))
+            ->merge($events_preparation instanceof Collection ? $events_preparation : collect($events_preparation))
+            ->merge($events_trial instanceof Collection ? $events_trial : collect($events_trial))
+            ->merge($events_pretrials instanceof Collection ? $events_pretrials : collect($events_pretrials))
+            ->merge($events_appointment instanceof Collection ? $events_appointment : collect($events_appointment))
+            ->merge($events_advice instanceof Collection ? $events_advice : collect($events_advice))
+            ->merge($events_all instanceof Collection ? $events_all : collect($events_all))
+            ->merge($events_lawyerpay instanceof Collection ? $events_lawyerpay : collect($events_lawyerpay))
+            ->merge($events_negotiate instanceof Collection ? $events_negotiate : collect($events_negotiate))
+            ->merge($events_dvc_appointment instanceof Collection ? $events_dvc_appointment : collect($events_dvc_appointment))
+            ->sortByDesc('start')
+            ->values();
             return response()->json($combinedEvents);
 
         }
@@ -2259,6 +2294,29 @@ public function getEventsCase($caseId)
                             });
 
 
+                             $activities_pretrials = $activities_pretrials = PreTrial::where('case_id', $caseId)->get();
+
+                            $events_pretrials = $activities_pretrials->map(function ($activity_pretrials) {
+                                // Get the ordinal parts for the sequence number
+                                
+                                // Format the title and content
+                                $title = " Pretrial" ;
+                                $titleContent = $activity_pretrials->comments;
+                    
+                                return [
+                                    'id' => $activity_pretrials->pretrial_id. '.pretrial',
+                                    'title' => $title,
+                                    'titleContent' => $titleContent,
+                                    'start' => \Carbon\Carbon::parse($activity_pretrials->pretrial_date)->format('Y-m-d') . 'T' . $activity_pretrials->pretrial_time,
+                                    'allDay' => false, // Set true if it's a full-day event
+                                    'color' => '#8bbdf0',
+                                    
+
+
+                                ];
+                            });
+
+
 
                             //Appeal Events
                              $activities_appeal = $activities_appeal = Appeal::where('case_id', $caseId)->get();
@@ -2304,6 +2362,8 @@ public function getEventsCase($caseId)
                                     
                                 ];
                             });
+
+                             
                     
                             $combinedEvents = collect($events->toArray())
                                         ->merge($events_appeal->toArray())
@@ -2313,6 +2373,7 @@ public function getEventsCase($caseId)
                                         ->merge($events_appointment->toArray())
                                         ->merge($events_advice->toArray())
                                         ->merge($events_all->toArray())
+                                        ->merge($events_pretrials->toArray())
                                         ->merge($events_lawyerpay->toArray())
                                         ->merge($events_negotiate->toArray())
                                         ->merge($events_dvc_appointment->toArray())
@@ -2523,6 +2584,30 @@ public function getEventsCase($caseId)
                                 ];
                             });
 
+                             //Trial Preparation Events
+                            $activities_pretrials= $activities_pretrials = PreTrial::where('case_id', $caseId)->get();
+
+                            $events_pretrials = $activities_pretrials->map(function ($activity_pretrial) {
+                                // Get the ordinal parts for the sequence number
+                                
+                                // Format the title and content
+                                $title = " PreTrial" ;
+                                $titleContent = $activity_pretrial->comments;
+                    
+                                return [
+                                    'id' => $activity_pretrial->pretrial_id. '.pretrial',
+                                    'title' => $title,
+                                    'titleContent' => $titleContent,
+                                    'start' => \Carbon\Carbon::parse($activity_pretrial->pretrial_date)->format('Y-m-d') . 'T' . $activity_pretrial->pretrial_time,
+                                    'allDay' => false, // Set true if it's a full-day event
+                                    'color' => '#445D48',
+                                    
+
+
+                                ];
+                            });
+
+
 
                             //Adjourn Events
 
@@ -2600,7 +2685,7 @@ public function getEventsCase($caseId)
                                         ->merge($events_adjourn->toArray())
                                         ->merge($events_preparation->toArray())
                                         ->merge($events_trial->toArray())
-                                        ->merge($events_appointment->toArray())
+                                        ->merge($events_appointment->toArray())                            ->merge($events_pretrials->toArray())
                                         ->merge($events_advice->toArray())
                                         ->merge($events_all->toArray())
                                         ->merge($events_lawyerpay->toArray())
