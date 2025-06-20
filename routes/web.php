@@ -219,6 +219,8 @@ Route::get('/home', 'MainController@home')->name('home');
 
 //Users route and controller
 Route::prefix('users')->group(function () {
+Route::post('/notification-preference/save', [UserController::class, 'save'])->middleware('auth');
+
 Route::get('/',[UserController::class, 'index'])->name('users.index');
 Route::get('/change-password',[UserController::class, 'change_password'])->name('users.change');
 Route::get('/help',[UserController::class, 'help'])->name('users.help');

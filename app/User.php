@@ -6,6 +6,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Models\Lawyer;
 use App\Models\Notification;
+use App\Models\NotificationPreference;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 
@@ -48,6 +49,12 @@ public function notifications()
      public function getAuthIdentifierName()
     {
         return 'user_id';
+    }
+
+
+    public function notificationPreference()
+    {
+        return $this->hasOne(NotificationPreference::class, 'user_id');
     }
 
 

@@ -30,6 +30,11 @@ public function trialPreparations(): BelongsToMany
                 ->withTimestamps();
 }
 
+public function cases()
+{
+    return $this->belongsToMany(CaseModel::class, 'case_lawyer', 'lawyer_id', 'case_id');
+}
+
 
 
 

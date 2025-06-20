@@ -436,6 +436,13 @@
 
                             
                         </div>
+                        <div class="col-md-6 mb-2">
+
+                             <a href="{{ route('evaluations.create', $case->case_id) }}" class="btn btn-primary btn-sm w-100 text-start text-truncate" title="Evaluate this case">
+                               Submit Offer
+                            </a>
+                            
+                        </div>
 
                          <div class="col-md-6 mb-2">
 

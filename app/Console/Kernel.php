@@ -4,7 +4,7 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-
+use Illuminate\Support\Facades\Log;
 class Kernel extends ConsoleKernel
 {
     /**
@@ -13,7 +13,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        //
+        \App\Console\Commands\SendUpcomingReminders::class,
     ];
 
     /**
@@ -26,6 +26,15 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')
         //          ->hourly();
+
+
+              $schedule->call(function () {
+            Log::info('Scheduler ran at: ' . now());
+        })->everyTwoMinutes();
+
+              $schedule->command('notify:upcoming')->everyTwoMinutes()->withoutOverlapping();
+
+
     }
 
     /**

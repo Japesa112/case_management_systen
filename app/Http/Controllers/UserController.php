@@ -9,6 +9,7 @@ use App\Models\Lawyer;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use App\Models\NotificationPreference;
 class UserController extends Controller
 {
     /**
@@ -16,7 +17,7 @@ class UserController extends Controller
      */
 public function __construct()
     {
-        $this->middleware(['auth', 'block-lawyer','block-lawyer-from-users'])->except(['showLoginForm']); // Applies to all methods in the controller
+        $this->middleware(['auth', 'block-lawyer','block-lawyer-from-users'])->except(['showLoginForm', 'save']); // Applies to all methods in the controller
 
         
 }     
@@ -89,6 +90,16 @@ public function __construct()
                 'password_hash' => $password_hash,
                 'role' => $request->role,
             ]);
+
+            // ✅ Create default notification preferences (Weekly on Friday at 16:00)
+            NotificationPreference::updateOrCreate(
+                ['user_id' => $user->user_id],
+                [
+                    'frequency' => 'weekly',
+                    'day_of_week' => 5, // Friday
+                    'time' => '16:00',
+                ]
+            );
         
             // If the user is a lawyer, create a Lawyer record
             if ($request->role === 'lawyer') {
@@ -171,6 +182,41 @@ public function __construct()
       
          
      }
+
+
+        public function save(Request $request)
+        {
+
+            try {
+                 $validated = $request->validate([
+                'frequency' => 'required|in:daily,weekly',
+                'day' => 'nullable|integer|between:1,7', // day as a number
+                'time' => 'required|date_format:H:i',
+            ]);
+
+            $user = auth()->user();
+
+            Log::info("User id is: ".  $user->user_id);
+
+            NotificationPreference::updateOrCreate(
+                ['user_id' => $user->user_id],
+                [
+                    'frequency' => $validated['frequency'],
+                    'day_of_week' => $validated['frequency'] === 'weekly' ? $validated['day'] : null,
+                    'time' => $validated['time'],
+                ]
+            );
+
+            return response()->json(['status' => 'success']);
+                
+            } catch (Exception $e) {
+                Log::error("Notification Error: ".$e->getMessage());
+
+                return response()->json([$e->getMessage()],500);
+                
+            }
+           
+        }
 
   
     /**
