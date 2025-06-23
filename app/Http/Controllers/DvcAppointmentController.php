@@ -51,7 +51,11 @@ class DvcAppointmentController extends Controller
      */
     public function create($case_id, $forwarding_id, $evaluation_id)
     {
-        //
+       
+       if (auth()->user()->role !== "DVC") {
+            return redirect()->back()->with('error', 'Only DVC can appoint a lawyer.');
+        }
+//
          $case_name = null;
          $appointment = null;
 
@@ -278,7 +282,14 @@ class DvcAppointmentController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try {
+            $appointment = DvcAppointment::findOrFail($id);
+            $appointment->delete();
+
+            return response()->json(['message' => 'Appointment deleted successfully.']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to delete appointment.'], 500);
+        }
     }
 
     public function checkCase(Request $request)

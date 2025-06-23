@@ -151,13 +151,29 @@
                                 @endif
                             </td>
                                 <td class="text-center action-buttons">
+                                    <!-- Edit Button -->
                                     <button class="btn btn-warning btn-sm edit-appeal" data-id="{{ $appeal->appeal_id }}">
                                         <i class="fa fa-edit"></i> Edit
                                     </button>
 
+                                    <!-- View Button -->
                                     <button class="btn btn-info btn-sm view-appeal" data-id="{{ $appeal->appeal_id }}">
                                         <i class="fa fa-eye"></i> View
                                     </button>
+
+                                    <!-- Delete Button -->
+                                    <form id="delete-appeal-form-{{ $appeal->appeal_id }}"
+                                          action="{{ route('appeals.destroy', $appeal->appeal_id) }}"
+                                          method="POST" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="button"
+                                                class="btn btn-danger btn-sm swal-delete-appeal-btn"
+                                                data-id="{{ $appeal->appeal_id }}"
+                                                title="Delete Appeal">
+                                            <i class="fa fa-trash"></i> Delete
+                                        </button>
+                                    </form>
                                 </td>
                                 
                                 
@@ -657,6 +673,31 @@ $(document).ready(function () {
             
         }
         );
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.swal-delete-appeal-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const id = this.dataset.id;
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This appeal will be permanently deleted.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('delete-appeal-form-' + id).submit();
+                    }
+                });
+            });
+        });
     });
 </script>
 @endpush

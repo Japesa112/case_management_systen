@@ -66,7 +66,7 @@ public function __construct()
                 'full_name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users',
                 'phone' => 'required|string|max:15|unique:users',
-                'role' => 'required|string|in:user,lawyer,Admin',
+                'role' => 'required|string|in:user,lawyer,Admin,DVC',
                 'license_number' => 'required_if:role,lawyer|string|max:255|unique:lawyers',
                 'area_of_expertise' => 'nullable|string|max:255',
                 'firm_name' => 'nullable|string|max:255',
@@ -222,10 +222,22 @@ public function __construct()
     /**
      * Remove the specified user from storage.
      */
-    public function destroy(User $user)
-    {
+    
+
+
+public function destroy($id)
+{
+    try {
+        $user = User::findOrFail($id);
         $user->delete();
-        return redirect()->route('users.index')->with('success', 'User deleted successfully.');
+
+        return redirect()->back()->with('success', 'User deleted successfully.');
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Failed to delete user.');
     }
+}
+
+
+
 }
 

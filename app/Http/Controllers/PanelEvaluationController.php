@@ -193,12 +193,17 @@ public function show(PanelEvaluation $evaluation)
     return redirect()->route('evaluations.index')->with('success', 'Evaluation updated successfully.');
 }
 
-    public function destroy(PanelEvaluation $evaluation)
-    {
+   public function destroy($id)
+{
+    try {
+        $evaluation = PanelEvaluation::findOrFail($id);
         $evaluation->delete();
-        return redirect()->route('evaluations.index')->with('success', 'Evaluation deleted!');
-    }
 
+        return redirect()->back()->with('success', 'Evaluation deleted successfully.');
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Failed to delete evaluation.');
+    }
+}
 
     public function checkCase(Request $request)
 {

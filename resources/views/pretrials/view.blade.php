@@ -52,20 +52,36 @@
                                 @if($preTrials->isEmpty())
                                     <p>No pre-trials available.</p>
                                 @else
-                                    <ul class="list-group" id="pretrial-list">
-                                       @foreach($preTrials as $index => $preTrial)
-                                            <li class="list-group-item pretrial-item {{ $index === 0 ? 'active' : '' }}"
+                                   <ul class="list-group" id="pretrial-list">
+                                    @foreach($preTrials as $index => $preTrial)
+                                        <li class="list-group-item d-flex justify-content-between align-items-center pretrial-item {{ $index === 0 ? 'active' : '' }}"
+                                            data-id="{{ $preTrial->pretrial_id }}"
+                                            data-date="{{ $preTrial->pretrial_date }}"
+                                            data-time="{{ $preTrial->pretrial_time }}"
+                                            data-location="{{ $preTrial->location }}"
+                                            data-comments="{{ $preTrial->comments }}">
 
-                                                data-id="{{ $preTrial->pretrial_id }}"
-                                                data-date="{{ $preTrial->pretrial_date }}"
-                                                data-time="{{ $preTrial->pretrial_time }}"
-                                                data-location="{{ $preTrial->location }}"
-                                                data-comments="{{ $preTrial->comments }}">
+                                            <span>
                                                 {{ $preTrial->pretrial_date }} @ {{ $preTrial->pretrial_time }}
-                                            </li>
-                                        @endforeach
+                                            </span>
 
-                                    </ul>
+                                            <!-- Delete button -->
+                                            <form id="delete-pretrial-form-{{ $preTrial->pretrial_id }}"
+                                                  action="{{ route('pretrials.destroy', $preTrial->pretrial_id) }}"
+                                                  method="POST" class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="button"
+                                                        class="btn btn-sm btn-danger btn-delete-pretrial"
+                                                        data-id="{{ $preTrial->pretrial_id }}"
+                                                        title="Delete Pre-Trial">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    @endforeach
+                                </ul>
+
                                 @endif
 
                                 <button type="button" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#addPreTrialModal">
@@ -1209,5 +1225,30 @@ document.getElementById('updatePreTrialForm').addEventListener('submit', functio
 });
 </script>
 
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.btn-delete-pretrial').forEach(button => {
+            button.addEventListener('click', function () {
+                const id = this.dataset.id;
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This pre-trial will be deleted.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('delete-pretrial-form-' + id).submit();
+                    }
+                });
+            });
+        });
+    });
+</script>
 
 @endpush

@@ -138,8 +138,9 @@
                     <th>Description</th>
                     <th>Registered At</th>
                     <th>Status</th>
-                    <th>View</th>
                     <th>Handled By</th>
+                    <th>View/Delete</th>
+                    
                 </tr>
             </thead>
             <tbody>
@@ -153,11 +154,7 @@
                         <td>
                             {{ $case->case_status }}
                         </td>
-                        <td>
-                            <a href="{{ route('cases.show', $case) }}" class="btn btn-info btn-sm">
-                                <i class="fa fa-eye"></i>
-                            </a>
-                        </td>
+
                         <td class="text-nowrap">
                             <span class="text-muted">
                                 @if(count($case->caseLawyers) == 0)
@@ -168,6 +165,21 @@
                                     More than 1 Lawyer Assigned
                                 @endif
                             </span>
+                        </td>
+
+                         <td>
+                            <a href="{{ route('cases.show', $case) }}" class="btn btn-info btn-sm">
+                                <i class="fa fa-eye"></i>
+                            </a>
+
+                              <!-- Delete Button -->
+                            <form id="delete-case-form-{{ $case->case_id }}" action="{{ route('cases.destroy', $case->case_id) }}" method="POST" class="d-inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="button" class="btn btn-danger btn-sm swal-case-delete-btn" data-case-id="{{ $case->case_id }}" title="Delete">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </form>
                         </td>
                     </tr>
                 @endforeach
@@ -333,5 +345,27 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
-
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.swal-case-delete-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const caseId = this.getAttribute('data-case-id');
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This case will be permanently deleted.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('delete-case-form-' + caseId).submit();
+                    }
+                });
+            });
+        });
+    });
+</script>
 @endpush

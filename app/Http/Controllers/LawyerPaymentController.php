@@ -233,7 +233,7 @@ class LawyerPaymentController extends Controller
     public function destroy($id)
     {
         LawyerPayment::findOrFail($id)->delete();
-        return redirect()->route('lawyerPayments.index')->with('success', 'Lawyer Payment deleted successfully.');
+        return redirect()->route('lawyer_payments.index')->with('success', 'Lawyer Payment deleted successfully.');
     }
 
     public function deleteDocument($documentId)

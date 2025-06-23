@@ -225,7 +225,7 @@ class TrialPreparationController extends Controller
     public function destroy($id)
     {
         TrialPreparation::findOrFail($id)->delete();
-        return redirect()->route('trial_preparations.index')->with('success', 'Trial Preparation deleted successfully.');
+        return redirect()->route('preparations.index')->with('success', 'Trial Preparation deleted successfully.');
     }
 
 

@@ -201,12 +201,16 @@ class AGAdviceController extends Controller
     /**
      * Remove the specified AG Advice from the database.
      */
-    public function destroy($id)
+   public function destroy($id)
     {
-        $advice = AGAdvice::findOrFail($id);
-        $advice->delete();
+        try {
+            $advice = AGAdvice::findOrFail($id);
+            $advice->delete();
 
-        return response()->json(['message' => 'AG Advice deleted successfully!']);
+            return redirect()->back()->with('success', 'Advice deleted successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to delete advice.');
+        }
     }
 
 

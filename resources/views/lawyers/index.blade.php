@@ -74,13 +74,24 @@
                             <td>{{ $lawyer->firm_name }}</td>
                             <td>{{ $lawyer->years_experience }}</td>
                             <td>
-                                <button class="btn btn-info btn-sm view-lawyer" data-bs-target="#viewLawyerModal" data-bs-toggle="modal"  data-id="{{ $lawyer->lawyer_id }}" title="View Details">
+                                <!-- View Button -->
+                                <button class="btn btn-info btn-sm view-lawyer" data-bs-target="#viewLawyerModal" data-bs-toggle="modal" data-id="{{ $lawyer->lawyer_id }}" title="View Details">
                                     <i class="fa fa-eye"></i> View
                                 </button>
 
+                                <!-- Edit Button -->
                                 <a href="{{ route('lawyers.edit', $lawyer->lawyer_id) }}" class="btn btn-warning btn-sm">Edit</a>
-                               
+
+                                <!-- Delete Button -->
+                                <form id="delete-lawyer-form-{{ $lawyer->lawyer_id }}" action="{{ route('lawyers.destroy', $lawyer->lawyer_id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="button" class="btn btn-danger btn-sm swal-lawyer-delete-btn" data-lawyer-id="{{ $lawyer->lawyer_id }}" title="Delete">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </form>
                             </td>
+
                         </tr>
                     @endforeach
                 </tbody>
@@ -210,5 +221,30 @@
         );
     });
 </script> 
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.swal-lawyer-delete-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const lawyerId = this.getAttribute('data-lawyer-id');
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This lawyer will be deleted permanently.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, delete!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('delete-lawyer-form-' + lawyerId).submit();
+                    }
+                });
+            });
+        });
+    });
+</script>
+
     
 @endpush

@@ -316,16 +316,17 @@ public function getCasesAwaitingAction()
     /**
      * Remove a lawyer from the database.
      */
-    public function destroy($id)
+   public function destroy($id)
     {
-        $lawyer = Lawyer::findOrFail($id);
-        $lawyer->delete();
+        try {
+            $lawyer = Lawyer::findOrFail($id);
+            $lawyer->delete();
 
-        return redirect()->route('lawyers.index')->with('success', 'Lawyer removed successfully!')
-        ->with('deletedLawyer', $lawyer);
-        
+            return redirect()->back()->with('success', 'Lawyer deleted successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to delete lawyer.');
+        }
     }
-
 
     public function my_index()
 {

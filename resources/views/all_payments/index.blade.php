@@ -201,14 +201,30 @@
                                 @endif
                             </td>
                                 <td class="text-center action-buttons">
+                                    <!-- Edit Button -->
                                     <button class="btn btn-warning btn-sm edit-payment" data-id="{{ $payment->payment_id }}">
                                         <i class="fa fa-edit"></i> Edit
                                     </button>
 
+                                    <!-- View Button -->
                                     <button class="btn btn-info btn-sm view-payment" data-id="{{ $payment->payment_id }}">
                                         <i class="fa fa-eye"></i> View
                                     </button>
+
+                                    <!-- Delete Button -->
+                                    <form id="delete-payment-form-{{ $payment->payment_id }}"
+                                          action="{{ route('payments.destroy', $payment->payment_id) }}"
+                                          method="POST" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="button"
+                                                class="btn btn-danger btn-sm swal-delete-payment-btn"
+                                                data-id="{{ $payment->payment_id }}">
+                                            <i class="fa fa-trash"></i> Delete
+                                        </button>
+                                    </form>
                                 </td>
+
                                 
                                 
                             </tr>
@@ -878,6 +894,31 @@ $(document).ready(function () {
     });
 });
 
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.swal-delete-payment-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const paymentId = this.dataset.id;
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This payment will be permanently deleted.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('delete-payment-form-' + paymentId).submit();
+                    }
+                });
+            });
+        });
+    });
 </script>
 
 

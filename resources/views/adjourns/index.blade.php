@@ -150,16 +150,33 @@
                                     <span class="text-muted">N/A</span>
                                 @endif
                             </td>
-                                <td class="text-center action-buttons">
+                               <td class="text-center action-buttons">
 
+                                    <!-- Edit Button -->
                                     <button class="btn btn-warning btn-sm edit-adjourn" data-id="{{ $adjourn->adjourns_id }}">
                                         <i class="fa fa-edit"></i> Edit
                                     </button>
 
+                                    <!-- View Button -->
                                     <button class="btn btn-info btn-sm view-adjourn" data-id="{{ $adjourn->adjourns_id }}">
                                         <i class="fa fa-eye"></i> View
                                     </button>
+
+                                    <!-- Delete Button -->
+                                    <form id="delete-adjourn-form-{{ $adjourn->adjourns_id }}"
+                                          action="{{ route('adjourns.destroy', $adjourn->adjourns_id) }}"
+                                          method="POST" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="button"
+                                                class="btn btn-danger btn-sm swal-delete-adjourn-btn"
+                                                data-id="{{ $adjourn->adjourns_id }}"
+                                                title="Delete Adjournment">
+                                            <i class="fa fa-trash"></i> Delete
+                                        </button>
+                                    </form>
                                 </td>
+
                                 
                                 
                             </tr>
@@ -662,4 +679,30 @@ $(document).ready(function () {
         );
     });
 </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.swal-delete-adjourn-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const id = this.dataset.id;
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This adjournment will be permanently deleted.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('delete-adjourn-form-' + id).submit();
+                    }
+                });
+            });
+        });
+    });
+</script>
+
 @endpush

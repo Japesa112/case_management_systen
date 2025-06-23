@@ -155,15 +155,32 @@
 
                               <td class="text-center action-buttons">
                                   <div class="d-flex justify-content-center gap-2">
+                                    <!-- Edit Button -->
                                     <button class="btn btn-warning btn-sm edit-preparation" data-id="{{ $preparation->preparation_id }}" title="Edit Preparation">
                                       <i class="fa fa-edit me-1"></i> Edit
                                     </button>
 
+                                    <!-- View Button -->
                                     <button class="btn btn-info btn-sm view-preparation" data-id="{{ $preparation->preparation_id }}" title="View Preparation">
                                       <i class="fa fa-eye me-1"></i> View
                                     </button>
+
+                                    <!-- Delete Button -->
+                                    <form id="delete-preparation-form-{{ $preparation->preparation_id }}"
+                                          action="{{ route('trial_preparations.destroy', $preparation->preparation_id) }}"
+                                          method="POST" class="d-inline">
+                                      @csrf
+                                      @method('DELETE')
+                                      <button type="button"
+                                              class="btn btn-danger btn-sm swal-delete-preparation-btn"
+                                              data-id="{{ $preparation->preparation_id }}"
+                                              title="Delete Preparation">
+                                        <i class="fa fa-trash me-1"></i> Delete
+                                      </button>
+                                    </form>
                                   </div>
                                 </td>
+
 
                                 
                                 
@@ -711,5 +728,30 @@ $(document).ready(function () {
         );
     });
 </script> 
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.swal-delete-preparation-btn').forEach(button => {
+      button.addEventListener('click', function () {
+        const id = this.dataset.id;
+
+        Swal.fire({
+          title: 'Are you sure?',
+          text: "This trial preparation will be permanently deleted.",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#6c757d',
+          confirmButtonText: 'Yes, delete it!',
+          cancelButtonText: 'Cancel'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            document.getElementById('delete-preparation-form-' + id).submit();
+          }
+        });
+      });
+    });
+  });
+</script>
      
 @endpush

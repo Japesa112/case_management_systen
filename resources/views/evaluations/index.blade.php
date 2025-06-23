@@ -183,8 +183,28 @@
                                         </button>
 
                                         <!-- Edit Button -->
-                                </div>
+                                        <a href="{{ route('evaluations.edit', $evaluation->evaluation_id) }}" 
+                                           class="btn btn-warning btn-sm d-inline-flex align-items-center gap-1" 
+                                           title="Edit">
+                                            <i class="fa fa-edit"></i> <span>Edit</span>
+                                        </a>
+
+                                        <!-- Delete Button -->
+                                        <form id="delete-eval-form-{{ $evaluation->evaluation_id }}" 
+                                              action="{{ route('evaluations.destroy', $evaluation->evaluation_id) }}" 
+                                              method="POST" class="d-inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="button" 
+                                                    class="btn btn-danger btn-sm d-inline-flex align-items-center gap-1 swal-eval-delete-btn" 
+                                                    data-id="{{ $evaluation->evaluation_id }}" 
+                                                    title="Delete">
+                                                <i class="fa fa-trash"></i> <span>Delete</span>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
+
 
                             </tr>
                             @endforeach
@@ -498,6 +518,31 @@ $(document).ready(function () {
     });
 });
 
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.swal-eval-delete-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const evalId = this.getAttribute('data-id');
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This evaluation will be permanently deleted.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('delete-eval-form-' + evalId).submit();
+                    }
+                });
+            });
+        });
+    });
 </script>
 
 @endpush

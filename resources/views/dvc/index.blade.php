@@ -95,17 +95,28 @@
         </div>
 
 
-                @if(session('success'))
-                <div class="alert alert-success" id="success-message">
-                    {{ session('success') }}
-                </div>
-            
+               @if(session('success'))
+                    <div class="alert alert-success" id="success-message">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                @if(session('error'))
+                    <div class="alert alert-danger" id="error-message">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
                 <script>
-                    setTimeout(function() {
-                        document.getElementById('success-message').style.display = 'none';
-                    }, 5000); // Hides the message after 5 seconds (5000ms)
+                    setTimeout(function () {
+                        var successMsg = document.getElementById('success-message');
+                        if (successMsg) successMsg.style.display = 'none';
+
+                        var errorMsg = document.getElementById('error-message');
+                        if (errorMsg) errorMsg.style.display = 'none';
+                    }, 5000); // Hide messages after 5 seconds
                 </script>
-            @endif
+
             
             
             <div class="table-responsive">
@@ -152,14 +163,30 @@
                                 @endif
                             </td>
                                 <td class="text-center action-buttons">
-                                    <button class="btn btn-warning btn-sm edit-appointment" data-id="{{ $appointment->appointment_id }}">
-                                        <i class="fa fa-edit"></i> Edit
-                                    </button>
+                                <!-- Edit Button -->
+                                <button class="btn btn-warning btn-sm edit-appointment" data-id="{{ $appointment->appointment_id }}">
+                                    <i class="fa fa-edit"></i> Edit
+                                </button>
 
-                                    <button class="btn btn-info btn-sm view-appointment" data-id="{{ $appointment->appointment_id }}">
-                                        <i class="fa fa-eye"></i> View
+                                <!-- View Button -->
+                                <button class="btn btn-info btn-sm view-appointment" data-id="{{ $appointment->appointment_id }}">
+                                    <i class="fa fa-eye"></i> View
+                                </button>
+
+                                <!-- Delete Button -->
+                                <form id="delete-appointment-form-{{ $appointment->appointment_id }}" 
+                                      action="{{ route('appointments.destroy', $appointment->appointment_id) }}" 
+                                      method="POST" class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="button" 
+                                            class="btn btn-danger btn-sm swal-delete-appointment-btn" 
+                                            data-id="{{ $appointment->appointment_id }}">
+                                        <i class="fa fa-trash"></i> Delete
                                     </button>
-                                </td>
+                                </form>
+                            </td>
+
                                 
                                 
                             </tr>
@@ -619,7 +646,7 @@ $(document).ready(function () {
     
              
         if (!caseNumber) {
-            alert("Please select a casef.");
+            alert("Please select a case.");
             return;
         }
        
@@ -644,6 +671,46 @@ $(document).ready(function () {
             
         }
         );
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.swal-delete-appointment-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const appointmentId = this.dataset.id;
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This appointment will be permanently deleted.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`/dvc/appointments/${appointmentId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            Swal.fire('Deleted!', data.message, 'success').then(() => {
+                                location.reload();
+                            });
+                        })
+                        .catch(error => {
+                            Swal.fire('Error!', 'Failed to delete appointment.', 'error');
+                        });
+                    }
+                });
+            });
+        });
     });
 </script>
 @endpush

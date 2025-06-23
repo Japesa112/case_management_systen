@@ -141,36 +141,57 @@
                                 <td class="text-center">{{ $trial->judgement_date}}</td>
                                 <td class="text-center">{{ $trial->outcome}}</td>
                                 <td> {{ Str::limit($trial->judgement_details ?? 'No comments', 30) }}  </td>
-                                <td>
-                                @if($trial->case)
-                                   
+                               <td>
+                                    @if($trial->case)
+                                        <a href="{{ route('pretrials.index', $trial->case->case_id) }}" 
+                                           class="btn btn-sm btn-outline-primary d-inline-flex align-items-center me-1 mb-2" 
+                                           title="Pre-Trial">
+                                            <i class="fa fa-gavel me-1"></i> Pre-Trial
+                                        </a>
 
-                                    <a href="{{ route('appeals.create', $trial->case->case_id) }}" 
-                                       class="btn btn-sm btn-outline-success d-inline-flex align-items-center me-1 mb-2" 
-                                       title="Appealed">
-                                        <i class="fa fa-balance-scale me-1"></i> Appeal
-                                    </a>
+                                        <a href="{{ route('appeals.create', $trial->case->case_id) }}" 
+                                           class="btn btn-sm btn-outline-success d-inline-flex align-items-center me-1 mb-2" 
+                                           title="Appealed">
+                                            <i class="fa fa-balance-scale me-1"></i> Appeal
+                                        </a>
 
-                                    <a href="{{ route('adjourns.create', $trial->case->case_id) }}" 
-                                       class="btn btn-sm btn-outline-warning d-inline-flex align-items-center" 
-                                       title="Adjourned">
-                                        <i class="fa fa-clock me-1"></i> Adjourn
-                                    </a>
-                                @else
-                                    <span class="text-muted">N/A</span>
-                                @endif
-                            </td>
+                                        <a href="{{ route('adjourns.create', $trial->case->case_id) }}" 
+                                           class="btn btn-sm btn-outline-warning d-inline-flex align-items-center" 
+                                           title="Adjourned">
+                                            <i class="fa fa-clock me-1"></i> Adjourn
+                                        </a>
+                                    @else
+                                        <span class="text-muted">N/A</span>
+                                    @endif
+                                </td>
+
 
 
                                 <td class="text-center action-buttons">
+                                    <!-- Edit Button -->
                                     <button class="btn btn-warning btn-sm edit-trial" data-id="{{ $trial->trial_id }}">
                                         <i class="fa fa-edit"></i> Edit
                                     </button>
 
+                                    <!-- View Button -->
                                     <button class="btn btn-info btn-sm view-trial" data-id="{{ $trial->trial_id }}">
                                         <i class="fa fa-eye"></i> View
                                     </button>
+
+                                    <!-- Delete Button -->
+                                    <form id="delete-trial-form-{{ $trial->trial_id }}"
+                                          action="{{ route('trials.destroy', $trial->trial_id) }}"
+                                          method="POST" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="button"
+                                                class="btn btn-danger btn-sm swal-delete-trial-btn"
+                                                data-id="{{ $trial->trial_id }}">
+                                            <i class="fa fa-trash"></i> Delete
+                                        </button>
+                                    </form>
                                 </td>
+
                                 
                                 
                             </tr>
@@ -725,4 +746,29 @@ $(document).ready(function () {
         );
     });
 </script>  
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.swal-delete-trial-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const id = this.dataset.id;
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This trial record will be permanently deleted.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('delete-trial-form-' + id).submit();
+                    }
+                });
+            });
+        });
+    });
+</script>
 @endpush

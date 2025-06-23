@@ -74,14 +74,21 @@
                             <div class="col-md-6">
                                 <div class="form-group mt-2">
                                     <label for="outcome">Outcome <span class="text-danger">*</span></label>
-                                    <select name="outcome" id="outcome" class="form-control" required>
+                                    <select name="final_outcome" id="final_outcome" class="form-control" required>
                                         <option value="">Select Outcome</option>
                                         <option value="Win">Win</option>
-                                        <option value="Loss">Lost</option>
+                                        <option value="Loss">Loss</option>
                                         <option value="Dismissed">Dismissed</option>
-                                        <option value="Adjourned">Adjourned</option>
+                                        <option value="Settled">Settled</option>
+                                        <option value="Other">Other</option>
                                     </select>
                                 </div>
+
+                                <!-- Hidden input that appears if "Other" is selected -->
+                            <div class="form-group mt-2 d-none" id="final_outcome_other_wrapper">
+                                <label for="final_outcome_other">Specify Other Outcome</label>
+                                <input type="text" name="final_outcome_other" id="final_outcome_other" class="form-control">
+                            </div>
                                 <div class="form-group mt-2">
                                     <label for="judgement_details">Judgement Details</label>
                                     <textarea name="judgement_details" id="judgement_details" class="form-control" rows="3" placeholder="Enter judgement details"></textarea>
@@ -217,5 +224,21 @@
     });
     </script>
     
-    
+      <script>
+    document.getElementById('final_outcome').addEventListener('change', function () {
+        const selected = this.value;
+        const otherWrapper = document.getElementById('final_outcome_other_wrapper');
+        const otherInput = document.getElementById('final_outcome_other');
+
+        if (selected === 'Other') {
+            otherWrapper.classList.remove('d-none');
+            otherInput.required = true;
+        } else {
+            otherWrapper.classList.add('d-none');
+            otherInput.required = false;
+            otherInput.value = '';
+        }
+    });
+</script>
+
 @endpush

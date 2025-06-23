@@ -67,6 +67,17 @@
             @endif
         @endforeach
         
+        @if(session('success'))
+            <div class="alert alert-success fade-out-alert">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="alert alert-danger fade-out-alert">
+                {{ session('error') }}
+            </div>
+        @endif
         
 
         <!-- Users Table -->
@@ -89,13 +100,25 @@
                             <td>{{ $user->email }}</td>
                             <td>{{ $user->role }}</td>
                             <td>
-                                <button class="btn btn-info btn-sm view-user" data-bs-target="#viewUserModal" data-bs-toggle="modal"  data-id="{{ $user->user_id }}" title="View Details">
+                                <!-- View Button -->
+                                <button class="btn btn-info btn-sm view-user" data-bs-target="#viewUserModal" data-bs-toggle="modal" data-id="{{ $user->user_id }}" title="View Details">
                                     <i class="fa fa-eye"></i> View
                                 </button>
 
+                                <!-- Edit Button -->
                                 <a href="{{ route('users.edit', $user->user_id) }}" class="btn btn-warning btn-sm">Edit</a>
-                               
+
+                               <!-- Delete Button with Swal -->
+                                <form id="delete-form-{{ $user->user_id }}" action="{{ route('users.destroy', $user->user_id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="button" class="btn btn-danger btn-sm swal-delete-btn" data-user-id="{{ $user->user_id }}" title="Delete">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </form>
+
                             </td>
+
                         </tr>
                     @endforeach
                 </tbody>
@@ -219,5 +242,41 @@
         }
         );
     });
-</script>      
+</script> 
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.swal-delete-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const userId = this.getAttribute('data-user-id');
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This action cannot be undone!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('delete-form-' + userId).submit();
+                    }
+                });
+            });
+        });
+    });
+</script>
+
+<script>
+    setTimeout(function () {
+        document.querySelectorAll('.fade-out-alert').forEach(el => {
+            el.style.transition = 'opacity 1s ease';
+            el.style.opacity = '0';
+            setTimeout(() => el.remove(), 1000); // Remove from DOM after fade-out
+        });
+    }, 3600); // 60,000ms = 1 minute
+</script>
+
 @endpush

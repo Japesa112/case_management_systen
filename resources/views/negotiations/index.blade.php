@@ -168,7 +168,7 @@
                             </td>
 
 
-                            <td>
+                            <td> 
                                 <div class="d-flex flex-wrap gap-2">
                                     <!-- View Button -->
                                     <a href="{{ route('negotiations.show', $negotiation) }}" 
@@ -183,8 +183,17 @@
                                        title="Edit Negotiation">
                                         <i class="fa fa-edit"></i> <span>Edit</span>
                                     </a>
+
+                                    <!-- Delete Button -->
+                                    <button type="button" 
+                                            class="btn btn-danger btn-sm d-inline-flex align-items-center gap-1 delete-negotiation-btn" 
+                                            data-id="{{ $negotiation->negotiation_id }}" 
+                                            title="Delete Negotiation">
+                                        <i class="fa fa-trash"></i> <span>Delete</span>
+                                    </button>
                                 </div>
                             </td>
+
 
                         </tr>
                         @endforeach
@@ -337,5 +346,45 @@
     });
 </script> 
     
-    
+  <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.delete-negotiation-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            const negotiationId = this.dataset.id;
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This negotiation will be permanently deleted.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/negotiations/delete/${negotiationId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        Swal.fire('Deleted!', data.message, 'success').then(() => {
+                            // Reload or remove row
+                            location.reload();
+                        });
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        Swal.fire('Error!', 'Failed to delete negotiation.', 'error');
+                    });
+                }
+            });
+        });
+    });
+});
+</script>  
 @endpush

@@ -215,6 +215,18 @@ class PreTrialController extends Controller
    
 }
 
+public function destroy($id)
+{
+    try {
+        $preTrial = PreTrial::findOrFail($id);
+        $preTrial->delete();
+
+        return redirect()->back()->with('success', 'Pre-Trial deleted successfully.');
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Failed to delete Pre-Trial: ' . $e->getMessage());
+    }
+}
+
 
  public function destroyDocument($attachmentId)
 {

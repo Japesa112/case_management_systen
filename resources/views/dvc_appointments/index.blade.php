@@ -100,17 +100,28 @@
 
 
                 @if(session('success'))
-                <div class="alert alert-success" id="success-message">
-                    {{ session('success') }}
-                </div>
-            
-                <script>
-                    setTimeout(function() {
-                        document.getElementById('success-message').style.display = 'none';
-                    }, 5000); // Hides the message after 5 seconds (5000ms)
-                </script>
-            @endif
-            
+                        <div class="alert alert-success" id="success-message">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+
+                    @if(session('error'))
+                        <div class="alert alert-danger" id="error-message">
+                            {{ session('error') }}
+                        </div>
+                    @endif
+
+                    <script>
+                        setTimeout(function () {
+                            var successMsg = document.getElementById('success-message');
+                            if (successMsg) successMsg.style.display = 'none';
+
+                            var errorMsg = document.getElementById('error-message');
+                            if (errorMsg) errorMsg.style.display = 'none';
+                        }, 5000); // Hide messages after 5 seconds
+                    </script>
+
+                                
             
             <div class="table-responsive">
                 <table id="data-table" class="table table-bordered table-striped">
@@ -161,15 +172,31 @@
                                 @endif
                             </td>
 
-                                <td class="text-center action-buttons">
-                                    <button class="btn btn-warning btn-sm edit-appointment" data-id="{{ $appointment->forwarding_id }}">
-                                        <i class="fa fa-edit"></i> Edit
-                                    </button>
+                               <td class="text-center action-buttons">
+                                <!-- Edit Button -->
+                                <button class="btn btn-warning btn-sm edit-appointment" data-id="{{ $appointment->forwarding_id }}">
+                                    <i class="fa fa-edit"></i> Edit
+                                </button>
 
-                                    <button class="btn btn-info btn-sm view-appointment" data-id="{{ $appointment->forwarding_id }}">
-                                        <i class="fa fa-eye"></i> View
+                                <!-- View Button -->
+                                <button class="btn btn-info btn-sm view-appointment" data-id="{{ $appointment->forwarding_id }}">
+                                    <i class="fa fa-eye"></i> View
+                                </button>
+
+                                <!-- Delete Button -->
+                                <form id="delete-forwarding-form-{{ $appointment->forwarding_id }}" 
+                                      action="{{ route('forwardings.destroy', $appointment->forwarding_id) }}" 
+                                      method="POST" class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="button" 
+                                            class="btn btn-danger btn-sm swal-delete-forwarding-btn" 
+                                            data-id="{{ $appointment->forwarding_id }}">
+                                        <i class="fa fa-trash"></i> Delete
                                     </button>
-                                </td>
+                                </form>
+                            </td>
+
                                 
                                 
                             </tr>
@@ -393,7 +420,7 @@
         $(document).ready(function () {
     $(document).on('click', '.edit-appointment', function () {
         let forwarding_id = $(this).data('id');
-      alert(forwarding_id);
+     
         // Fetch appointment details using AJAX
         $.ajax({
             url: `dvc_appointments/show/${forwarding_id}`, // Make sure this route exists in your Laravel routes
@@ -624,4 +651,45 @@ $(document).ready(function () {
         );
     });
 </script> 
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.swal-delete-forwarding-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const id = this.dataset.id;
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This forwarding record will be deleted permanently.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`/dvc_appointments/${id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            Swal.fire('Deleted!', data.message, 'success').then(() => {
+                                location.reload(); // Or remove the row dynamically
+                            });
+                        })
+                        .catch(() => {
+                            Swal.fire('Error!', 'Failed to delete forwarding.', 'error');
+                        });
+                    }
+                });
+            });
+        });
+    });
+</script>
+
 @endpush

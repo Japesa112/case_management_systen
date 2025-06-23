@@ -680,12 +680,22 @@ public function index(Request $request)
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+   public function destroy(string $id)
     {
-        //
-    }
+        try {
+            $case = CaseModel::findOrFail($id);
+            $case->delete();
 
-  
+             Log::error("Worked: ");
+
+            return redirect()->back()->with('success', 'Case deleted successfully.');
+
+        } catch (\Exception $e) {
+             Log::error("Error updating case: " . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to delete the case.');
+        }
+    }
+      
 
     public function destroyDocument($document_id)
 {

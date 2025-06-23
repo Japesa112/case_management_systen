@@ -192,15 +192,31 @@
                                     <span class="text-muted">N/A</span>
                                 @endif
                             </td>
-                                <td class="text-center action-buttons">
-                                    <button class="btn btn-warning btn-sm edit-payment" data-id="{{ $payment->payment_id }}">
-                                        <i class="fa fa-edit"></i> Edit
-                                    </button>
+                               <td class="text-center action-buttons">
+                                <!-- Edit Button -->
+                                <button class="btn btn-warning btn-sm edit-payment" data-id="{{ $payment->payment_id }}">
+                                    <i class="fa fa-edit"></i> Edit
+                                </button>
 
-                                    <button class="btn btn-info btn-sm view-payment" data-id="{{ $payment->payment_id }}">
-                                        <i class="fa fa-eye"></i> View
+                                <!-- View Button -->
+                                <button class="btn btn-info btn-sm view-payment" data-id="{{ $payment->payment_id }}">
+                                    <i class="fa fa-eye"></i> View
+                                </button>
+
+                                <!-- Delete Button -->
+                                <form id="delete-lawyer-payment-form-{{ $payment->payment_id }}"
+                                      action="{{ route('lawyerPayments.destroy', $payment->payment_id) }}"
+                                      method="POST" class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="button"
+                                            class="btn btn-danger btn-sm swal-delete-lawyer-payment-btn"
+                                            data-id="{{ $payment->payment_id }}">
+                                        <i class="fa fa-trash"></i> Delete
                                     </button>
-                                </td>
+                                </form>
+                            </td>
+
                                 
                                 
                             </tr>
@@ -801,4 +817,29 @@ $(document).ready(function () {
         );
     });
 </script> 
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.swal-delete-lawyer-payment-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const id = this.dataset.id;
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This lawyer payment record will be deleted permanently.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('delete-lawyer-payment-form-' + id).submit();
+                    }
+                });
+            });
+        });
+    });
+</script>
 @endpush

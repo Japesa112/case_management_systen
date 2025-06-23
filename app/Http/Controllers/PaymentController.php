@@ -239,7 +239,7 @@ class PaymentController extends Controller
     public function destroy($id)
     {
         Payment::findOrFail($id)->delete();
-        return redirect()->route('payments.index')->with('success', 'Payment deleted successfully.');
+        return redirect()->route('all_payments.index')->with('success', 'Payment deleted successfully.');
     }
 
     /**

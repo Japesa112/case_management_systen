@@ -162,7 +162,8 @@
                                 @endif
                             </td>
 
-                                <td class="text-center action-buttons">
+                              
+                               <td class="text-center action-buttons">
                                     <button class="btn btn-warning btn-sm edit-advice" data-id="{{ $advice->ag_advice_id }}">
                                         <i class="fa fa-edit"></i> Edit
                                     </button>
@@ -170,7 +171,20 @@
                                     <button class="btn btn-info btn-sm view-advice" data-id="{{ $advice->ag_advice_id }}">
                                         <i class="fa fa-eye"></i> View
                                     </button>
+
+                                    <form id="delete-advice-form-{{ $advice->ag_advice_id }}" 
+                                          action="{{ route('ag-advice.destroy', $advice->ag_advice_id) }}" 
+                                          method="POST" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="button" 
+                                                class="btn btn-danger btn-sm swal-delete-advice-btn" 
+                                                data-id="{{ $advice->ag_advice_id }}">
+                                            <i class="fa fa-trash"></i> Delete
+                                        </button>
+                                    </form>
                                 </td>
+
                                 
                                 
                             </tr>
@@ -647,5 +661,41 @@ $(document).ready(function () {
         );
     });
 </script>
-    
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.swal-delete-advice-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const adviceId = this.dataset.id;
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This AG Advice will be deleted permanently.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('delete-advice-form-' + adviceId).submit();
+                    }
+                });
+            });
+        });
+    });
+</script>
+
+<script>
+    setTimeout(() => {
+        document.querySelectorAll('.fade-out-alert').forEach(el => {
+            el.style.transition = 'opacity 1s ease';
+            el.style.opacity = '0';
+            setTimeout(() => el.remove(), 1000);
+        });
+    }, 60000); // Hide after 1 minute
+</script>
 @endpush

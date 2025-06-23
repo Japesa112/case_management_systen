@@ -79,7 +79,8 @@ class TrialController extends Controller
             'trial_date' => 'required|date_format:Y-m-d\TH:i',
             'judgement_details' => 'nullable|string',
             'judgement_date' => 'required|date_format:Y-m-d\TH:i|after_or_equal:trial_date',
-            'outcome' => 'required|string|in:Win,Loss,Adjourned',
+            'final_outcome' => 'required|string|in:Win,Loss,Dismissed,Settled,Other',
+            'final_outcome_other' => 'required_if:final_outcome,Other|string|nullable',
             'trialAttachments.*' => 'file|mimes:pdf,doc,docx,jpg,png|max:2048' // File validation
         ]);
 
@@ -88,7 +89,10 @@ class TrialController extends Controller
         $judgement_date= $dateJudgementTime->toDateString();
         $judgement_time = $dateJudgementTime->toTimeString();
 
-
+         $finalOutcome = $request->final_outcome === 'Other'
+                ? $request->final_outcome_other
+                : $request->final_outcome;
+                
         $dateTrialTime = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->trial_date);
         $trial_date= $dateTrialTime->toDateString();
         $trial_time = $dateTrialTime->toTimeString();
@@ -100,7 +104,7 @@ class TrialController extends Controller
             'judgement_details' => $request->judgement_details,
             'judgement_date' => $judgement_date,
             'judgement_time' => $judgement_time,
-            'outcome' => $request->outcome,
+            'outcome' => $finalOutcome,
             'created_at' => now(),
             'updated_at' => now()
         ]);

@@ -220,6 +220,7 @@ Route::get('/home', 'MainController@home')->name('home');
 //Users route and controller
 Route::prefix('users')->group(function () {
 Route::post('/notification-preference/save', [UserController::class, 'save'])->middleware('auth');
+Route::delete('/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
 Route::get('/',[UserController::class, 'index'])->name('users.index');
 Route::get('/change-password',[UserController::class, 'change_password'])->name('users.change');
@@ -257,7 +258,7 @@ Route::prefix('lawyers')->group(function () {
     Route::post('/store', [LawyerController::class, 'store'])->name('lawyers.store');
     Route::get('/edit/{lawyer}', [LawyerController::class, 'edit'])->name('lawyers.edit');
     Route::put('/update/{lawyer}', [LawyerController::class, 'update'])->name('lawyers.update');
-    Route::delete('/delete/{lawyer}', [LawyerController::class, 'destroy'])->name('lawyers.destroy');
+    Route::delete('/{lawyer}', [LawyerController::class, 'destroy'])->name('lawyers.destroy');
 
     Route::get('/edit_', [LawyerController::class, 'edit_'])->name('lawyers.edit_');
     Route::get('/delete', [LawyerController::class, 'delete'])->name('lawyers.remove');
@@ -376,6 +377,7 @@ Route::post('/store', [PanelEvaluationController::class, 'store'])->name('evalua
 Route::get('/show/{evaluation}', [PanelEvaluationController::class, 'show'])->name('evaluations.show');
 Route::get('/edit/{evaluation}', [PanelEvaluationController::class, 'edit'])->name('evaluations.edit');
 Route::put('/update/{evaluation}', [PanelEvaluationController::class, 'update'])->name('evaluations.update');
+Route::delete('/{evaluation}', [PanelEvaluationController::class, 'destroy'])->name('evaluations.destroy');
 
 });
 
@@ -393,12 +395,17 @@ Route::prefix('appeals')->group(function () {
     Route::delete('/deleteDocuments/{documentId}', [AppealController::class, 'deleteDocument'])->name('appeals.deleteDocument');
     Route::put('/update/{appeal}', [AppealController::class, 'update'])->name('appeals.update');
     Route::post('/uploadAttachment', [AppealController::class, 'uploadAttachment'])->name('appeals.uploadAttachment');
+    Route::delete('/{appeal}', [AppealController::class, 'destroy'])->name('appeals.destroy');
+
 
  });
 
 
 
  Route::prefix('adjourns')->group(function () {
+
+
+Route::delete('/{adjourn}', [AdjournController::class, 'destroy'])->name('adjourns.destroy');
 
 
     Route::get('/', [AdjournController::class,'index'])->name('adjourns.index');
@@ -429,6 +436,7 @@ Route::prefix('appeals')->group(function () {
 
     Route::get('/all-available-witnesses', [WitnessController::class, 'getWitnesses']);
 
+    Route::delete('/{witness}', [WitnessController::class, 'destroy'])->name('witnesses.destroy');
 
  });
 
@@ -447,6 +455,7 @@ Route::prefix('appeals')->group(function () {
     Route::delete('/deleteDocuments/{documentId}', [TrialController::class, 'deleteDocument'])->name('trials.deleteDocument');
     Route::put('/update/{trial}', [TrialController::class, 'update'])->name('trials.update');
     Route::post('/uploadAttachment', [TrialController::class, 'uploadAttachment'])->name('trials.uploadAttachment');
+Route::delete('/{trial}', [TrialController::class, 'destroy'])->name('trials.destroy');
 
 
   });
@@ -466,6 +475,7 @@ Route::prefix('appeals')->group(function () {
     Route::delete('/deleteDocuments/{documentId}', [TrialPreparationController::class, 'deleteDocument'])->name('preparations.deleteDocument');
     Route::put('/update/{preparation}', [TrialPreparationController::class, 'update'])->name('preparations.update');
     Route::post('/uploadAttachment', [TrialPreparationController::class, 'uploadAttachment'])->name('preparations.uploadAttachment');
+    Route::delete('/{preparation}', [TrialPreparationController::class, 'destroy'])->name('trial_preparations.destroy');
 
 
   });
@@ -502,6 +512,7 @@ Route::prefix('all_payments')->group(function () {
     Route::get('/', [PaymentController::class, 'index'])->name('all_payments.index');
     Route::get('/edit/{payment}', [PaymentController::class, 'edit'])->name('all_payments.edit');
     Route::get('/check-case', [PaymentController::class, 'checkCase'])->name('all_payments.checkCase');
+   Route::delete('/{payment}', [PaymentController::class, 'destroy'])->name('payments.destroy');
 
    
     Route::get('/create/{case_id}', [PaymentController::class, 'create'])->name('all_payments.create');
@@ -522,7 +533,8 @@ Route::prefix('lawyer_payments')->group(function () {
     Route::get('/check-case', [LawyerPaymentController::class, 'checkCase'])->name('lawyer_payments.checkCase');
     Route::get('/get-lawyers', [LawyerPaymentController::class, 'getLawyers'])->name('lawyer_payments.getLawyers');
 
-   
+   Route::delete('/{lawyerPayment}', [LawyerPaymentController::class, 'destroy'])->name('lawyerPayments.destroy');
+
     Route::get('/create/{case_id}', [LawyerPaymentController::class, 'create'])->name('lawyer_payments.create');
     Route::post('/store', [LawyerPaymentController::class, 'store'])->name('lawyer_payments.store');
     Route::get('/show/{payment_id}', [LawyerPaymentController::class, 'show'])->name('lawyer_payments.show');
@@ -540,7 +552,8 @@ Route::prefix('ag_advice')->group(function () {
     Route::get('/show/{advice}', [AGAdviceController::class, 'show'])->name('ag_advice.show');
     Route::get('/edit/{advice}', [AGAdviceController::class, 'edit'])->name('ag_advice.edit');
     Route::put('/update/{advice}', [AGAdviceController::class, 'update'])->name('ag_advice.update');
-    
+    Route::delete('/{advice}', [AGAdviceController::class, 'destroy'])->name('ag-advice.destroy');
+
 });
 
 Route::prefix('dvc_appointments')->group(function () { 
@@ -551,6 +564,7 @@ Route::prefix('dvc_appointments')->group(function () {
     Route::get('/edit/{appointment}', [ForwardingController::class, 'edit'])->name('dvc_appointments.edit');
     Route::put('/update/{appointment}', [ForwardingController::class, 'update'])->name('dvc_appointments.update');
     Route::get('/create/{case}/{evaluation}', [ForwardingController::class, 'create'])->name('dvc_appointments.create');
+Route::delete('/{forwarding}', [ForwardingController::class, 'destroy'])->name('forwardings.destroy');
 
 });
 
@@ -558,7 +572,8 @@ Route::prefix('dvc')->group(function () {
 
 
     Route::get('/', [  DvcAppointmentController::class,'index'])->name('dvc.index');
-    
+    Route::delete('/{appointment}', [DvcAppointmentController::class, 'destroy'])->name('appointments.destroy');
+
     Route::get('/edit/{appointment}', [DvcAppointmentController::class, 'edit'])->name('dvc.edit');
     Route::get('/check-case', [DvcAppointmentController::class, 'checkCase'])->name('dvc.checkCase');
     Route::get('/create/{case_id}/{forwarding_id}/{evaluation_id}', [DvcAppointmentController::class, 'create'])->name('dvc.create');
@@ -590,6 +605,7 @@ Route::post('/{pretrial_id}/attachments', [PreTrialController::class, 'addAttach
 Route::post('/{pretrial}/members', [PreTrialController::class, 'storeMembers']);
 Route::put('/{pretrial}', [PreTrialController::class, 'update'])->name('pretrials.update');
 
+Route::delete('/{pretrial}', [PreTrialController::class, 'destroy'])->name('pretrials.destroy');
 
 });
 

@@ -147,15 +147,32 @@
                                     <span class="text-muted">N/A</span>
                                 @endif
                             </td>
-                                <td class="text-center action-buttons">
+                               <td class="text-center action-buttons">
+                                    <!-- Edit Button -->
                                     <button class="btn btn-warning btn-sm edit-witness" data-id="{{ $witness->witness_id }}">
                                         <i class="fa fa-edit"></i> Edit
                                     </button>
 
+                                    <!-- View Button -->
                                     <button class="btn btn-info btn-sm view-witness" data-id="{{ $witness->witness_id }}">
                                         <i class="fa fa-eye"></i> View
                                     </button>
+
+                                    <!-- Delete Button -->
+                                    <form id="delete-witness-form-{{ $witness->witness_id }}"
+                                          action="{{ route('witnesses.destroy', $witness->witness_id) }}"
+                                          method="POST" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="button"
+                                                class="btn btn-danger btn-sm swal-delete-witness-btn"
+                                                data-id="{{ $witness->witness_id }}"
+                                                title="Delete Witness">
+                                            <i class="fa fa-trash"></i> Delete
+                                        </button>
+                                    </form>
                                 </td>
+
                                 
                                 
                             </tr>
@@ -753,4 +770,29 @@ $(document).ready(function () {
         );
     });
 </script>  
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.swal-delete-witness-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const id = this.dataset.id;
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This witness will be permanently deleted.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('delete-witness-form-' + id).submit();
+                    }
+                });
+            });
+        });
+    });
+</script>
 @endpush
