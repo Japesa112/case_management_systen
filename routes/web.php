@@ -283,11 +283,14 @@ Route::delete('/cases/{case}/documents/{document}', [CaseDocumentsController::cl
     ->name('documents.destroy');
     
 Route::get('/cases/{case_id}/check-evaluation', [PanelEvaluationController::class, 'checkEvaluation'])->name('cases.checkEvaluation');
-Route::get('/cases/{case_id}/check-assignment', [CaseController::class, 'checkAssignment']);
+Route::get('/cases/{case_id}/check-assignment', [CaseController::class, 'checkAssignment'])->name('cases.checkAssignment');
+
 Route::delete('/cases/{case_id}/remove-lawyer/{lawyer_id}', [CaseController::class, 'removeAssignedLawyer']);
 
 //Cases Route
 Route::get('/evaluations/available-cases', [CaseController::class, 'getEvaluationCases'])->name('cases.available-evaluation-cases');
+
+
 
 Route::middleware(['auth'])->prefix('cases')->group(function () {
     Route::get('/{id}/lawyers', [CaseController::class, 'getHandledBy'])->name('cases.lawyers');
@@ -319,7 +322,8 @@ Route::middleware(['auth'])->prefix('cases')->group(function () {
     Route::get('/get-last-sequence/{case_id}', [CaseController::class, 'getLastSequence']);
     Route::get('/get-last-sequence-mention/{case_id}', [CaseController::class, 'getLastSequenceMention']);
     Route::get('/get-last-sequence-application/{case_id}', [CaseController::class, 'getLastSequenceApplication']);
-    Route::get('/get-last-sequence-all/{case_id}', [CaseController::class, 'getLastSequenceAll']);
+    Route::get('/get-last-sequence-all/{case_id}', [CaseController::class, 'getLastSequenceAll'])->name('cases.getLastSequenceAll');
+
     Route::get('{case}/available-lawyers', [CaseController::class, 'getLawyers'])->name('cases.available-lawyers');
     Route::get('{case}/all-available-lawyers', [CaseController::class, 'getAvailableLawyers'])->name('cases.all-available-lawyers');
     Route::get('{case}/available-complainants', [CaseController::class, 'getComplainants'])->name('cases.available-complainants');

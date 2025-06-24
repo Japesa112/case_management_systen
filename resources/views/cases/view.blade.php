@@ -1173,9 +1173,10 @@
         $(".assign-case").each(function () {
             let button = $(this);
             let caseId = button.data("case-id");
-            
+            let url = "{{ route('cases.checkAssignment', ':id') }}".replace(':id', caseId);
+
             $.ajax({
-                url: "/cases/" + caseId + "/check-assignment",
+                url: url,
                 type: "GET",
                 success: function (response) {
                     if (response.assigned) {
@@ -1199,10 +1200,11 @@ $(document).ready(function () {
         let caseId = button.data("case-id");
         let lawyerId = button.data("lawyer-id");
         let lawyerName = button.data("lawyer-name");
-        
+        let url = "{{ route('cases.checkEvaluation', ':id') }}".replace(':id', caseId);
+
         if (caseId) {
             $.ajax({
-                url: "/cases/" + caseId + "/check-evaluation",
+                url: url,
                 type: "GET",
                 data: { lawyer_id: lawyerId },
                 success: function (response) {
@@ -1243,9 +1245,10 @@ $(document).on("click", ".evaluate-case", function () {
         return;
     }
 
+    let url = "{{ route('cases.checkEvaluation', ':id') }}".replace(':id', caseId);
     // Check if an evaluation already exists
     $.ajax({
-        url: "/cases/" + caseId + "/check-evaluation",
+        url: url,
         type: "GET",
         data: { lawyer_id: lawyerId }, // Pass the lawyer ID to check specifically for this lawyer
         success: function (response) {
@@ -1285,8 +1288,10 @@ $(document).ready(function () {
         
         //alert("The case : "+case_id+" Name: "+case_name+"Number:  "+case_number);
         console.log("The case id is: "+case_id);
+        let url = "{{ route('cases.available-lawyers', ':id') }}".replace(':id', case_id);
+
         $.ajax({
-            url: "/cases/" + case_id + "/available-lawyers",
+            url: url,
             type: "GET",
             data: { case_id: case_id },
             success: function(response) {
@@ -1325,9 +1330,10 @@ $("#assignCaseForm").on("submit", function (e) {
     }
 
     let formData = $(this).serialize(); // Serialize form data
+    let url = "{{ route('cases.assign') }}";
 
     $.ajax({
-        url: "/cases/assign",  // ✅ Send request to correct route (NO ID in URL)
+        url: url,  // ✅ Send request to correct route (NO ID in URL)
         type: "POST",
         data: formData,
         headers: {
@@ -1401,9 +1407,10 @@ $("#updateCaseForm").on("submit", function (e) {
     }
 
     let formData = $(this).serialize(); // Serialize form data
+    let url = "{{ route('cases.update', ':id') }}".replace(':id', caseId);
 
     $.ajax({
-        url: "/cases/update/" + caseId,  // Matches route: /cases/update/{case}
+        url: url,  // Matches route: /cases/update/{case}
         type: "PUT",
         data: formData,
         headers: {
@@ -1488,8 +1495,10 @@ $(document).ready(function () {
             address: $("#modal_address").val()
         };
 
+        let url = "{{ route('complainants.update', ':id') }}".replace(':id', complainantId);
+
         $.ajax({
-            url: "/complainants/" + complainantId,
+            url: url,
             type: "PUT",
             data: formData,
             success: function (response) {

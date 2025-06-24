@@ -356,7 +356,7 @@
     
         // Fetch advice details using AJAX
         $.ajax({
-            url: `ag_advice/show/${ag_advice_id}`, // Make sure this route exists in your Laravel routes
+            url: "{{ route('ag_advice.show', ':id') }}".replace(':id', ag_advice_id), 
             type: "GET",
             success: function (response) {
                 let advice = response.advice;
@@ -503,7 +503,8 @@ $(document).ready(function () {
 
         let formData = new FormData(this);
         let ag_advice_id = $("#edit_advice_id").val(); // Get advice ID
-        let url = `/ag_advice/update/${ag_advice_id}`; // Construct the update route URL
+        let url = "{{ route('ag_advice.update', ':id') }}".replace(':id', ag_advice_id);
+
         console.log("Advice ID:", $("#edit_advice_id").val());
         console.log("Form Data:", Object.fromEntries(new FormData($("#editAdviceForm")[0])));
         

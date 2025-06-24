@@ -56,7 +56,7 @@
     <h4>List of Appeals</h4>
     <div class="panel panel-inverse">
         <div class="panel-heading d-flex justify-content-between align-items-center">
-            <a href="{{ url('/cases') }}" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
+            <a href="{{ route('cases.index') }}" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
                 <i class="fa fa-arrow-left text-white fw-bold"></i> <span class="text-white">Back to Cases</span>
             </a>
             <div class="panel-heading-btn">
@@ -411,8 +411,10 @@
         let appealId = $(this).data('id');
     
         // Fetch appeal details using AJAX
+        let url = "{{ route('appeals.show', ':id') }}".replace(':id', appealId);
+
         $.ajax({
-            url: `appeals/show/${appealId}`, // Make sure this route exists in your Laravel routes
+            url: url, // Make sure this route exists in your Laravel routes
             type: "GET",
             success: function (response) {
                 let appeal = response.appeal;
@@ -466,6 +468,7 @@
     $(document).on("click", ".delete-document", function () {
     let button = $(this);
     let documentId = button.data("id");
+    let url = "{{ route('appeals.deleteDocument', ':id') }}".replace(':id', documentId);
 
     Swal.fire({
         title: "Are you sure?",
@@ -479,7 +482,7 @@
     }).then((result) => {
         if (result.isConfirmed) {
             $.ajax({
-                url: `/appeals/deleteDocuments/${documentId}`,
+                url: url,
                 method: "DELETE",
                 headers: {
                     "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
@@ -525,9 +528,10 @@ $(document).ready(function () {
         formData.append("appeal_id", appealId);
         formData.append("attachment", fileInput);
         formData.append("_token", $('meta[name="csrf-token"]').attr("content"));
+        let url = "{{ route('appeals.uploadAttachment') }}";
 
         $.ajax({
-            url: "/appeals/uploadAttachment",
+            url: url,
             type: "POST",
             data: formData,
             contentType: false,
@@ -572,7 +576,8 @@ $(document).ready(function () {
 
         let formData = new FormData(this);
         let appealId = $("#edit_appeal_id").val(); // Get appeal ID
-        let url = `/appeals/update/${appealId}`; // Construct the update route URL
+        let url = "{{ route('appeals.update', ':id') }}".replace(':id', appealId);
+
         console.log("Appeal ID:", $("#edit_appeal_id").val());
         console.log("Form Data:", Object.fromEntries(new FormData($("#editAppealForm")[0])));
         
@@ -591,7 +596,8 @@ $(document).ready(function () {
                     title: "Updated Successfully",
                     text: "Appeal has been updated successfully!",
                 }).then(() => {
-                    window.location.href = "/appeals"; // Redirect after success
+                   window.location.href = "{{ route('appeals.index') }}";
+
                 });
             },
             error: function (xhr) {

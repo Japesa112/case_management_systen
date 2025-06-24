@@ -484,10 +484,11 @@
 
             // Display a loading indicator
             $('#activity-content').html('<div class="text-center p-4"><i class="fa fa-spinner fa-spin fa-2x"></i> Loading details...</div>');
+            let url = "{{ route('cases.ActivityShow', ':id') }}".replace(':id', activityId);
 
             // Fetch activity details
             $.ajax({
-                url: `/cases/case-activity/${activityId}`, 
+                url: url, 
                 type: "GET",
                 success: function (response) {
                     let activity = response.data;
@@ -541,10 +542,11 @@
 $(document).ready(function () {
     $(document).on('click', '.edit-activity', function () {
         let activityId = $(this).data('id');
+        let url = "{{ route('cases.ActivityShow', ':id') }}".replace(':id', activityId);
        
         // Fetch activity details using AJAX
         $.ajax({
-            url: `/cases/case-activity/${activityId}`, // Make sure this route exists in your Laravel routes
+            url: url, // Make sure this route exists in your Laravel routes
             type: "GET",
             success: function (response) {
 
@@ -607,6 +609,7 @@ $(document).ready(function () {
     $(document).on("click", ".delete-document", function () {
     let button = $(this);
     let documentId = button.data("id");
+    let url = "{{ route('appeals.deleteDocument', ':id') }}".replace(':id', documentId);
 
     Swal.fire({
         title: "Are you sure?",
@@ -620,7 +623,7 @@ $(document).ready(function () {
     }).then((result) => {
         if (result.isConfirmed) {
             $.ajax({
-                url: `/appeals/deleteDocuments/${documentId}`,
+                url: url,
                 method: "DELETE",
                 headers: {
                     "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
@@ -666,9 +669,10 @@ $(document).ready(function () {
         formData.append("activity_id", activityId);
         formData.append("attachment", fileInput);
         formData.append("_token", $('meta[name="csrf-token"]').attr("content"));
+        let url = "{{ route('appeals.uploadAttachment') }}";
 
         $.ajax({
-            url: "/appeals/uploadAttachment",
+            url: url,
             type: "POST",
             data: formData,
             contentType: false,
@@ -713,7 +717,8 @@ $(document).ready(function () {
 
         let formData = new FormData(this);
         let activityId = $("#edit_activity_id").val(); // Get activity ID
-        let url = `/appeals/update/${activityId}`; // Construct the update route URL
+        let url = "{{ route('appeals.update', ':id') }}".replace(':id', activityId);
+L
         console.log("Activity ID:", $("#edit_activity_id").val());
         console.log("Form Data:", Object.fromEntries(new FormData($("#editActivityForm")[0])));
         
@@ -835,8 +840,11 @@ $(document).ready(function () {
         return;
     }
 
+    let url = "{{ route('cases.getLastSequenceAll', ':id') }}".replace(':id', caseId) + '?type=' + selectedType;
+
+
     $.ajax({
-        url: '/cases/get-last-sequence-all/' + caseId + '?type=' + selectedType, // Append type as query param
+        url: url, // Append type as query param
         method: 'GET',
         success: function (response) {
             var nextSequence = response.nextSequence;
@@ -909,6 +917,8 @@ $(document).ready(function() {
 
 $(document).on('click', '.delete-activity-btn', function () {
     const activityId = $(this).data('id');
+    let url = "{{ route('cases.deleteMatter', ':id') }}".replace(':id', activityId);
+
 
     Swal.fire({
         title: 'Are you sure?',
@@ -922,7 +932,7 @@ $(document).on('click', '.delete-activity-btn', function () {
         if (result.isConfirmed) {
             // Make AJAX request to delete
             $.ajax({
-                url: `/cases/activities/${activityId}`, // Update this with your actual route
+                url: url, // Update this with your actual route
                 type: 'DELETE',
                 data: {
                     _token: '{{ csrf_token() }}'

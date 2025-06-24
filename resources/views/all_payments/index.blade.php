@@ -553,10 +553,11 @@
         $(document).ready(function () {
     $(document).on('click', '.edit-payment', function () {
         let paymentId = $(this).data('id');
+         let url = "{{ route('all_payments.show', ':id') }}".replace(':id', paymentId);
     
         // Fetch payment details using AJAX
         $.ajax({
-            url: `all_payments/show/${paymentId}`, // Make sure this route exists in your Laravel routes
+           url:url, 
             type: "GET",
             success: function (response) {
                 let payment= response.payment;
@@ -622,7 +623,7 @@
     $(document).on("click", ".delete-document", function () {
     let button = $(this);
     let documentId = button.data("id");
-
+    let url = "{{ route('all_payments.deleteDocument', ':id') }}".replace(':id', documentId);
     Swal.fire({
         title: "Are you sure?",
         text: "Do you really want to delete this document?"+ documentId,
@@ -635,7 +636,7 @@
     }).then((result) => {
         if (result.isConfirmed) {
             $.ajax({
-                url: `/all_payments/deleteDocuments/${documentId}`,
+                url: url,
                 method: "DELETE",
                 headers: {
                     "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
@@ -684,9 +685,10 @@ $(document).ready(function () {
         formData.append("payment_id", paymentId);
         formData.append("attachment", fileInput);
         formData.append("_token", $('meta[name="csrf-token"]').attr("content"));
+        let url = "{{ route('all_payments.uploadAttachment') }}";
 
         $.ajax({
-            url: "/all_payments/uploadAttachment",
+            url: url,
             type: "POST",
             data: formData,
             contentType: false,
@@ -731,7 +733,8 @@ $(document).ready(function () {
 
         let formData = new FormData(this);
         let paymentId = $("#edit_payment_id").val(); // Get payment ID
-        let url = `/all_payments/update/${paymentId}`; // Construct the update route URL
+        let url = "{{ route('all_payments.update', ':id') }}".replace(':id', paymentId);
+ 
         console.log("Payment ID:", $("#edit_payment_id").val());
         console.log("Form Data:", Object.fromEntries(new FormData($("#editPaymentForm")[0])));
         
@@ -750,7 +753,8 @@ $(document).ready(function () {
                     title: "Updated Successfully",
                     text: "Payment has been updated successfully!",
                 }).then(() => {
-                    window.location.href = "/all_payments"; // Redirect after success
+                   window.location.href = "{{ route('all_payments.index') }}";
+
                 });
             },
             error: function (xhr) {
@@ -852,9 +856,11 @@ $(document).ready(function () {
         if (selected === 'complainant') {
             $('#complainant_select_group').removeClass('d-none');
             $('#complainant_id').attr('name', 'payee_id');
+            let url = "{{ route('cases.available-complainants', ':id') }}".replace(':id', case_id);
+
 
             $.ajax({
-                url: '/cases/' + case_id + '/available-complainants',
+                url: url,
                 type: 'GET',
                 success: function (response) {
                     $.each(response, function (index, complainant) {
@@ -873,9 +879,10 @@ $(document).ready(function () {
         } else if (selected === 'lawyer') {
             $('#lawyer_select_group').removeClass('d-none');
             $('#lawyer_id').attr('name', 'payee_id');
+            let url = "{{ route('cases.all-available-lawyers', ':id') }}".replace(':id', case_id);
 
             $.ajax({
-                url: '/cases/' + case_id + '/all-available-lawyers',
+                url: url,
                 type: 'GET',
                 success: function (response) {
                     $.each(response, function (index, lawyer) {
