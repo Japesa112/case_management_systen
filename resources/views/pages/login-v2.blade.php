@@ -105,7 +105,7 @@
 	<div class="login login-v2 fw-bold">
 		<!-- BEGIN login-cover -->
 		<div class="login-cover">
-			<div class="login-cover-img" style="background-image: url(/assets/img/login-bg/login-bg-17.jpg)" data-id="login-cover-image"></div>
+			<div class="login-cover-img" style="background-image: url(../images/entrance.jpg)" data-id="login-cover-image"></div>
 			<div class="login-cover-bg"></div>
 		</div>
 		<!-- END login-cover -->
@@ -117,7 +117,7 @@
 				<div class="brand">
 					<div class="d-flex align-items-center">
 						<span class="">
-							<img src="https://rms.ku.ac.ke/RMS-old/IMS/assets/img/logo/Ku_Logo.png" class="img img-fluid w-100" alt="">
+							<img src="../images/icon_ku.jpg" class="img img-fluid w-100" alt="">
 						</span> <b>Kenyatta </b>  &nbsp; <b> University </b> 
 					</div>
 					<h5>Case Management System - Login</h5>
@@ -196,14 +196,14 @@
 	<!-- END login -->
 	<div class="login-bg">
 		<video id="login-video-bg" autoplay muted loop playsinline style="display: none;">
-		  <source src="http://127.0.0.1:8000/videos/cout_4.mp4" type="video/mp4">
+		  <source src="../videos/cout_4.mp4 g" type="video/mp4">
 		</video>
 	  </div>
 	<!-- BEGIN login-bg -->
 	<div class="login-bg-list clearfix">
-		<div class="login-bg-list-item active"><a href="javascript:;" class="login-bg-list-link" data-toggle="login-change-bg" data-img="https://rms.ku.ac.ke/RMS-old/IMS/assets/img/login/GATE.JPG" style="background-image: url(https://rms.ku.ac.ke/RMS-old/IMS/assets/img/login/GATE.JPG)"></a></div>
-		<div class="login-bg-list-item"><a href="javascript:;" class="login-bg-list-link" data-toggle="login-change-bg" data-img="https://rms.ku.ac.ke/RMS-old/IMS/assets/img/login/Cac2.JPG" style="background-image: url(https://rms.ku.ac.ke/RMS-old/IMS/assets/img/login/Cac2.JPG)"></a></div>
-		<div class="login-bg-list-item"><a href="javascript:;" class="login-bg-list-link" data-toggle="login-change-bg" data-img="https://rms.ku.ac.ke/RMS-old/IMS/assets/img/login/Library.JPG" style="background-image: url(https://rms.ku.ac.ke/RMS-old/IMS/assets/img/login/Library.JPG)"></a></div>
+		<div class="login-bg-list-item active"><a href="javascript:;" class="login-bg-list-link" data-toggle="login-change-bg" data-img="../images/GATE.JPG" style="background-image: url(../images/GATE.JPG)"></a></div>
+		<div class="login-bg-list-item"><a href="javascript:;" class="login-bg-list-link" data-toggle="login-change-bg" data-img="../images/Cac2.jpg" style="background-image: url(../images/Cac2.jpg)"></a></div>
+		<div class="login-bg-list-item"><a href="javascript:;" class="login-bg-list-link" data-toggle="login-change-bg" data-img="../images/Library.JPG" style="background-image: url(../images/Library.JPG)"></a></div>
 		
 		
 		<div class="login-bg-list-item">
@@ -212,7 +212,7 @@
 			   data-toggle="login-change-bg" 
 			 	style="background-image: url(../images/judiciary.png)"
 			   data-type="video" 
-			   data-video="http://127.0.0.1:8000/videos/first_court.mp4">
+			   data-video="../videos/first_court.mp4">
 			  
 			</a>
 		</div>
@@ -222,7 +222,7 @@
 			   data-toggle="login-change-bg" 
 			 	style="background-image: url(../images/court_first.jpg)"
 			   data-type="video" 
-			   data-video="http://127.0.0.1:8000/videos/54904-483011865_tiny.mp4">
+			   data-video="../videos/54904-483011865_tiny.mp4">
 			  
 			</a>
 		</div>
@@ -232,7 +232,7 @@
 			   data-toggle="login-change-bg" 
 			  style="background-image: url(../images/second_court.jpg)"
 			   data-type="video" 
-			   data-video="http://127.0.0.1:8000/videos/cout_4.mp4">
+			   data-video="../videos/cout_4.mp4">
 			  
 			</a>
 		  </div>

@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\User;
+use App\Models\User;
 use App\Models\CaseLawyer;
 use App\Mail\UpcomingReminder;
 use Illuminate\Support\Facades\Mail;

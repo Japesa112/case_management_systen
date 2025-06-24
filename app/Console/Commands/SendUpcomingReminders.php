@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use App\User;
+use App\Models\User;
 use App\Mail\UpcomingReminder;
 use Carbon\Carbon;
 use App\Http\Controllers\MainController; // or extract logic to a service

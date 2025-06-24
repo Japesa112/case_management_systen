@@ -27,7 +27,7 @@ use App\Models\TrialPreparation;
 use App\Models\PanelEvaluation;
 use App\Models\Trial;
 use Illuminate\Support\Facades\Storage;
-use App\User;
+use App\Models\User;
 use App\Mail\NewCaseNotification;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;

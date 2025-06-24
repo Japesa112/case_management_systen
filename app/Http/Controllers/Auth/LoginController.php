@@ -9,8 +9,8 @@ use Illuminate\Auth\AuthenticatesUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
-use App\User;
-use App\Models\GoogleUser; // or App\User if you're using the legacy structure
+use App\Models\User;
+use App\Models\GoogleUser; // or App\Models\User if you're using the legacy structure
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
@@ -76,7 +76,7 @@ class LoginController extends Controller
             'password_hash' => 'required'
         ]);
     
-        $user = \App\User::where('email', $request->email)->first();
+        $user = \App\Models\User::where('email', $request->email)->first();
     
         if ($user) {
             $passwordMatches = Hash::check($request->password_hash, $user->password_hash);

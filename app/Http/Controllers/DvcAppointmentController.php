@@ -15,7 +15,7 @@ use App\Models\Lawyer;
 use App\Models\PanelEvaluation;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
-use App\User;
+use App\Models\User;
 use App\Models\Notification;
 use App\Models\UserNotification;
 use Illuminate\Support\Facades\DB;
@@ -160,7 +160,7 @@ class DvcAppointmentController extends Controller
 
 
             $case = \App\Models\CaseModel::find($request->case_id);
-            $lawyer = \App\User::find(3);
+            $lawyer = \App\Models\User::find(3);
 
             if ($case && $lawyer) {
                 

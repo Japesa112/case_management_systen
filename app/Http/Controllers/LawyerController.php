@@ -356,7 +356,7 @@ public function getCasesAwaitingAction()
 public function changePassword(Request $request)
 {
 
-     /** @var \App\User $user */
+     /** @var \App\Models\User $user */
     $user = Auth::user();
 
     // Validate input

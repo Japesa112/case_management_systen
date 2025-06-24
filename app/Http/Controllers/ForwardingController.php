@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Models\CaseLawyer;
 
-use App\User;
+use App\Models\User;
 use App\Models\Notification;
 use App\Models\UserNotification;
 use Illuminate\Support\Facades\DB;

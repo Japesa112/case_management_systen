@@ -21,7 +21,7 @@
 		<script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/customParseFormat.js"></script>
 		<!-- jQuery (for AJAX and DOM) -->
 
-
+     <link href="../images/kufavicon.ico" rel=" icon">
 
 	{{-- In the <head> section --}}
 	<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
@@ -51,47 +51,13 @@
 		            font-size: 0.95rem;
 		        }
 
-		        .video-container video {
-		            object-fit: cover;
-		        }
 		    }
 		</style>
 
 	@include('includes.head')
 	@if (!empty($showVideo) && $showVideo)
 		
-		<style>
-			.video-container {
-				position: fixed;
-				top: 0;
-				left: 0;
-				width: 100vw;
-				height: 100vh;
-				overflow: hidden;
-				z-index: -1;
-			}
-
-			.video-container video {
-				position: absolute;
-				top: 50%;
-				left: 50%;
-				min-width: 100%;
-				min-height: 100%;
-				width: auto;
-				height: auto;
-				transform: translate(-50%, -50%);
-				object-fit: cover;
-			}
-
-			.video-overlay {
-				position: absolute;
-				top: 0;
-				left: 0;
-				width: 100%;
-				height: 100%;
-			
-			}
-		</style>
+		
 	
 	@else
 		@stack('styles')
@@ -122,31 +88,13 @@
 	$isLawyer = Auth::user() && Auth::user()->role === 'Lawyer';  // Replace with your actual role check
 
 @endphp
-@if (!empty($showVideo) && $showVideo)
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const video = document.querySelector(".video-container video");
-            if (video) {
-                video.play().catch(error => console.error("Video autoplay failed:", error));
-            }
-        });
-    </script>
-@endif
+
 
 
 <body class="{{ $bodyClass }}">
 	
 		<!-- ✅ Show Background Video Only When Needed -->
-	@if (!empty($showVideo) && $showVideo)
 	
-	<div class="video-container">
-		<video autoplay loop muted playsinline preload="auto">
-			<source src="../videos/54904-483011865_tiny.mp4" type="video/mp4">
-			<track src="" kind="captions" srclang="en" label="English Captions">
-		</video>
-		<div class="video-overlay"></div>
-	</div>
-	@endif
 
 
 	@include('includes.component.page-loader')

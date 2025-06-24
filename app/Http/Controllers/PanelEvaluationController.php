@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use  Illuminate\Support\Facades\Auth;
 use App\Models\CaseModel;
-use App\User;
+use App\Models\User;
 class PanelEvaluationController extends Controller
 {
 

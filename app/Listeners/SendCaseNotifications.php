@@ -4,7 +4,7 @@ namespace App\Listeners;
 use Illuminate\Support\Facades\Log;
 use App\Events\NewCaseCreated;
 use App\Mail\NewCaseNotification;
-use App\User;
+use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Mail;
 

@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Notification;
 use App\Models\UserNotification;
 use Illuminate\Support\Facades\DB;
-use App\User;
+use App\Models\User;
 class AdjournController extends Controller
 {
     /**
