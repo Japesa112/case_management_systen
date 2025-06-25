@@ -130,7 +130,7 @@
 
                                 <!-- Go to Appointments Button (Center) -->
                                 <a 
-                                  href="/dvc" 
+                                  href="{{ route('dvc.index ') }}"  
                                   class="btn btn-info btn-custom d-inline-flex align-items-center gap-2"
                                   title="View all appointments"
                                   >

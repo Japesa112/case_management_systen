@@ -57,7 +57,7 @@
     
     <div class="panel panel-inverse">
         <div class="panel-heading d-flex justify-content-between align-items-center">
-            <a href="{{ url('/cases') }}" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
+            <a href="{{ route('cases.index') }}" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
                 <i class="fa fa-arrow-left text-white fw-bold"></i> <span class="text-white">Back to Cases</span>
             </a>
             <div class="panel-heading-btn">
@@ -439,10 +439,11 @@
     // Edit Case Closure
     $(document).on('click', '.edit-closure', function () {
         let closureId = $(this).data('id');
-
+        let url = "{{ route('closed_cases.show', ['closure_id' => ':closureId']) }}"
+        .replace(':closureId', closureId);
         // Fetch closure details using AJAX
         $.ajax({
-            url: `closed_cases/show/${closureId}`,
+            url: url,
             type: "GET",
             success: function (response) {
                 let closure = response.closure;
@@ -498,7 +499,8 @@
     $(document).on("click", ".delete-document", function () {
     let button = $(this);
     let documentId = button.data("id");
-
+        let url = "{{ route('closed_cases.deleteDocument', ['documentId' => ':documentId']) }}"
+        .replace(':documentId', documentId);
     Swal.fire({
         title: "Are you sure?",
         text: "Do you really want to delete this document?"+ documentId,
@@ -511,7 +513,7 @@
     }).then((result) => {
         if (result.isConfirmed) {
             $.ajax({
-                url: `/closed_cases/deleteDocuments/${documentId}`,
+                url: url,
                 method: "DELETE",
                 headers: {
                     "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
@@ -558,9 +560,9 @@ $(document).ready(function () {
         formData.append("case_closure_id", caseClosureId); // Updated field name
         formData.append("attachment", fileInput);
         formData.append("_token", $('meta[name="csrf-token"]').attr("content"));
-
+        let url = "{{ route('closed_cases.uploadAttachment') }}";
         $.ajax({
-            url: "/closed_cases/uploadAttachment", // Ensure correct route for closed cases
+            url: url, // Ensure correct route for closed cases
             type: "POST",
             data: formData,
             contentType: false,
@@ -604,7 +606,8 @@ $(document).ready(function () {
 
         let formData = new FormData(this);
         let closureId = $("#edit_closure_id").val(); // Get closure ID
-        let url = `/closed_cases/update/${closureId}`; // Construct the update route URL
+        let url = "{{ route('closed_cases.update', ['closure' => ':closureId']) }}"
+        .replace(':closureId', closureId);// Construct the update route URL
         
         console.log("Closure ID:", closureId);
         console.log("Form Data:", Object.fromEntries(new FormData($("#editClosureForm")[0])));
@@ -624,7 +627,8 @@ $(document).ready(function () {
                     title: "Updated Successfully",
                     text: "Case closure has been updated successfully!",
                 }).then(() => {
-                    window.location.href = "/closed_cases"; // Redirect after success
+                        window.location.href = "{{ route('closed_cases.index') }}";
+
                 });
             },
             error: function (xhr) {

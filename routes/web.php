@@ -279,13 +279,16 @@ Route::delete('/cases/documents/{document}', [CaseController::class, 'destroyDoc
 
 Route::post('/cases/{case}/documents/store', [CaseDocumentsController::class, 'store'])->name('documents.store');
 
+//Check if the document already exists
 Route::delete('/cases/{case}/documents/{document}', [CaseDocumentsController::class, 'destroy'])
     ->name('documents.destroy');
     
 Route::get('/cases/{case_id}/check-evaluation', [PanelEvaluationController::class, 'checkEvaluation'])->name('cases.checkEvaluation');
 Route::get('/cases/{case_id}/check-assignment', [CaseController::class, 'checkAssignment'])->name('cases.checkAssignment');
 
-Route::delete('/cases/{case_id}/remove-lawyer/{lawyer_id}', [CaseController::class, 'removeAssignedLawyer']);
+Route::delete('/cases/{case_id}/remove-lawyer/{lawyer_id}', [CaseController::class, 'removeAssignedLawyer'])
+    ->name('cases.remove-lawyer');
+
 
 //Cases Route
 Route::get('/evaluations/available-cases', [CaseController::class, 'getEvaluationCases'])->name('cases.available-evaluation-cases');
@@ -307,7 +310,7 @@ Route::middleware(['auth'])->prefix('cases')->group(function () {
     Route::get('/matter', [CaseController::class, 'showMatter'])->name('cases.matter');
     Route::get('/case-activity/{id}', [CaseController::class, 'ActivityShow'])->name('cases.ActivityShow');
     Route::post('/assign-multiple', [CaseController::class, 'assignMultiple'])->name('cases.assign-multiple');
-    Route::get('/{case_id}/assigned-lawyers', [CaseController::class, 'getAssignedLawyers']);
+    Route::get('/{case_id}/assigned-lawyers', [CaseController::class, 'getAssignedLawyers'])->name('cases.assigned-lawyers');
     Route::post('/addHearing', [CaseController::class, 'addHearing'])->name('cases.addHearing');
     Route::post('/addMention', [CaseController::class, 'addMention'])->name('cases.addMention');
     Route::post('/addApplication', [CaseController::class, 'addApplication'])->name('cases.addApplication');
@@ -319,9 +322,13 @@ Route::middleware(['auth'])->prefix('cases')->group(function () {
 
     Route::delete('/activities/{id}', [CaseController::class, 'destroyActivity'])->name('cases.deleteMatter');
     Route::get('/check-case', [CaseController::class, 'checkCase'])->name('cases.checkCase');
-    Route::get('/get-last-sequence/{case_id}', [CaseController::class, 'getLastSequence']);
-    Route::get('/get-last-sequence-mention/{case_id}', [CaseController::class, 'getLastSequenceMention']);
-    Route::get('/get-last-sequence-application/{case_id}', [CaseController::class, 'getLastSequenceApplication']);
+    
+    Route::get('/cases/get-last-sequence/{case_id}', [CaseController::class, 'getLastSequence'])
+    ->name('cases.get-last-sequence');
+
+Route::get('/cases/get-last-sequence-mention/{case_id}', [CaseController::class, 'getLastSequenceMention'])
+    ->name('cases.get-last-sequence-mention');
+    Route::get('/get-last-sequence-application/{case_id}', [CaseController::class, 'getLastSequenceApplication'])->name('cases.get-last-sequence-application');
     Route::get('/get-last-sequence-all/{case_id}', [CaseController::class, 'getLastSequenceAll'])->name('cases.getLastSequenceAll');
 
     Route::get('{case}/available-lawyers', [CaseController::class, 'getLawyers'])->name('cases.available-lawyers');

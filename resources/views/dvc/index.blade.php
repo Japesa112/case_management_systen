@@ -53,7 +53,7 @@
 <div class="container-fluid mt-4">
     <div class="panel panel-inverse">
         <div class="panel-heading d-flex justify-content-between align-items-center">
-            <a href="{{ url('/cases') }}" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
+            <a href="{{ route('cases.index ') }}" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
                 <i class="fa fa-arrow-left text-white fw-bold"></i> <span class="text-white">Back to Cases</span>
             </a>
             <div class="panel-heading-btn">
@@ -425,10 +425,11 @@
         $(document).ready(function () {
     $(document).on('click', '.edit-appointment', function () {
         let appointmentId = $(this).data('id');
-    
+        let url = "{{ route('dvc.show', ['appointment_id' => ':appointmentId']) }}"
+        .replace(':appointmentId', appointmentId);
         // Fetch appointment details using AJAX
         $.ajax({
-            url: `dvc/show/${appointmentId}`, // Make sure this route exists in your Laravel routes
+            url: url, // Make sure this route exists in your Laravel routes
             type: "GET",
             success: function (response) {
                 let appointment = response.appointment;
@@ -484,6 +485,8 @@
     $(document).on("click", ".delete-document", function () {
     let button = $(this);
     let documentId = button.data("id");
+        let url = "{{ route('dvc.deleteDocument', ['documentId' => ':documentId']) }}"
+        .replace(':documentId', documentId);
 
     Swal.fire({
         title: "Are you sure?",
@@ -497,7 +500,7 @@
     }).then((result) => {
         if (result.isConfirmed) {
             $.ajax({
-                url: `/dvc/deleteDocuments/${documentId}`,
+                url: url,
                 method: "DELETE",
                 headers: {
                     "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
@@ -543,9 +546,10 @@ $(document).ready(function () {
         formData.append("appointment_id", appointmentId);
         formData.append("attachment", fileInput);
         formData.append("_token", $('meta[name="csrf-token"]').attr("content"));
+            let url = "{{ route('dvc.uploadAttachment') }}";
 
         $.ajax({
-            url: "/dvc/uploadAttachment",
+            url: url,
             type: "POST",
             data: formData,
             contentType: false,
@@ -590,7 +594,8 @@ $(document).ready(function () {
 
         let formData = new FormData(this);
         let appointmentId = $("#edit_appointment_id").val(); // Get appointment ID
-        let url = `/dvc/update/${appointmentId}`; // Construct the update route URL
+        let url = "{{ route('dvc.update', ['appointment' => ':id']) }}"
+        .replace(':id', appointmentId);
         console.log("Appointment ID:", $("#edit_appointment_id").val());
         console.log("Form Data:", Object.fromEntries(new FormData($("#editAppointmentForm")[0])));
         
@@ -609,7 +614,8 @@ $(document).ready(function () {
                     title: "Updated Successfully",
                     text: "Appointment has been updated successfully!",
                 }).then(() => {
-                    window.location.href = "/dvc"; // Redirect after success
+                        window.location.href = "{{ route('dvc.index') }}";
+ // Redirect after success
                 });
             },
             error: function (xhr) {

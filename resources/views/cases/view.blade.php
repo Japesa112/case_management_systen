@@ -1542,7 +1542,9 @@ $(document).ready(function () {
         button.addEventListener("click", function () {
             let documentId = this.getAttribute("data-id");
             let caseId = this.getAttribute("data-case-id");
-
+             let url = "{{ route('documents.destroy', ['case' => ':caseId', 'document' => ':documentId']) }}"
+        .replace(':caseId', caseId)
+        .replace(':documentId', documentId);
 
             Swal.fire({
                 title: "Are you sure?",
@@ -1555,7 +1557,7 @@ $(document).ready(function () {
                 cancelButtonText: "Cancel"
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch(`/cases/${caseId}/documents/${documentId}`, {
+                    fetch(url, {
                         method: "POST", // Use POST instead of DELETE
                         headers: {
                             "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
@@ -1599,9 +1601,10 @@ $(document).ready(function () {
 
     function loadAssignedLawyers(caseId) {
         $("#assignedLawyersList").html("<li class='list-group-item'>Loading...</li>");
-
+        let url = "{{ route('cases.assigned-lawyers', ['case_id' => ':caseId']) }}"
+        .replace(':caseId', caseId);
         $.ajax({
-            url: "/cases/" + caseId + "/assigned-lawyers",
+            url: url,
             type: "GET",
             success: function (response) {
                 let listHtml = "";
@@ -1634,9 +1637,12 @@ $(document).ready(function () {
         let lawyerId = $(this).data("lawyer-id");
         let caseId = $(this).data("case-id");
         let listItem = $(this).closest("li");
+        let url = "{{ route('cases.remove-lawyer', ['case_id' => ':caseId', 'lawyer_id' => ':lawyerId']) }}"
+        .replace(':caseId', caseId)
+        .replace(':lawyerId', lawyerId);
 
         $.ajax({
-            url: "/cases/" + caseId + "/remove-lawyer/" + lawyerId,
+            url: url,
             type: "DELETE",
             headers: {
                 "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
@@ -1742,10 +1748,11 @@ $('#actionCaseModal').on('click', function () {
     $('#modal_case_add_hearing_id').val(caseId);
     $('#modal_add_hearing_name').val(caseName);
     $('#modal_add_hearing_number').val(caseNumber);
-
+     let url = "{{ route('cases.get-last-sequence', ['case_id' => ':caseId']) }}"
+        .replace(':caseId', caseId);
     // Send AJAX request to get the last sequence number for the given case_id
     $.ajax({
-        url: '/cases/get-last-sequence/' + caseId, // Adjust the route as needed
+        url: url, // Adjust the route as needed
         method: 'GET',
         success: function(response) {
             var nextSequence = response.nextSequence;
@@ -1775,10 +1782,11 @@ $('#addMentionBtn').on('click', function() {
     $('#modal_case_add_mention_id').val(caseId);
     $('#modal_add_mention_name').val(caseName);
     $('#modal_add_mention_number').val(caseNumber);
-
+    let url = "{{ route('cases.get-last-sequence-mention', ['case_id' => ':caseId']) }}"
+    .replace(':caseId', caseId);
     // Send AJAX request to get the last sequence number for the given case_id
     $.ajax({
-        url: '/cases/get-last-sequence-mention/' + caseId, // Adjust the route as needed
+        url: url, // Adjust the route as needed
         method: 'GET',
         success: function(response) {
             var nextSequence = response.nextSequence;
@@ -1810,10 +1818,11 @@ $('#addApplicationBtn').on('click', function() {
     $('#modal_case_add_application_id').val(caseId);
     $('#modal_add_application_name').val(caseName);
     $('#modal_add_application_number').val(caseNumber);
-
+    let url = "{{ route('cases.get-last-sequence-application', ['case_id' => ':caseId']) }}"
+    .replace(':caseId', caseId);
     // Send AJAX request to get the last sequence number for the given case_id
     $.ajax({
-        url: '/cases/get-last-sequence-application/' + caseId, // Adjust the route as needed
+        url: url, // Adjust the route as needed
         method: 'GET',
         success: function(response) {
             var nextSequence = response.nextSequence;
@@ -1960,9 +1969,9 @@ $('#updateHearingBtn').on('click', function (e) {
     var caseId = $(this).data('case-id');
     var caseName = $(this).data('case-name');
     var type = 'hearing';
-
+    let url = "{{ route('cases.showUpdateForm') }}";
     $.ajax({
-        url: '/cases/update-form',
+        url: url,
         method: 'GET',
         data: {
             case_id: caseId,
@@ -1989,9 +1998,9 @@ $('#updateMentionBtn').on('click', function (e) {
     var caseId = $(this).data('case-id');
     var caseName = $(this).data('case-name');
     var type = 'mention';
-
+    let url = "{{ route('cases.showUpdateForm') }}";
     $.ajax({
-        url: '/cases/update-form',
+        url: url,
         method: 'GET',
         data: {
             case_id: caseId,
@@ -2017,9 +2026,9 @@ $('#updateApplicationBtn').on('click', function (e) {
     var caseId = $(this).data('case-id');
     var caseName = $(this).data('case-name');
     var type = 'application';
-
+    let url = "{{ route('cases.showUpdateForm') }}";
     $.ajax({
-        url: '/cases/update-form',
+        url: url,
         method: 'GET',
         data: {
             case_id: caseId,
@@ -2045,9 +2054,9 @@ $('#deleteHearingBtn').on('click', function (e) {
     var caseId = $(this).data('case-id');
     var caseName = $(this).data('case-name');
     var type = 'hearing';
-
+    let url = "{{ route('cases.showUpdateForm') }}";
     $.ajax({
-        url: '/cases/update-form',
+        url: url,
         method: 'GET',
         data: {
             case_id: caseId,
@@ -2073,9 +2082,9 @@ $('#deleteMentionBtn').on('click', function (e) {
     var caseId = $(this).data('case-id');
     var caseName = $(this).data('case-name');
     var type = 'mention';
-
+    let url = "{{ route('cases.showUpdateForm') }}";
     $.ajax({
-        url: '/cases/update-form',
+        url: url,
         method: 'GET',
         data: {
             case_id: caseId,
@@ -2102,9 +2111,9 @@ $('#deleteApplicationBtn').on('click', function (e) {
     var caseId = $(this).data('case-id');
     var caseName = $(this).data('case-name');
     var type = 'application';
-
+    let url = "{{ route('cases.showUpdateForm') }}";
     $.ajax({
-        url: '/cases/update-form',
+        url: url,
         method: 'GET',
         data: {
             case_id: caseId,
@@ -2154,9 +2163,11 @@ $('#deleteApplicationBtn').on('click', function (e) {
                 Swal.fire('Error', 'Please enter a message to send.', 'warning');
                 return;
             }
-    
+
+            let url = "{{ route('cases.submitToPanelEvaluation', ['case_id' => ':caseId']) }}"
+    .replace(':caseId', caseId);
             $.ajax({
-                url: `/cases/${caseId}/submit-panel-evaluation`,
+                url:url,
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -2216,10 +2227,11 @@ $('#deleteApplicationBtn').on('click', function (e) {
                 loadCaseEvents(caseId);
             });
 
-
+             let url = "{{ route('cases.eventCase', ['caseId' => ':caseId']) }}"
+        .replace(':caseId', caseId);
         function loadCaseEvents(caseId) {
             $.ajax({
-                url: `/cases/${caseId}/events`,
+                url: url,
                 method: 'GET',
                 success: function (response) {
                     const tableBody = $('#case-events-table tbody');
@@ -2253,7 +2265,8 @@ $('#deleteApplicationBtn').on('click', function (e) {
 let modalCaseStatusTomSelect;
 
 document.addEventListener('DOMContentLoaded', function () {
-    fetch('/cases/case-statuses')
+    let url = "{{ route('case.statuses') }}";
+    fetch(url)
         .then(response => response.json())
         .then(statuses => {
             modalCaseStatusTomSelect = new TomSelect('#modal_case_status', {
