@@ -117,9 +117,10 @@
                             }
                             $subMenu .= '
                                 <div class="menu-item '. $hasSub .' '. $active .'">
-                                    <a href="'. $menu['url'] .'" class="menu-link">' . $hasTitle . $hasCaret .'</a>
-                                    '. $subSubMenu .'
-                                </div>
+                                    <a href="'. (!empty($menu['route-name']) ? route($menu['route-name']) : $menu['url']) .'" class="menu-link">
+                            ' . $hasTitle . $hasCaret .'</a>
+                                                                '. $subSubMenu .'
+                                         </div>
                             ';
                         }
                         return $subMenu;
@@ -148,7 +149,8 @@
                         $active = (empty($active) && !empty($GLOBALS['parent_active'])) ? 'active' : $active;
                         echo '
                             <div class="menu-item '. $hasSub .' '. $active .'">
-                                <a href="'. $menu['url'] .'" class="menu-link">
+                                <a href="'. (!empty($menu['route-name']) ? route($menu['route-name']) : $menu['url']) .'" class="menu-link">
+
                                     '. $hasImg .'
                                     '. $hasIcon .'
                                     '. $hasTitle .'
