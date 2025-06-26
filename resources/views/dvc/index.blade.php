@@ -53,7 +53,7 @@
 <div class="container-fluid mt-4">
     <div class="panel panel-inverse">
         <div class="panel-heading d-flex justify-content-between align-items-center">
-            <a href="{{ route('cases.index ') }}" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
+            <a href="{{ route('cases.index') }}" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
                 <i class="fa fa-arrow-left text-white fw-bold"></i> <span class="text-white">Back to Cases</span>
             </a>
             <div class="panel-heading-btn">
@@ -454,7 +454,7 @@
                     attachments.forEach(doc => {
                         $('#documentList').append(`
                             <li class="list-group-item d-flex justify-content-between align-items-center">
-                               <a href="${doc.file_path}" target="_blank">${doc.file_name}</a>
+                               <a href="${doc.file_url}" target="_blank">${doc.file_name}</a>
                                 <button class="btn btn-danger btn-sm delete-document" data-id="${doc.attachment_id}">
                                     <i class="fa fa-trash"></i>
                                 </button>
@@ -656,7 +656,8 @@ $(document).ready(function () {
             return;
         }
        
-        window.location.href = `/dvc_appointments`;
+            window.location.href = "{{ route('dvc_appointments.index') }}";
+
         });
     });
 </script>
@@ -686,6 +687,9 @@ $(document).ready(function () {
             button.addEventListener('click', function () {
                 const appointmentId = this.dataset.id;
 
+             let url = "{{ route('appointments.destroy', ':id') }}".replace(':id', appointmentId);
+
+
                 Swal.fire({
                     title: 'Are you sure?',
                     text: "This appointment will be permanently deleted.",
@@ -697,7 +701,7 @@ $(document).ready(function () {
                     cancelButtonText: 'Cancel'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        fetch(`/dvc/appointments/${appointmentId}`, {
+                        fetch(url, {
                             method: 'DELETE',
                             headers: {
                                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),

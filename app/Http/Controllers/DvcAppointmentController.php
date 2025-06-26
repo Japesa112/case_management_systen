@@ -135,8 +135,8 @@ class DvcAppointmentController extends Controller
                 // Handle file uploads
                 if ($request->hasFile('modalAttachments')) {
                     foreach ($request->file('modalAttachments') as $file) {
-                        $filePath = $file->store('public/appointment_attachments');
-                        $fileName = $file->getClientOriginalName();
+                        $filePath = $document->storeAs('public/Appointments', $fileName);
+                        $fileName = time() . '_' . $document->getClientOriginalName(); 
                         $fileType = $file->getClientOriginalExtension();
         
                         DvcAppointmentAttachment::create([
@@ -220,12 +220,16 @@ class DvcAppointmentController extends Controller
             $formattedDateTime = $appointment->appointment_date && $appointment->appointment_time
             ? \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', "$appointment->appointment_date $appointment->appointment_time")->format('Y-m-d\TH:i')
             : '';
+            $attachments = $appointment->attachments->map(function ($doc) {
+                $doc->file_url = asset('storage/appointments/' . $doc->file_name);
+                return $doc;
+            });
             return response()->json([
                 'case_name' => $appointment->evaluation->case->case_name,
                 'case_id' => $appointment->evaluation->case->case_id,
                 'formattedDateTime'=> $formattedDateTime,
                 'appointment' => $appointment,
-                'attachments' => $appointment->attachments,
+                'attachments' => $attachments,
             ]);
     }
 
@@ -380,14 +384,18 @@ public function uploadAttachment(Request $request)
 
     if ($request->hasFile('attachment')) {
         $file = $request->file('attachment');
-        $filePath = $file->store('appointment_attachments', 'public'); // Save to storage/app/public/appeal_attachments
-        $fileName = $file->getClientOriginalName();
+        $fileName = time() . '_' . $file->getClientOriginalName();
+        $filePath = $file->storeAs('public/Appointments', $fileName); // Save to storage/app/public/appeal_attachments
+        
         $fileType = $file->getClientOriginalExtension();
+
+       
+       
 
         $document = DvcAppointmentAttachment::create([
             'appointment_id' => $request->appointment_id,
             'file_name' => $fileName,
-            'file_path' => str_replace('public/', 'storage/', $filePath),
+            'file_path' => $filePath,
             'file_type' => $fileType,
             'upload_date' => now()
 

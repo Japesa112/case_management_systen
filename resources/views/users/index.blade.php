@@ -156,7 +156,7 @@
 
 
 <!-- SweetAlert Delete Confirmation -->
-<script src="../assets/plugins/sweetalert/dist/sweetalert.min.js"></script>
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll(".delete-button").forEach(button => {
@@ -199,8 +199,10 @@
                         <i class="fa fa-spinner fa-spin fa-2x"></i> Loading details...
                     </div>`;
 
+                    let url = "{{ route('users.show', ':id') }}".replace(':id', userId);
+
                 // Fetch user details via AJAX
-                fetch(`/users/show/${userId}`)
+                fetch(url)
                     .then(response => response.json())
                     .then(data => {
                         document.getElementById("user-content").innerHTML = `

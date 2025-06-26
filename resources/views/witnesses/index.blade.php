@@ -51,7 +51,7 @@
     <h4>List of Witnesses</h4>
     <div class="panel panel-inverse">
        <div class="panel-heading d-flex justify-content-between align-items-center">
-            <a href="{{ url('/cases') }}" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
+            <a href="{{ route('cases.index') }}" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
                 <i class="fa fa-arrow-left text-white fw-bold"></i> <span class="text-white">Back to Cases</span>
             </a>
             <div class="panel-heading-btn">
@@ -459,10 +459,10 @@
         $(document).ready(function () {
     $(document).on('click', '.edit-witness', function () {
         let witnessId = $(this).data('id');
-    
+        
         // Fetch witness details using AJAX
         $.ajax({
-            url: `witnesses/show/${witnessId}`, // Make sure this route exists in your Laravel routes
+            url: "{{ route('witnesses.show', ':id') }}".replace(':id', witnessId), // Make sure this route exists in your Laravel routes
             type: "GET",
             success: function (response) {
                 let witness = response.witness;
@@ -532,7 +532,7 @@
     }).then((result) => {
         if (result.isConfirmed) {
             $.ajax({
-                url: `/witnesses/deleteDocuments/${documentId}`,
+                url: "{{ route('witnesses.deleteDocument', ':id') }}".replace(':id', documentId),
                 method: "DELETE",
                 headers: {
                     "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
@@ -581,7 +581,7 @@ $(document).ready(function () {
         formData.append("_token", $('meta[name="csrf-token"]').attr("content"));
 
         $.ajax({
-            url: "/witnesses/uploadAttachment",
+            url: "{{ route('witnesses.uploadAttachment') }}",
             type: "POST",
             data: formData,
             contentType: false,
@@ -626,7 +626,8 @@ $(document).ready(function () {
 
         let formData = new FormData(this);
         let witnessId = $("#edit_witness_id").val(); // Get witness ID
-        let url = `/witnesses/update/${witnessId}`; // Construct the update route URL
+        let url = "{{ route('witnesses.update', ':id') }}".replace(':id', witnessId);
+ // Construct the update route URL
         console.log("Witness ID:", $("#edit_witness_id").val());
         console.log("Form Data:", Object.fromEntries(new FormData($("#editWitnessForm")[0])));
         
@@ -645,7 +646,8 @@ $(document).ready(function () {
                     title: "Updated Successfully",
                     text: "Witness has been updated successfully!",
                 }).then(() => {
-                    window.location.href = "/witnesses"; // Redirect after success
+                    window.location.href = window.location.href = "{{ route('witnesses.index') }}";
+ // Redirect after success
                 });
             },
             error: function (xhr) {

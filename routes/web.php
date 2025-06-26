@@ -452,24 +452,38 @@ Route::delete('/{adjourn}', [AdjournController::class, 'destroy'])->name('adjour
  });
 
 
+Route::prefix('trials')->group(function () {
 
- Route::prefix('trials')->group(function () {
+    // GET /trials
+    Route::get('/', [TrialController::class, 'index'])->name('trials.index');
 
-
-    
-    Route::get('/', [TrialController::class,'index'])->name('trials.index');
+    // GET /trials/edit/{trial}
     Route::get('/edit/{trial}', [TrialController::class, 'edit'])->name('trials.edit');
+
+    // GET /trials/check-case
     Route::get('/check-case', [TrialController::class, 'checkCase'])->name('trials.checkCase');
+
+    // GET /trials/create/{case_id}
     Route::get('/create/{case_id}', [TrialController::class, 'create'])->name('trials.create');
+
+    // POST /trials/store
     Route::post('/store', [TrialController::class, 'store'])->name('trials.store');
+
+    // GET /trials/show/{trial_id}
     Route::get('/show/{trial_id}', [TrialController::class, 'show'])->name('trials.show');
+
+    // DELETE /trials/deleteDocuments/{documentId}
     Route::delete('/deleteDocuments/{documentId}', [TrialController::class, 'deleteDocument'])->name('trials.deleteDocument');
+
+    // PUT /trials/update/{trial}
     Route::put('/update/{trial}', [TrialController::class, 'update'])->name('trials.update');
+
+    // POST /trials/uploadAttachment
     Route::post('/uploadAttachment', [TrialController::class, 'uploadAttachment'])->name('trials.uploadAttachment');
-Route::delete('/{trial}', [TrialController::class, 'destroy'])->name('trials.destroy');
 
-
-  });
+    // DELETE /trials/{trial}
+    Route::delete('/{trial}', [TrialController::class, 'destroy'])->name('trials.destroy');
+});
 
 
   
@@ -568,6 +582,10 @@ Route::prefix('ag_advice')->group(function () {
 });
 
 Route::prefix('dvc_appointments')->group(function () { 
+    Route::delete('/deleteDocuments/{documentId}', [ForwardingController::class, 'deleteDocument'])
+    ->name('dvc_appointments.deleteDocument');
+    Route::post('/uploadAttachment', [ForwardingController::class, 'uploadAttachment'])
+    ->name('dvc_appointments.uploadAttachment');
     Route::get('/', [  ForwardingController::class,'index'])->name('dvc_appointments.index');
     Route::get('/check-case', [ForwardingController::class, 'checkCase'])->name('dvc_appointments.checkCase');
     Route::post('/store', [ForwardingController::class, 'store'])->name('dvc_appointments.store');

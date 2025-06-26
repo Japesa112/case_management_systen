@@ -156,7 +156,7 @@
                               </button>
 
                               <!-- Go to Negotiations Button (Middle) -->
-                              <a href="{{ url('/negotiations') }}" class="btn btn-info d-inline-flex align-items-center gap-2">
+                              <a href="{{ route('negotiations.index') }}" class="btn btn-info d-inline-flex align-items-center gap-2">
                                 <i class="fa fa-list"></i> Negotiations
                               </a>
 

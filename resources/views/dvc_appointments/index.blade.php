@@ -57,7 +57,7 @@
 
     <div class="panel panel-inverse">
           <div class="panel-heading d-flex justify-content-between align-items-center">
-            <a href="{{ url('/cases') }}" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
+            <a href="{{ route('cases.index') }}" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
                 <i class="fa fa-arrow-left text-white fw-bold"></i> <span class="text-white">Back to Cases</span>
             </a>
             <div class="panel-heading-btn">
@@ -420,10 +420,11 @@
         $(document).ready(function () {
     $(document).on('click', '.edit-appointment', function () {
         let forwarding_id = $(this).data('id');
-     
+    let url = "{{ route('dvc_appointments.show', ':id') }}".replace(':id', forwarding_id);
+
         // Fetch appointment details using AJAX
         $.ajax({
-            url: `dvc_appointments/show/${forwarding_id}`, // Make sure this route exists in your Laravel routes
+            url: url, // Make sure this route exists in your Laravel routes
             type: "GET",
             success: function (response) {
                 let appointment = response.forwarding;
@@ -461,6 +462,8 @@
     $(document).on("click", ".delete-document", function () {
     let button = $(this);
     let documentId = button.data("id");
+    let url = "{{ route('dvc_appointments.deleteDocument', ':id') }}".replace(':id', documentId);
+
 
     Swal.fire({
         title: "Are you sure?",
@@ -474,7 +477,7 @@
     }).then((result) => {
         if (result.isConfirmed) {
             $.ajax({
-                url: `/dvc_appointments/deleteDocuments/${documentId}`,
+                url: url,
                 method: "DELETE",
                 headers: {
                     "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
@@ -523,9 +526,10 @@ $(document).ready(function () {
         formData.append("forwarding_id", forwarding_id);
         formData.append("attachment", fileInput);
         formData.append("_token", $('meta[name="csrf-token"]').attr("content"));
+        const uploadUrl = "{{ route('dvc_appointments.uploadAttachment') }}";
 
         $.ajax({
-            url: "/dvc_appointments/uploadAttachment",
+            url: uploadUrl,
             type: "POST",
             data: formData,
             contentType: false,
@@ -570,7 +574,8 @@ $(document).ready(function () {
 
         let formData = new FormData(this);
         let forwarding_id = $("#edit_appointment_id").val(); // Get appointment ID
-        let url = `/dvc_appointments/update/${forwarding_id}`; // Construct the update route URL
+        let url = "{{ route('dvc_appointments.update', ':id') }}".replace(':id', forwarding_id);
+ // Construct the update route URL
         console.log("AppointmentID:", $("#edit_appointment_id").val());
         console.log("Form Data:", Object.fromEntries(new FormData($("#editAppointmentForm")[0])));
         
@@ -628,7 +633,8 @@ $(document).ready(function () {
             return;
         }
        
-        window.location.href = `/evaluations`;
+            window.location.href = "{{ route('evaluations.index') }}";
+
         });
     });
 </script>
@@ -657,6 +663,8 @@ $(document).ready(function () {
         document.querySelectorAll('.swal-delete-forwarding-btn').forEach(button => {
             button.addEventListener('click', function () {
                 const id = this.dataset.id;
+                let url = "{{ route('forwardings.destroy', ':id') }}".replace(':id', id);
+
 
                 Swal.fire({
                     title: 'Are you sure?',
@@ -669,7 +677,7 @@ $(document).ready(function () {
                     cancelButtonText: 'Cancel'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        fetch(`/dvc_appointments/${id}`, {
+                        fetch(url, {
                             method: 'DELETE',
                             headers: {
                                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),

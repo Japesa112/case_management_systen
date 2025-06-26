@@ -138,7 +138,7 @@
                             </a>
 
                             <!-- Go to Negotiations (Center) -->
-                            <a href="{{ url('/negotiations') }}" class="btn btn-outline-info d-flex align-items-center gap-2">
+                            <a href="{{ route('negotiations.index') }}" class="btn btn-outline-info d-flex align-items-center gap-2">
                                 <i class="fa fa-list-alt"></i> <span>All Negotiations</span>
                             </a>
 
