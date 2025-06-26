@@ -582,7 +582,7 @@ Route::delete('/{forwarding}', [ForwardingController::class, 'destroy'])->name('
 Route::prefix('dvc')->group(function () { 
 
 
-    Route::get('/', [  DvcAppointmentController::class,'index'])->name('dvc.index');
+    Route::get('/', [DvcAppointmentController::class,'index'])->name('dvc.index');
     Route::delete('/{appointment}', [DvcAppointmentController::class, 'destroy'])->name('appointments.destroy');
 
     Route::get('/edit/{appointment}', [DvcAppointmentController::class, 'edit'])->name('dvc.edit');
