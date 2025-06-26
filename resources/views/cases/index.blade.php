@@ -55,6 +55,7 @@
     @php
     use Illuminate\Support\Str;
     $isLawyer = Auth::user() && Auth::user()->role === 'Lawyer'; 
+    $user = Auth::user();
     
     @endphp
     
@@ -140,6 +141,9 @@
                     <th>Status</th>
                     <th>Handled By</th>
                     <th>View/Delete</th>
+                    @if($isLawyer)
+                        <th>Your Offer</th> {{-- New Column --}}
+                    @endif
                     
                 </tr>
             </thead>
@@ -181,6 +185,26 @@
                                 </button>
                             </form>
                         </td>
+
+                        @if($isLawyer)
+                    <td>
+                        @php
+                        // Check if the lawyer has already submitted an evaluation for this case
+                        $id = $user->lawyer->lawyer_id;
+                            $hasEvaluation = PanelEvaluation::where('case_id', $case->case_id)
+                                ->where('lawyer_id', $id)
+                                ->exists();
+                        @endphp
+
+                        @if($hasEvaluation)
+                            <span class="badge bg-success">Offer Submitted</span>
+                        @else
+                            <a href="{{ route('evaluations.create', $case->case_id) }}" class="btn btn-primary btn-sm">
+                                Submit Offer
+                            </a>
+                        @endif
+                    </td>
+                @endif
                     </tr>
                 @endforeach
             </tbody>

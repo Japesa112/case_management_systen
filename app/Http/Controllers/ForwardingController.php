@@ -277,4 +277,34 @@ public function update(Request $request, $forwarding_id)
 
         
     }
+
+    public function deleteDocument($documentId)
+{
+    // Find and delete the document by ID
+    $document = Document::findOrFail($documentId);
+    $document->delete();
+
+    return response()->json(['message' => 'Document deleted successfully.']);
+}
+
+public function uploadAttachment(Request $request, $forwardingId)
+{
+    $request->validate([
+        'document' => 'required|file|mimes:pdf,doc,docx|max:2048', // Adjust validation rules as needed
+    ]);
+
+    $forwarding = Forwarding::findOrFail($forwardingId);
+
+    // Store the document
+    $path = $request->file('document')->store('documents', 'public');
+
+    // Create a new Document record
+    $document = new Document();
+    $document->forwarding_id = $forwarding->id;
+    $document->file_path = $path;
+    $document->save();
+
+    return response()->json(['message' => 'Document uploaded successfully.', 'document' => $document]);
+
+}
 }

@@ -62,7 +62,7 @@
     <div class="panel panel-inverse">
         <div class="panel-heading d-flex justify-content-between align-items-center">
             <!-- Back to Cases Button (Left) -->
-            <a href="{{ url('/cases') }}" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
+            <a href="{{ route('cases.index') }}" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
                 <i class="fa fa-arrow-left text-white fw-bold"></i> <span class="text-white">Back to Cases</span>
             </a>
 

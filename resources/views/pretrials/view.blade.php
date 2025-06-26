@@ -36,7 +36,7 @@
             
 
             <div class="panel-heading-btn">
-                <a href="{{ url('/pretrials') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
+                <a href="{{ route('pretrials.index') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
                 <span class="text-white">All Pretrials</span>
             </a>
             </div>

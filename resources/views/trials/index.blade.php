@@ -51,7 +51,7 @@
     <h4>List of Trials</h4>
     <div class="panel panel-inverse">
         <div class="panel-heading d-flex justify-content-between align-items-center">
-            <a href="{{ url('/cases') }}" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
+            <a href="{{ route('cases.index') }}" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
                 <i class="fa fa-arrow-left text-white fw-bold"></i> <span class="text-white">Back to Cases</span>
             </a>
             <div class="panel-heading-btn">
@@ -473,7 +473,7 @@
     
         // Fetch trial details using AJAX
         $.ajax({
-            url: `trials/show/${trialId}`, // Make sure this route exists in your Laravel routes
+            url:"{{ route('trials.show', ':id') }}".replace(':id', trialId), // Make sure this route exists in your Laravel routes
             type: "GET",
             success: function (response) {
                 let trial = response.trial;
@@ -537,6 +537,7 @@
     $(document).on("click", ".delete-document", function () {
     let button = $(this);
     let documentId = button.data("id");
+    let url = "{{ route('trials.deleteDocument', ':id') }}".replace(':id', documentId);
 
     Swal.fire({
         title: "Are you sure?",
@@ -550,7 +551,7 @@
     }).then((result) => {
         if (result.isConfirmed) {
             $.ajax({
-                url: `/trials/deleteDocuments/${documentId}`,
+                url: url,
                 method: "DELETE",
                 headers: {
                     "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
@@ -597,9 +598,10 @@ $(document).ready(function () {
         formData.append("trial_id", trialId);
         formData.append("attachment", fileInput);
         formData.append("_token", $('meta[name="csrf-token"]').attr("content"));
+        let uploadUrl = "{{ route('trials.uploadAttachment') }}";
 
         $.ajax({
-            url: "/trials/uploadAttachment",
+            url: uploadUrl,
             type: "POST",
             data: formData,
             contentType: false,
@@ -644,12 +646,13 @@ $(document).ready(function () {
 
         let formData = new FormData(this);
         let trialId = $("#edit_trial_id").val(); // Get trial ID
-        let url = `/trials/update/${trialId}`; // Construct the update route URL
+        let updateUrl = "{{ route('trials.update', ':id') }}".replace(':id', trialId);
+
         console.log("trial ID:", $("#edit_trial_id").val());
         console.log("Form Data:", Object.fromEntries(new FormData($("#editTrialForm")[0])));
         
         $.ajax({
-            url: url,
+            url: updateUrl,
             method: "POST",
             data: formData,
             processData: false,
@@ -663,7 +666,8 @@ $(document).ready(function () {
                     title: "Updated Successfully",
                     text: "Trial has been updated successfully!",
                 }).then(() => {
-                    window.location.href = "/trials"; // Redirect after success
+                    window.location.href = "{{ route('trials.index') }}";
+ 
                 });
             },
             error: function (xhr) {

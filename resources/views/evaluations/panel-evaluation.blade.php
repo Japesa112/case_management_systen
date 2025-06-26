@@ -34,7 +34,7 @@
           </button>
 
           <!-- Go to Panel Evaluation (Center) -->
-          <a href="{{ url('/evaluations') }}" class="btn btn-outline-info d-inline-flex align-items-center gap-2">
+          <a href="{{ route('evaluations.index') }}" class="btn btn-outline-info d-inline-flex align-items-center gap-2">
               <i class="fa fa-gavel"></i> <span>See Offers for this Case</span>
           </a>
 

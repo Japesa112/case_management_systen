@@ -99,7 +99,7 @@
                               </button>
 
                               <!-- Go to Preparations Button (Middle) -->
-                              <a href="{{ url('/preparations') }}" class="btn btn-info d-inline-flex align-items-center gap-2">
+                              <a href="{{ route('preparations.index') }}" class="btn btn-info d-inline-flex align-items-center gap-2">
                                 <i class="fa fa-list"></i> Preparations
                               </a>
 

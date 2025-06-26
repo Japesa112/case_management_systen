@@ -51,7 +51,7 @@
     <h4>List of Trial Preparations</h4>
     <div class="panel panel-inverse">
         <div class="panel-heading d-flex justify-content-between align-items-center">
-            <a href="{{ url('/cases') }}" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
+            <a href="{{ route('cases.index') }}" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
                 <i class="fa fa-arrow-left text-white fw-bold"></i> <span class="text-white">Back to Cases</span>
             </a>
             <div class="panel-heading-btn">
@@ -458,7 +458,7 @@
     
         // Fetch preparation details using AJAX
         $.ajax({
-            url: `preparations/show/${preparationId}`, // Make sure this route exists in your Laravel routes
+            url: "{{ route('preparations.show', ':id') }}".replace(':id', preparationId), // Make sure this route exists in your Laravel routes
             type: "GET",
             success: function (response) {
                 let preparation = response.preparation;
@@ -532,7 +532,7 @@
     }).then((result) => {
         if (result.isConfirmed) {
             $.ajax({
-                url: `/preparations/deleteDocuments/${documentId}`,
+                url: "{{ route('preparations.deleteDocument', ':id') }}".replace(':id', documentId),
                 method: "DELETE",
                 headers: {
                     "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
@@ -581,7 +581,7 @@ $(document).ready(function () {
         formData.append("_token", $('meta[name="csrf-token"]').attr("content"));
 
         $.ajax({
-            url: "/preparations/uploadAttachment",
+            url: "{{ route('preparations.uploadAttachment') }}",
             type: "POST",
             data: formData,
             contentType: false,
@@ -626,7 +626,7 @@ $(document).ready(function () {
 
         let formData = new FormData(this);
         let preparationId = $("#edit_preparation_id").val(); // Get preparation ID
-        let url = `/preparations/update/${preparationId}`; // Construct the update route URL
+        let url = "{{ route('preparations.update', ':id') }}".replace(':id', preparationId); // Construct the update route URL
         console.log("Preparation ID:", $("#edit_preparation_id").val());
         console.log("Form Data:", Object.fromEntries(new FormData($("#editPreparationForm")[0])));
         
@@ -645,7 +645,8 @@ $(document).ready(function () {
                     title: "Updated Successfully",
                     text: "Preparation has been updated successfully!",
                 }).then(() => {
-                    window.location.href = "/preparations"; // Redirect after success
+                    window.location.href = "{{ route('preparations.index') }}";
+ // Redirect after success
                 });
             },
             error: function (xhr) {
