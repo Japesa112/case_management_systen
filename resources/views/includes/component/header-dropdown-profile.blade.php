@@ -232,8 +232,8 @@ function openNotificationPreferenceModal(currentData = {}) {
             console.log('Saving data:', result.value); // For demonstration
             
             // Example of a fetch call
-            
-            fetch('/users/notification-preference/save', {
+            let url = "{{ route('users.notificationPreference.save') }}";
+            fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

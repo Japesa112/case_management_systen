@@ -23,7 +23,7 @@ var handleCalendarDemo = function () {
         droppable: false,
         themeSystem: 'bootstrap',
         eventTimeFormat: false,
-        events: '/cases/calendar/calendar_events', // URL for fetching events dynamically
+        events: `${window.AppData.baseUrl}/cases/calendar/calendar_events`, // URL for fetching events dynamically
 
         // Event click handler
         eventClick: function(info) {
@@ -45,7 +45,7 @@ var handleCalendarDemo = function () {
             $('#activity-content').html('<div class="text-center p-4"><i class="fa fa-spinner fa-spin fa-2x"></i> Loading details...</div>');
 
 				$.ajax({
-					url: `/cases/case-activity/${eventId}`, // Adjust this to your route to fetch the event details
+					url: `${window.AppData.baseUrl}/cases/case-activity/${eventId}`, // Adjust this to your route to fetch the event details
 					type: "GET",
 					success: function (response) {
 						let activity = response.data;
@@ -98,7 +98,7 @@ var handleCalendarDemo = function () {
 				// Display a loading indicator
 				$('#appeal-content').html('<div class="text-center p-4"><i class="fa fa-spinner fa-spin fa-2x"></i> Loading details...</div>');
 				$.ajax({
-					url:`/appeals/show/${appealId}`,
+					url:`${window.AppData.baseUrl}/appeals/show/${appealId}`,
 					type: "GET",
 					success: function (response) {
 						let appeal = response.appeal;
@@ -158,7 +158,7 @@ var handleCalendarDemo = function () {
 	
 				// Fetch adjourn details
 				$.ajax({
-					url:  `/adjourns/show/${adjournId}`,
+					url:  `${window.AppData.baseUrl}/adjourns/show/${adjournId}`,
 					type: "GET",
 					success: function (response) {
 						let adjourn = response.adjourn;
@@ -211,7 +211,7 @@ var handleCalendarDemo = function () {
 				    $('#pretrial-content').html('<div class="text-center p-4"><i class="fa fa-spinner fa-spin fa-2x"></i> Loading details...</div>');
 
 				    $.ajax({
-				        url: `/pretrials/cases/pretrial/${eventId}`,
+				        url: `${window.AppData.baseUrl}/pretrials/cases/pretrial/${eventId}`,
 				        type: "GET",
 				        success: function (response) {
 				            const pretrial = response.pretrial;
@@ -278,7 +278,7 @@ var handleCalendarDemo = function () {
 	
 				// Fetch preparation details
 				$.ajax({
-					url: `/preparations/show/${preparationId}`,
+					url: `${window.AppData.baseUrl}/preparations/show/${preparationId}`,
 					type: "GET",
 					success: function (response) {
 						let preparation = response.preparation;
@@ -338,7 +338,7 @@ var handleCalendarDemo = function () {
 
             // Fetch trial details
             $.ajax({
-                url: `/trials/show/${trialId}`,
+                url: `${window.AppData.baseUrl}/trials/show/${trialId}`,
                 type: "GET",
                 success: function (response) {
                     let trial = response.trial;
@@ -407,7 +407,7 @@ var handleCalendarDemo = function () {
 
             // Fetch appointment details
             $.ajax({
-                url: `/dvc_appointments/show/${forwarding_id}`,
+                url: `${window.AppData.baseUrl}/dvc_appointments/show/${forwarding_id}`,
                 type: "GET",
                 success: function (response) {
                     let appointment = response.forwarding;
@@ -455,7 +455,7 @@ var handleCalendarDemo = function () {
 	  
 				  // Fetch advice details
 				  $.ajax({
-					  url: `/ag_advice/show/${ag_advice_id}`,
+					  url: `${window.AppData.baseUrl}/ag_advice/show/${ag_advice_id}`,
 					  type: "GET",
 					  success: function (response) {
 						  let advice = response.advice;
@@ -500,7 +500,7 @@ var handleCalendarDemo = function () {
 	
 				// Fetch payment details
 				$.ajax({
-					url: `/all_payments/show/${paymentId}`,
+					url: `${window.AppData.baseUrl}/all_payments/show/${paymentId}`,
 					type: "GET",
 					success: function (response) {
 						let payment = response.payment;
@@ -561,7 +561,7 @@ var handleCalendarDemo = function () {
 
 					// Fetch payment details
 					$.ajax({
-						url: `/lawyer_payments/show/${paymentId}`,
+						url: `${window.AppData.baseUrl}/lawyer_payments/show/${paymentId}`,
 						type: "GET",
 						success: function (response) {
 							let payment = response.payment;
@@ -621,7 +621,7 @@ var handleCalendarDemo = function () {
 				let negotiationId = eventId; // Replace this with the actual negotiation ID dynamically if necessary
 
     // Redirect to the "negotiations/show/{id}" URL
-    		window.location.href = `/negotiations/show/${negotiationId}`;
+    		window.location.href = `${window.AppData.baseUrl}/negotiations/show/${negotiationId}`;
 			}
 		
 		}

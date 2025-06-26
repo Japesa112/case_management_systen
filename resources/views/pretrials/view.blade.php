@@ -555,7 +555,7 @@ function confirmDeleteMemberByName(name, pretrialId) {
         cancelButtonText: 'Cancel'
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch(`/pretrials/members/delete-by-name`, {
+            fetch(`{{ route('pretrials.members.deleteByName') }}`, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -597,6 +597,9 @@ function confirmDeleteMemberByName(name, pretrialId) {
 }
 
 function confirmDeleteAttachmentById(attachmentId, pretrialId) {
+            const deleteUrl = "{{ route('pretrials.attachments.delete', ['attachmentId' => '__ID__']) }}".replace('__ID__', attachmentId);
+
+
     Swal.fire({
         title: 'Are you sure?',
         text: 'This document will be deleted permanently.',
@@ -606,7 +609,7 @@ function confirmDeleteAttachmentById(attachmentId, pretrialId) {
         cancelButtonText: 'Cancel'
     }).then(result => {
         if (result.isConfirmed) {
-            fetch(`/pretrials/attachments/delete/${attachmentId}`, {
+            fetch(deleteUrl, {
                 method: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -881,9 +884,10 @@ document.addEventListener('DOMContentLoaded', function () {
         // Make role field readonly and preset
         roleField.value = 'Lawyer';
         roleField.readOnly = true;
+        let getLawyersUrl = "{{ route('lawyer_payments.getLawyers') }}";
 
         // Replace name input with select
-        fetch(`/lawyer_payments/get-lawyers`)
+        fetch(getLawyersUrl)
           .then(res => res.json())
           .then(data => {
             const select = document.createElement('select');
@@ -907,9 +911,10 @@ document.addEventListener('DOMContentLoaded', function () {
           // Make role field readonly and preset
           roleField.value = 'Witness';
           roleField.readOnly = true;
+          const fetchWitnessesUrl = "{{ route('witnesses.allAvailable') }}";
 
           // Replace name input with select for witnesses
-          fetch(`/witnesses/all-available-witnesses`)
+          fetch(fetchWitnessesUrl)
             .then(res => res.json())
             .then(data => {
               const select = document.createElement('select');
@@ -997,8 +1002,8 @@ document.addEventListener('DOMContentLoaded', function () {
       if (type === 'lawyer') {
         roleField.value = 'Lawyer';
         roleField.readOnly = true;
-
-        fetch('/lawyer_payments/get-lawyers')
+        let url = "{{ route('lawyer_payments.getLawyers') }}";
+        fetch(url)
           .then(res => res.json())
           .then(data => {
             const select = document.createElement('select');
@@ -1019,8 +1024,9 @@ document.addEventListener('DOMContentLoaded', function () {
       } else if (type === 'witness') {
         roleField.value = 'Witness';
         roleField.readOnly = true;
+        const fetchWitnessesUrl = "{{ route('witnesses.allAvailable') }}";
 
-        fetch('/witnesses/all-available-witnesses')
+        fetch(fetchWitnessesUrl)
           .then(res => res.json())
           .then(data => {
             const select = document.createElement('select');
@@ -1070,8 +1076,9 @@ document.getElementById('addDocumentForm').addEventListener('submit', function (
     const formData = new FormData();
     formData.append('attachments', file);
     formData.append('pretrial_id', pretrialId);
+    let url = `{{ route('pretrials.attachments.store', ['pretrial_id' => '__id__']) }}`.replace('__id__', pretrialId);
 
-    fetch(`/pretrials/${pretrialId}/attachments`, {
+    fetch(url, {
       method: 'POST',
       headers: {
         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
@@ -1123,8 +1130,10 @@ document.getElementById('addMemberForm').addEventListener('submit', function (e)
   const form = e.target;
   const formData = new FormData(form);
   const pretrialId = formData.get('pretrial_id');
+  const url = "{{ route('pretrials.members.store', '__ID__') }}".replace('__ID__', pretrialId);
 
-  fetch('/pretrials/' + pretrialId + '/members', {
+
+  fetch(url, {
     method: 'POST',
     headers: {
       'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -1186,9 +1195,9 @@ document.getElementById('updatePreTrialForm').addEventListener('submit', functio
   console.log(`${key}:`, value);
 }
   const pretrialId = formData.get('pretrial_id');
+  let url = "{{ route('pretrials.update') }}";
 
-
-  fetch(`/pretrials/${pretrialId}`, {
+  fetch(url, {
     method: 'POST', // HTML forms can't use PUT directly
     headers: {
       'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),

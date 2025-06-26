@@ -69,7 +69,7 @@
 <div class="row">
 		<!-- BEGIN col-3 -->
 <div class="col-xl-4 col-md-6">
-    <a href="{{ url('/cases?filter=closed_lawyer') }}" class="widget-link">
+    <a href="{{ route('cases.index', ['filter' => 'closed_lawyer']) }}" class="widget-link">
         <div class="widget widget-stats bg-teal">
             <div class="stats-icon stats-icon-lg"><i class="fa fa-balance-scale fa-fw"></i></div>
             <div class="stats-content">
@@ -90,7 +90,7 @@
 
 		
 	<div class="col-xl-4 col-md-6">
-    <a href="{{ url('/cases?filter=my_active_cases') }}" class="widget-link">
+    <a href="{{ route('cases.index', ['filter' => 'my_active_cases']) }}" class="widget-link">
         <div class="widget widget-stats bg-blue">
             <div class="stats-icon stats-icon-lg"><i class="fa fa-briefcase fa-fw"></i></div>
             <div class="stats-content">
@@ -108,7 +108,7 @@
 		<!-- END col-3 -->
 		<!-- BEGIN col-3 -->
 	<div class="col-xl-4 col-md-6">
-    <a href="{{ url('/cases?filter=upcoming_hearings') }}" class="widget-link">
+    <a href="{{ route('cases.index', ['filter' => 'upcoming_hearings']) }}" class="widget-link">
         <div class="widget widget-stats bg-indigo">
             <div class="stats-icon stats-icon-lg"><i class="fa fa-calendar-alt fa-fw"></i></div>
             <div class="stats-content">
@@ -163,7 +163,7 @@
 		<!-- END col-3 -->
 		<!-- BEGIN col-3 -->
 <div class="col-xl-4 col-md-6">
-    <a href="{{ url('/lawyers/my-cases') }}" class="widget-link">
+    <a href="{{ route('lawyers.my_index') }}" class="widget-link">
         <div class="widget widget-stats bg-pink">
             <div class="stats-icon stats-icon-lg"><i class="fa fa-folder-plus fa-fw"></i></div>
             <div class="stats-content">
@@ -182,7 +182,7 @@
 		<!-- END col-3 -->
 		<!-- BEGIN col-3 -->
 <div class="col-xl-4 col-md-6">
-    <a href="{{ url('/cases?filter=awaiting_evaluation') }}" class="widget-link">
+    <a href="{{ route('cases.index', ['filter' => 'awaiting_evaluation']) }}" class="widget-link">
         <div class="widget widget-stats bg-orange">
             <div class="stats-icon stats-icon-lg"><i class="fa fa-hourglass-half fa-fw"></i></div>
             <div class="stats-content">
@@ -205,7 +205,7 @@
 	<div class="row mt-4">
     <!-- Total Payments -->
     <div class="col-xl-4 col-md-6">
-        <a href="{{ url('/lawyer_payments?filter=total') }}" class="widget-link">
+        <a href="{{ route('lawyer_payments.index', ['filter' => 'total']) }}" class="widget-link">
             <div class="widget widget-stats bg-primary">
                 <div class="stats-icon stats-icon-lg"><i class="fa fa-wallet fa-fw"></i></div>
                 <div class="stats-content">
@@ -222,7 +222,7 @@
 
     <!-- Pending Payments -->
     <div class="col-xl-4 col-md-6">
-        <a href="{{ url('/lawyer_payments?filter=pending') }}" class="widget-link">
+        <a href="{{ route('lawyer_payments.index', ['filter' => 'pending']) }}" class="widget-link">
             <div class="widget widget-stats bg-warning">
                 <div class="stats-icon stats-icon-lg"><i class="fa fa-clock fa-fw"></i></div>
                 <div class="stats-content">
@@ -239,7 +239,7 @@
 
     <!-- Completed Payments -->
     <div class="col-xl-4 col-md-6">
-        <a href="{{ url('/lawyer_payments?filter=completed') }}" class="widget-link">
+        <a href="{{ route('lawyer_payments.index', ['filter' => 'completed']) }}" class="widget-link">
             <div class="widget widget-stats bg-success">
                 <div class="stats-icon stats-icon-lg"><i class="fa fa-check-circle fa-fw"></i></div>
                 <div class="stats-content">
@@ -355,7 +355,7 @@
 
 
 document.addEventListener("DOMContentLoaded", function () {
-  fetch('/case-status-data')
+  fetch("{{ route('cases.status.data') }}")
     .then(response => response.json())
     .then(data => {
       const statuses = data.map(item => item.case_status);
@@ -397,7 +397,7 @@ chart: {
   document.getElementById('caseStatusModalLabel').textContent = `Cases with Status: ${status}`;
 
   // Fetch and display case list
-  fetch(`/cases/by-status/${encodeURIComponent(status)}`)
+  fetch("{{ route('cases.by.status', ':status') }}".replace(':status', encodeURIComponent(status)))
     .then(response => response.json())
     .then(data => {
       const list = document.getElementById('case-status-list');

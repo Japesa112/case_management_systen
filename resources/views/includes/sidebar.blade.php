@@ -55,14 +55,14 @@
 
 			
 				
-				<div class="menu-item pt-5px {{ request()->is('users') ? 'active' : '' }}">
-					<a href="/users" class="menu-link">
+				<div class="menu-item pt-5px  {{ request()->routeIs('users.index') ? 'active' : '' }}">
+					<a href="{{ route('users.index') }}" class="menu-link">
 						<div class="menu-icon"><i class="fa fa-users"></i></div>
 						<div class="menu-text">All Users</div>
 					</a>
 				</div>
-				<div class="menu-item {{ request()->is('users/add') ? 'active' : '' }}">
-					<a href="/users/add" class="menu-link">
+				<div class="menu-item {{ request()->routeIs('users.create') ? 'active' : '' }}">
+					<a href="{{ route('users.create') }}" class="menu-link">
 						<div class="menu-icon"><i class="fa fa-user-plus"></i></div>
 						<div class="menu-text">Add User</div>
 					</a>
@@ -72,7 +72,7 @@
 
 
 				@php
-				    $isLawyerRoute = request()->is('lawyers') || request()->is('lawyers/add');
+				    $isLawyerRoute = request()->routeIs('lawyers.*');
 				@endphp
 
 				<div class="menu-item {{ $isLawyerRoute ? 'active' : '' }}">
@@ -85,14 +85,14 @@
 						<i class="collapse-chevron fa fa-chevron-down"></i>
 					</a>
 					<div class="sub-menu collapse {{ $isLawyerRoute ? 'show' : '' }}" id="lawyerSubMenu">
-						<div class="menu-item {{ request()->is('lawyers') ? 'active' : '' }}">
-							<a href="/lawyers" class="menu-link">
+						<div class="menu-item {{ request()->routeIs('lawyers.index') ? 'active' : '' }}">
+							<a href="{{ route('lawyers.index') }}" class="menu-link">
 								<div class="menu-icon"><i class="fa-solid fa-list"></i></div>
 								<div class="menu-text">View All Lawyers</div>
 							</a>
 						</div>
-						<div class="menu-item {{ request()->is('lawyers/add') ? 'active' : '' }}">
-							<a href="/lawyers/add" class="menu-link">
+						<div class="menu-item {{ request()->routeIs('lawyers.create') ? 'active' : '' }}">
+							<a href="{{ route('lawyers.create') }}" class="menu-link">
 								<div class="menu-icon"><i class="fa-solid fa-user-plus"></i></div>
 								<div class="menu-text">Add New Lawyer</div>
 							</a>

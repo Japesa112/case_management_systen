@@ -60,7 +60,7 @@
       const caseId = $('#caseId').val();
       const message = $('#panelMessage').val().trim();
       const selectedLawyers = $('#payment_lawyer').val(); // Get selected lawyers
-
+      
       if (!selectedLawyers || selectedLawyers.length === 0) {
         Swal.fire('Warning', 'Please select at least one lawyer.', 'warning');
         return;
@@ -72,7 +72,7 @@
       }
 
       $.ajax({
-        url: `/cases/${caseId}/submit-panel-evaluation`,
+        url: "{{ route('cases.submitToPanelEvaluation', ':case_id') }}".replace(':case_id', caseId),
         method: 'POST',
         headers: {
           'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -118,7 +118,7 @@ $(document).ready(function () {
 
     // Fetch lawyers
     $.ajax({
-        url: "/lawyer_payments/get-lawyers",
+        url: "{{ route('lawyer_payments.getLawyers') }}",
         type: "GET",
         dataType: "json",
         success: function (response) {

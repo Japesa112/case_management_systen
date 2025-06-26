@@ -141,7 +141,7 @@
                               </button>
 
                               <!-- Lawyer Payments Button -->
-                              <a href="{{ url('/lawyer_payments') }}" class="btn btn-info d-inline-flex align-items-center gap-2">
+                              <a href="{{ route('lawyer_payments.index') }}" class="btn btn-info d-inline-flex align-items-center gap-2">
                                 <i class="fa fa-money-bill-wave"></i> Lawyer Payments
                               </a>
 
@@ -258,7 +258,7 @@
 <script>
     $(document).ready(function () {
         $.ajax({
-            url: "/lawyer_payments/get-lawyers",
+            url: "{{ route('lawyer_payments.getLawyers') }}",
             type: "GET",
             dataType: "json",
             success: function (response) {

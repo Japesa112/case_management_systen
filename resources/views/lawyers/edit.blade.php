@@ -73,7 +73,8 @@
                     <a href="/dashboard/lawyer" class="btn btn-danger">Cancel</a>
 
                     @else
-                    <a href="{{ route('lawyers.index') }}" class="btn btn-danger">Cancel</a>
+                        <a href="{{ route('dashboard-v2-lawyer') }}" class="btn btn-danger">Cancel</a>
+
 
                     @endif
                 </div>

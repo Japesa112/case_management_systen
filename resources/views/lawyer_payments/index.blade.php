@@ -68,7 +68,7 @@
          <div class="panel-heading d-flex justify-content-between align-items-center">
             
             @if ($isLawyer)
-            <a href="{{ url('/cases') }}" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
+            <a href="{{ route('cases.index') }}" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
                 <i class="fa fa-arrow-left text-white fw-bold"></i> <span class="text-white">Back to Cases</span>
             </a>
             <div class="panel-heading-btn">
@@ -77,7 +77,7 @@
                 </button>
             </div>
             @else
-           <a href="{{ url('/cases') }}" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
+           <a href="{{ route('cases.index') }}" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
                 <i class="fa fa-arrow-left text-white fw-bold"></i> <span class="text-white">Back to Cases</span>
             </a>
             <div class="panel-heading-btn">
@@ -513,7 +513,7 @@ $(document).ready(function () {
         let paymentId = $(this).data('id');
         console.log("The payment id is: "+paymentId);
         $.ajax({
-            url: "/lawyer_payments/get-lawyers",
+            url: "{{ route('lawyer_payments.getLawyers') }}",
             type: "GET",
             dataType: "json",
             success: function (response) {
@@ -530,7 +530,7 @@ $(document).ready(function () {
     
         // Fetch payment details using AJAX
         $.ajax({
-            url: `lawyer_payments/show/${paymentId}`, // Make sure this route exists in your Laravel routes
+            url:  "{{ route('lawyer_payments.show', ':id') }}".replace(':id', paymentId), 
             type: "GET",
             success: function (response) {
                 let payment= response.payment;
@@ -620,7 +620,7 @@ $(document).ready(function () {
     }).then((result) => {
         if (result.isConfirmed) {
             $.ajax({
-                url: `/lawyer_payments/deleteDocuments/${documentId}`,
+                url: "{{ route('lawyer_payments.deleteDocument', ':documentId') }}".replace(':documentId', documentId),
                 method: "DELETE",
                 headers: {
                     "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
@@ -671,7 +671,7 @@ $(document).ready(function () {
         formData.append("_token", $('meta[name="csrf-token"]').attr("content"));
 
         $.ajax({
-            url: "/lawyer_payments/uploadAttachment",
+            url: "{{ route('lawyer_payments.uploadAttachment') }}",
             type: "POST",
             data: formData,
             contentType: false,
@@ -716,12 +716,12 @@ $(document).ready(function () {
 
         let formData = new FormData(this);
         let paymentId = $("#edit_payment_id").val(); // Get payment ID
-        let url = `/lawyer_payments/update/${paymentId}`; // Construct the update route URL
+        
         console.log("Payment ID:", $("#edit_payment_id").val());
         console.log("Form Data:", Object.fromEntries(new FormData($("#editPaymentForm")[0])));
         
         $.ajax({
-            url: url,
+            url: "{{ route('lawyer_payments.update', ':id') }}".replace(':id', paymentId),
             method: "POST",
             data: formData,
             processData: false,

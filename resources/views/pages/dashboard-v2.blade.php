@@ -3,10 +3,10 @@
 @section('title', 'Dashboard')
 
 @push('css')
-	<link href="/assets/plugins/jvectormap-next/jquery-jvectormap.css" rel="stylesheet" />
-	
-	<link href="/assets/plugins/gritter/css/jquery.gritter.css" rel="stylesheet" />
-	<link href="/assets/plugins/nvd3/build/nv.d3.css" rel="stylesheet" />
+<link href="{{ asset('assets/plugins/jvectormap-next/jquery-jvectormap.css') }}" rel="stylesheet" />
+<link href="{{ asset('assets/plugins/gritter/css/jquery.gritter.css') }}" rel="stylesheet" />
+<link href="{{ asset('assets/plugins/nvd3/build/nv.d3.css') }}" rel="stylesheet" />
+
 	
 @endpush
 
@@ -86,7 +86,7 @@
 		<div class="stats-icon stats-icon-lg"><i class="fa fa-balance-scale fa-fw"></i></div>
 		<div class="stats-content">
 		<div class="stats-title">CLOSED CASES</div>
-		 <a href="{{ url('/closed_cases') }}" class="btn btn-sm btn-info mb-4">
+		 <a href="{{ route('closed_cases.index') }}" class="btn btn-sm btn-info mb-4">
 		<div class="stats-number">
    
         {{ $closedCases }}
@@ -112,7 +112,7 @@
 			<div class="stats-icon stats-icon-lg"><i class="fa fa-briefcase fa-fw"></i></div>
 			<div class="stats-content">
 			<div class="stats-title">ACTIVE CASES</div>
-			<a href="{{ url('/cases?status=active') }}" class="btn btn-sm btn-info mb-4">
+			<a href="{{ route('cases.index', ['status' => 'active']) }}" class="btn btn-sm btn-info mb-4">
 
 				<div class="stats-number" id="active-cases-count">...</div>
 			</a>
@@ -134,7 +134,8 @@
 				<div class="stats-content">
 					<div class="stats-title">UPCOMING HEARINGS</div>
 
-					<a href="{{ url('/cases?filter=upcoming_hearings') }}" class="btn btn-sm btn-info mb-4" >
+					<a href="{{ route('cases.index', ['filter' => 'upcoming_hearings']) }}"
+ class="btn btn-sm btn-info mb-4" >
 
 					<div id="upcoming-hearings-number" class="stats-number">0</div>
 
@@ -155,7 +156,7 @@
 				<div class="stats-icon stats-icon-lg"><i class="fa fa-folder-plus fa-fw"></i></div>
 				<div class="stats-content">
 					<div class="stats-title">NEW CASES</div>
-					<a href="{{ url('/cases?filter=this_month') }}" class="btn btn-sm btn-info mb-4">
+					<a href="{{ route('cases.index', ['filter' => 'this_month']) }}" class="btn btn-sm btn-info mb-4">
 					<div id="new-cases-number" class="stats-number">0</div>
 				</a>
 					<div class="stats-progress progress">
@@ -246,7 +247,7 @@
 		   <!-- Total Payments -->
 <!-- Total Payments -->
 <div class="col-xl-3 col-md-6 mb-4">
-  <a href="{{ url('/all_payments') }}" class="text-decoration-none">
+  <a href="{{ route('all_payments.index') }}" class="text-decoration-none">
     <div class="widget widget-stats bg-dark text-white shadow rounded-lg h-100 position-relative overflow-hidden">
       <div class="stats-icon stats-icon-lg text-white"><i class="fa fa-money-bill-wave fa-fw"></i></div>
       <div class="stats-content ps-4">
@@ -260,7 +261,7 @@
 
 <!-- Payments to University -->
 <div class="col-xl-3 col-md-6 mb-4">
-  <a href="{{ url('/all_payments?filter=kenyatta_university') }}" class="text-decoration-none">
+  <a href="{{ route('all_payments.index', ['filter' => 'kenyatta_university']) }}" class="text-decoration-none">
     <div class="widget widget-stats bg-purple text-white shadow rounded-lg h-100 position-relative overflow-hidden">
       <div class="stats-icon stats-icon-lg text-white"><i class="fa fa-university fa-fw"></i></div>
       <div class="stats-content ps-4">
@@ -274,7 +275,7 @@
 
 <!-- Payment Overdues -->
 <div class="col-xl-3 col-md-6 mb-4">
-  <a href="{{ url('/all_payments?filter=overdue') }}" class="text-decoration-none">
+  <a href="{{ route('all_payments.index', ['filter' => 'overdue']) }}" class="text-decoration-none">
     <div class="widget widget-stats bg-danger text-white shadow rounded-lg h-100 position-relative overflow-hidden">
       <div class="stats-icon stats-icon-lg text-white"><i class="fa fa-exclamation-triangle fa-fw"></i></div>
       <div class="stats-content ps-4">
@@ -455,7 +456,7 @@
 
 
 document.addEventListener("DOMContentLoaded", function () {
-  fetch('/case-status-data')
+  fetch("{{ route('cases.status.data') }}")
     .then(response => response.json())
     .then(data => {
       const statuses = data.map(item => item.case_status);
@@ -497,7 +498,7 @@ chart: {
   document.getElementById('caseStatusModalLabel').textContent = `Cases with Status: ${status}`;
 
   // Fetch and display case list
-  fetch(`/cases/by-status/${encodeURIComponent(status)}`)
+  fetch(`{{ route('cases.by.status', ':status') }}`.replace(':status', encodeURIComponent(status)))
     .then(response => response.json())
     .then(data => {
       const list = document.getElementById('case-status-list');
@@ -930,8 +931,8 @@ tableBody.addEventListener('click', function (e) {
 		
 		document.addEventListener('DOMContentLoaded', function () {
     $.ajax({
-        url: '/dashboard/payment-stats',
-        type: 'GET',
+       url: "{{ route('dashboard.payment.stats') }}",
+       type: 'GET',
         success: function (data) {
             // Update widgets
             $('#total-payments').text(data.totalPayments + ' KSH');
@@ -991,7 +992,8 @@ tableBody.addEventListener('click', function (e) {
 							                }
 
 							                if (payeeType) {
-							                    window.location.href = `/all_payments?payee=${payeeType}`;
+							                    window.location.href = `{{ route('all_payments.index') }}?payee=${encodeURIComponent(payeeType)}`;
+
 							                }
 							            }
 							        }
@@ -1019,7 +1021,7 @@ tableBody.addEventListener('click', function (e) {
 let paymentsChart;
 
 function fetchAndRenderChart(start = '', end = '', group = 'daily') {
-  fetch(`/dashboard/payment-dates?start=${start}&end=${end}&groupBy=${group}`)
+  fetch(`{{ route('dashboard.payment.dates') }}?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}&groupBy=${encodeURIComponent(group)}`)
     .then(res => res.json())
     .then(data => {
       const ctx = document.getElementById('paymentsBarChart').getContext('2d');
@@ -1076,22 +1078,22 @@ function fetchAndRenderChart(start = '', end = '', group = 'daily') {
 						     const selectedLabel = data.labels[index]; // could be a single date or a range string
 						     dayjs.extend(dayjs_plugin_customParseFormat);
 
+								let url = '';
+								const baseUrl = `{{ route('dashboard.payments.byDate') }}`;
 
-						     let url = '';
-									if (selectedLabel.includes(' - ')) {
-									  // Date range (weekly)
-									  const [startDate, endDate] = selectedLabel.split(' - ').map(s => s.trim());
-									  url = `/dashboard/payments/by-date?startDate=${startDate}&endDate=${endDate}`;
-									} else if (/^[A-Za-z]+ \d{4}$/.test(selectedLabel)) {
-									  // Monthly format like "March 2025"
-									  const startDate = dayjs(selectedLabel, "MMMM YYYY").startOf('month').format('YYYY-MM-DD');
-									  const endDate = dayjs(selectedLabel, "MMMM YYYY").endOf('month').format('YYYY-MM-DD');
-									  url = `/dashboard/payments/by-date?startDate=${startDate}&endDate=${endDate}`;
-									} else {
-									  // Assume single date (daily)
-									  url = `/dashboard/payments/by-date?date=${selectedLabel}`;
-									}
-
+								if (selectedLabel.includes(' - ')) {
+								  // Date range (weekly)
+								  const [startDate, endDate] = selectedLabel.split(' - ').map(s => s.trim());
+								  url = `${baseUrl}?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
+								} else if (/^[A-Za-z]+ \d{4}$/.test(selectedLabel)) {
+								  // Monthly format like "March 2025"
+								  const startDate = dayjs(selectedLabel, "MMMM YYYY").startOf('month').format('YYYY-MM-DD');
+								  const endDate = dayjs(selectedLabel, "MMMM YYYY").endOf('month').format('YYYY-MM-DD');
+								  url = `${baseUrl}?startDate=${startDate}&endDate=${endDate}`;
+								} else {
+								  // Assume single date (daily)
+								  url = `${baseUrl}?date=${encodeURIComponent(selectedLabel)}`;
+								}
 
 						    try {
 						      const response = await fetch(url);

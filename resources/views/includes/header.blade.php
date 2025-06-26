@@ -191,7 +191,9 @@ $(document).ready(function () {
     e.stopPropagation();
     const notificationId = $(this).data('id');
 
-    $.post(`/notifications/${notificationId}/read`, {
+    let url = "{{ route('notifications.markAsRead', ':id') }}".replace(':id', notificationId);
+
+    $.post(url, {
         _token: '{{ csrf_token() }}'
     }, function (response) {
         if (response.success) {
@@ -206,7 +208,7 @@ $(document).ready(function () {
 
 
 function updateNotificationCount() {
-    $.get('/notifications/unread-count', function (response) {
+    $.get("{{ route('notifications.unreadCount') }}", function (response) {
         $('#notification-count').text(response.count);
         $('#notification-count-total').text(response.count);
     });

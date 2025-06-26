@@ -173,7 +173,7 @@
                     </div>`;
 
                 // Fetch lawyer details via AJAX
-                fetch(`/lawyers/show/${lawyerId}`)
+                fetch("{{ route('lawyers.show', ':id') }}".replace(':id', lawyerId))
                     .then(response => response.json())
                     .then(data => {
                         document.getElementById("lawyer-content").innerHTML = `

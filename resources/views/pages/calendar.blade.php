@@ -3,14 +3,19 @@
 @section('title', 'Calendar')
 
 @push('scripts')
-	<script src="/assets/plugins/moment/moment.js"></script>
-	<script src="/assets/plugins/@fullcalendar/core/index.global.js"></script>
-	<script src="/assets/plugins/@fullcalendar/daygrid/index.global.js"></script>
-	<script src="/assets/plugins/@fullcalendar/timegrid/index.global.js"></script>
-	<script src="/assets/plugins/@fullcalendar/interaction/index.global.js"></script>
-	<script src="/assets/plugins/@fullcalendar/list/index.global.js"></script>
-	<script src="/assets/plugins/@fullcalendar/bootstrap/index.global.js"></script>
-	<script src="/assets/js/demo/calendar.demo.js"></script>
+<script src="{{ asset('assets/plugins/moment/moment.js') }}"></script>
+<script src="{{ asset('assets/plugins/@fullcalendar/core/index.global.js') }}"></script>
+<script src="{{ asset('assets/plugins/@fullcalendar/daygrid/index.global.js') }}"></script>
+<script src="{{ asset('assets/plugins/@fullcalendar/timegrid/index.global.js') }}"></script>
+<script src="{{ asset('assets/plugins/@fullcalendar/interaction/index.global.js') }}"></script>
+<script src="{{ asset('assets/plugins/@fullcalendar/list/index.global.js') }}"></script>
+<script src="{{ asset('assets/plugins/@fullcalendar/bootstrap/index.global.js') }}"></script>
+<script src="{{ asset('assets/js/demo/calendar.demo.js') }}"></script>
+<script>
+    window.AppData = {
+        baseUrl: "{{ url('/') }}", // e.g., http://127.0.0.1:8000 or https://yourdomain.com
+    };
+</script>
 @endpush
 
 @section('content')
@@ -27,53 +32,7 @@
 		<!-- BEGIN event-list -->
 		<div class="d-none d-lg-block" style="width: 100px">
 			<div id="external-events" class="fc-event-list">
-				<!--
-				<h5 class="mb-3">Draggable Events</h5>
-				<div class="fc-event" data-color="#00acac">
-					<div class="fc-event-text">Meeting with Client</div>
-					<div class="fc-event-icon"><i class="fas fa-circle fa-fw fs-9px text-success"></i></div>
-				</div>
-				<div class="fc-event" data-color="#348fe2">
-					<div class="fc-event-text">IOS App Development</div>
-					<div class="fc-event-icon"><i class="fas fa-circle fa-fw fs-9px text-blue"></i></div>
-				</div>
-				<div class="fc-event" data-color="#f59c1a">
-					<div class="fc-event-text">Group Discussion</div>
-					<div class="fc-event-icon"><i class="fas fa-circle fa-fw fs-9px text-warning"></i></div>
-				</div>
-				<div class="fc-event" data-color="#ff5b57">
-					<div class="fc-event-text">New System Briefing: hi</div>
-					<div class="fc-event-icon"><i class="fas fa-circle fa-fw fs-9px text-danger"></i></div>
-				</div>
-				<div class="fc-event">
-					<div class="fc-event-text">Brainstorming</div>
-					<div class="fc-event-icon"><i class="fas fa-circle fa-fw fs-9px text-dark"></i></div>
-				</div>
-				-->
-				<!---
-				<hr class="bg-grey-lighter my-3" />
-				<h5 class="mb-3">Other Events</h5>
-				<div class="fc-event" data-color="#b6c2c9">
-					<div class="fc-event-text">Other Event 1</div>
-					<div class="fc-event-icon"><i class="fas fa-circle fa-fw fs-9px text-gray-500"></i></div>
-				</div>
-				<div class="fc-event" data-color="#b6c2c9">
-					<div class="fc-event-text">Other Event 2</div>
-					<div class="fc-event-icon"><i class="fas fa-circle fa-fw fs-9px text-gray-500"></i></div>
-				</div>
-				<div class="fc-event" data-color="#b6c2c9">
-					<div class="fc-event-text">Other Event 3</div>
-					<div class="fc-event-icon"><i class="fas fa-circle fa-fw fs-9px text-gray-500"></i></div>
-				</div>
-				<div class="fc-event" data-color="#b6c2c9">
-					<div class="fc-event-text">Other Event 4</div>
-					<div class="fc-event-icon"><i class="fas fa-circle fa-fw fs-9px text-gray-500"></i></div>
-				</div>
-				<div class="fc-event" data-color="#b6c2c9">
-					<div class="fc-event-text">Other Event 5</div>
-					<div class="fc-event-icon"><i class="fas fa-circle fa-fw fs-9px text-gray-500"></i></div>
-				</div>
-				-->
+
 			</div>
 		</div>
 		<!-- END event-list -->

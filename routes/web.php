@@ -73,9 +73,10 @@ Route::get('/auth/google/callback', [LoginController::class, 'handleGoogleCallba
 
 Route::get('/dashboard/lawyer', [LawyerController::class, 'dashboard'])->name('dashboard-v2-lawyer');
 
-Route::get('/dashboard/payment-stats', [PaymentController::class, 'getPaymentStats']);
-Route::get('/dashboard/payment-dates', [PaymentController::class, 'getPaymentDates']);
-Route::get('/dashboard/payments/by-date', [PaymentController::class, 'getPaymentsByDate']);
+Route::get('/dashboard/payment-stats', [PaymentController::class, 'getPaymentStats'])->name('dashboard.payment.stats');
+Route::get('/dashboard/payment-dates', [PaymentController::class, 'getPaymentDates'])->name('dashboard.payment.dates');
+Route::get('/dashboard/payments/by-date', [PaymentController::class, 'getPaymentsByDate'])->name('dashboard.payments.byDate');
+
 
 
 
@@ -83,7 +84,8 @@ Route::get('/dashboard/v1', 'MainController@dashboardV1')->name('dashboard-v1');
 Route::get('/dashboard/v2', 'MainController@dashboardV2')->name('dashboard-v2');
 Route::get('/dashboard/v3', 'MainController@dashboardV3')->name('dashboard-v3');
 
-Route::get('/case-status-data', [MainController::class, 'getCaseStatusData']);
+Route::get('/case-status-data', [MainController::class, 'getCaseStatusData'])->name('cases.status.data');
+
 Route::get('/lawyer-case-distribution', [MainController::class, 'getLawyerCaseDistribution'])
      ->name('lawyer.case.distribution');
 Route::get('/cases-by-lawyer/{lawyerId}', [MainController::class, 'getCasesByLawyer'])->name('cases.by.lawyer');
@@ -219,7 +221,9 @@ Route::get('/home', 'MainController@home')->name('home');
 
 //Users route and controller
 Route::prefix('users')->group(function () {
-Route::post('/notification-preference/save', [UserController::class, 'save'])->middleware('auth');
+Route::post('/notification-preference/save', [UserController::class, 'save'])
+    ->middleware('auth')
+    ->name('users.notificationPreference.save');
 Route::delete('/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
 Route::get('/',[UserController::class, 'index'])->name('users.index');
@@ -445,7 +449,9 @@ Route::delete('/{adjourn}', [AdjournController::class, 'destroy'])->name('adjour
     Route::put('/update/{witness}', [WitnessController::class, 'update'])->name('witnesses.update');
     Route::post('/uploadAttachment', [WitnessController::class, 'uploadAttachment'])->name('witnesses.uploadAttachment');
 
-    Route::get('/all-available-witnesses', [WitnessController::class, 'getWitnesses']);
+   Route::get('/witnesses/all-available-witnesses', [WitnessController::class, 'getWitnesses'])
+    ->name('witnesses.allAvailable');
+
 
     Route::delete('/{witness}', [WitnessController::class, 'destroy'])->name('witnesses.destroy');
 
@@ -626,12 +632,17 @@ Route::get('/cases/pretrial/{id}', [PreTrialController::class, 'show'])->name('p
     Route::post('/store', [PreTrialController::class, 'store'])->name('pretrials.store');      
     Route::get('/{id}', [PreTrialController::class, 'show']);     // GET single pretrial by ID
 
-Route::post('/members/delete-by-name', [PreTrialController::class, 'deleteByName']);
+Route::post('/members/delete-by-name', [PreTrialController::class, 'deleteByName'])
+    ->name('pretrials.members.deleteByName');
+
 Route::delete('/attachments/delete/{attachmentId}', [PreTrialController::class, 'destroyDocument'])->name('pretrials.attachments.delete');
 
 
-Route::post('/{pretrial_id}/attachments', [PreTrialController::class, 'addAttachment']);
-Route::post('/{pretrial}/members', [PreTrialController::class, 'storeMembers']);
+Route::post('/{pretrial_id}/attachments', [PreTrialController::class, 'addAttachment'])
+    ->name('pretrials.attachments.store');
+Route::post('/{pretrial}/members', [PreTrialController::class, 'storeMembers'])
+    ->name('pretrials.members.store');
+
 Route::put('/{pretrial}', [PreTrialController::class, 'update'])->name('pretrials.update');
 
 Route::delete('/{pretrial}', [PreTrialController::class, 'destroy'])->name('pretrials.destroy');
