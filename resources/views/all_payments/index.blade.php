@@ -732,11 +732,13 @@ $(document).ready(function () {
         e.preventDefault(); // Prevent default form submission
 
         let formData = new FormData(this);
+        formData.append('_method', 'PUT');
+
         let paymentId = $("#edit_payment_id").val(); // Get payment ID
         let url = "{{ route('all_payments.update', ':id') }}".replace(':id', paymentId);
  
         console.log("Payment ID:", $("#edit_payment_id").val());
-        console.log("Form Data:", Object.fromEntries(new FormData($("#editPaymentForm")[0])));
+        //console.log("Form Data:", Object.fromEntries(new FormData($("#editPaymentForm")[0])));
         
         $.ajax({
             url: url,

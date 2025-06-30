@@ -523,7 +523,10 @@ $(document).ready(function () {
                     title: "Updated Successfully",
                     text: "Advice has been updated successfully!",
                 }).then(() => {
-                    window.location.href = "/ag_advice"; // Redirect after success
+
+                    let redirectUrl = "{{ route('ag_advice.index') }}";
+                    window.location.href = redirectUrl;
+                    
                 });
             },
             error: function (xhr) {
@@ -637,7 +640,9 @@ $(document).ready(function () {
             return;
         }
 
-        window.location.href = `/ag_advice/create/${caseNumber}`;
+       
+        let url = "{{ route('ag_advice.create', ['case_id' => '__ID__']) }}".replace('__ID__', caseNumber);
+        window.location.href = url;
 
 
     });

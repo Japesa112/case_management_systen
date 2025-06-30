@@ -204,7 +204,7 @@ class PaymentController extends Controller
                         'payment_method' => 'required|string',
                         'transaction' => 'nullable|string',
                         'payment_status' => 'required|string',
-                         'payment_type'=> 'required|string',
+                         'payment_type'=> 'nullable|string',
                         'payment_date' => 'required|date_format:Y-m-d\TH:i',
                         'due_date' => 'required|date_format:Y-m-d\TH:i',
                         'auctioneer_involvement' => 'nullable|string'
