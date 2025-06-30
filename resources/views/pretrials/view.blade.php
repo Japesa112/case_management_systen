@@ -36,7 +36,7 @@
             
 
             <div class="panel-heading-btn">
-                <a href="{{ route('pretrials.index') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
+                <a href="{{ route('pretrials.all') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
                 <span class="text-white">All Pretrials</span>
             </a>
             </div>
@@ -1195,7 +1195,8 @@ document.getElementById('updatePreTrialForm').addEventListener('submit', functio
   console.log(`${key}:`, value);
 }
   const pretrialId = formData.get('pretrial_id');
-  let url = "{{ route('pretrials.update') }}";
+  let url = "{{ route('pretrials.update', ['pretrial' => '__ID__']) }}".replace('__ID__', pretrialId);
+
 
   fetch(url, {
     method: 'POST', // HTML forms can't use PUT directly
