@@ -31,15 +31,16 @@ $isLawyer = Auth::user() && Auth::user()->role === 'Lawyer';
 
 @else
 <div class="dropdown-menu dropdown-menu-end me-1"> 
-    <a href="/users/change-password" class="dropdown-item">
-        <i class="fa fa-pencil-alt"></i>
-        Change Password
-    </a>
+            <a href="{{ route('users.change') }}" class="dropdown-item">
+            <i class="fa fa-pencil-alt"></i>
+            Change Password
+        </a>
 
-    <a href="/users/help" class="dropdown-item" id="help-trigger">
-        <i class="fa fa-question-circle"></i>
-        Helps
-    </a>
+        <a href="{{ route('users.help') }}" class="dropdown-item" id="help-trigger">
+            <i class="fa fa-question-circle"></i>
+            Helps
+        </a>
+
 
     <!-- 🔔 Notification Preferences Trigger -->
     <a href="javascript:void(0);" class="dropdown-item" onclick="openNotificationPreferenceModal()">
