@@ -93,7 +93,7 @@
                                 <div class="form-group mt-2">
                                     <label for="payer_type">Payee (Payment Recipient) <span class="text-danger">*</span></label>
                                     <select name="payee" id="payee" class="form-control" required>
-                                        <option value="">Select Payment From</option>
+                                        <option value="">Select Payment For</option>
                                         <option value="kenyatta_university">Kenyatta University</option>
                                         <option value="complainant">Claimant</option>
                                         <option value="lawyer">Lawyer</option>

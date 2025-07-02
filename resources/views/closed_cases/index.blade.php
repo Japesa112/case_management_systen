@@ -384,6 +384,8 @@
         // Display a loading indicator
         $('#closure-content').html('<div class="text-center p-4"><i class="fa fa-spinner fa-spin fa-2x"></i> Loading details...</div>');
 
+         const baseUrl = "{{ asset('storage/closed_attachments') }}"; 
+
         // Fetch case closure details
         $.ajax({
             url: "{{ route('closed_cases.show', ':id') }}".replace(':id', closureId),
@@ -415,9 +417,11 @@
 
                 if (attachments.length > 0) {
                     attachments.forEach(file => {
+
+                         let fileUrl = `${baseUrl}/${file.file_name}`;
                         content += `
                             <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <a href="${file.file_path}" target="_blank">${file.file_name}</a>
+                                <a href="${fileUrl}" target="_blank">${file.file_name}</a>
                                 <span class="badge bg-primary">${file.file_type ?? 'Unknown'}</span>
                             </li>
                         `;
@@ -462,15 +466,19 @@
                 $('#edit_follow_up_actions').val(closure.follow_up_actions);
                 $('#edit_final_outcome').val(closure.final_outcome);
 
+                 const baseUrl = "{{ asset('storage/closed_attachments') }}"; 
+
                 // Clear and populate document list
                 $('#documentList').empty();
                 if (attachments.length > 0) {
                     attachments.forEach(doc => {
                         console.log( "File path is: " +doc.file_path );
+
+                         let fileUrl = `${baseUrl}/${doc.file_name}`;
                         $('#documentList').append(`
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 
-                                <a href="${doc.file_path}" target="_blank">${doc.file_name}</a>
+                                <a href="${fileUrl}" target="_blank">${doc.file_name}</a>
                                 <button class="btn btn-danger btn-sm delete-document" data-id="${doc.attachment_id}">
                                     <i class="fa fa-trash"></i>
                                 </button>
@@ -561,6 +569,7 @@ $(document).ready(function () {
         formData.append("attachment", fileInput);
         formData.append("_token", $('meta[name="csrf-token"]').attr("content"));
         let url = "{{ route('closed_cases.uploadAttachment') }}";
+        const baseUrl = "{{ asset('storage/closed_attachments') }}"; 
         $.ajax({
             url: url, // Ensure correct route for closed cases
             type: "POST",
@@ -577,10 +586,12 @@ $(document).ready(function () {
                 $("#modal_attachmentFile").val("");
                 $('#documentList').find('.no-documents').remove();
 
+                let fileUrl = `${baseUrl}/${response.document.file_name}`;
+
                 // Append new document to the list
                 $("#documentList").append(`
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <a href="/storage/${response.document.file_path}" target="_blank">${response.document.file_name}</a>
+                        <a href="${fileUrl}" target="_blank">${response.document.file_name}</a>
                         <button class="btn btn-danger btn-sm delete-document" data-id="${response.document.attachment_id}">
                             <i class="fa fa-trash"></i>
                         </button>

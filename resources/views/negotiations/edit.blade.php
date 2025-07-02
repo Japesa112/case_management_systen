@@ -163,7 +163,7 @@
                             <div id="uploadedFilesList" class="mt-2">
                                 @foreach ($attachments as $attachment)
                                 <div id="attachment-{{ $attachment->attachment_id }}" class="list-group-item d-flex justify-content-between align-items-center">
-                                    <a href="{{ asset('storage/' . $attachment->file_path) }}" target="_blank">
+                                    <a href="{{ asset('storage/negotiation_attachments/' . $attachment->file_name) }}" target="_blank">
                                         <i class="fa fa-file"></i> {{ $attachment->file_name }}
                                     </a>
                                     <button type="button" class="btn btn-xs btn-danger delete-attachment"
@@ -220,6 +220,8 @@
             e.preventDefault(); // Prevent default form submission
            
             let formData = new FormData(this);
+
+             const baseUrl = "{{ asset('storage/negotiation_attachments') }}";
     
             $.ajax({
                 url: $(this).attr('action'),
@@ -237,9 +239,11 @@
     
                         // Append new files to the list dynamically
                         response.attachments.forEach(function (attachment) {
+
+                             let fileUrl = `${baseUrl}/${attachment.file_name}`;
                             $('#uploadedFilesList').append(`
                                 <div class="list-group-item d-flex justify-content-between align-items-center">
-                                    <a href="${attachment.file_path}" target="_blank">
+                                    <a href="${fileUrl}" target="_blank">
                                         <i class="fa fa-file"></i> ${attachment.file_name}
                                     </a>
                                     <button type="button" class="btn btn-xs btn-danger" onclick="deleteAttachment(${attachment.id})">
@@ -253,6 +257,8 @@
                         $('#modalAttachments').val('');
                         // **Hide the modal dialog**
                     $('#addDocumentModal').modal('hide');
+                    window.location.reload();
+
                     } else {
                         Swal.fire({
                             icon: "error",

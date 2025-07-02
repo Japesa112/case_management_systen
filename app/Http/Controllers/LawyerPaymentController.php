@@ -127,16 +127,21 @@ class LawyerPaymentController extends Controller
             // Handle file uploads
             if ($request->hasFile('lawyerPaymentAttachments')) {
                 foreach ($request->file('lawyerPaymentAttachments') as $file) {
-                    $filePath = $file->store('public/lawyer_payment_attachments');
-                    $fileName = $file->getClientOriginalName();
-                    $fileType = $file->getClientOriginalExtension();
+                    $uniqueFileName = time() . '_' . $file->getClientOriginalName();
+
+                    Log::info("time is: ".time());
+
+                    $file->storeAs('public/laywer_payment_attachments', $uniqueFileName);
 
                     LawyerPaymentAttachment::create([
                         'lawyer_payment_id' => $lawyerPayment->payment_id,
-                        'file_name' => $fileName,
-                        'file_path' => str_replace('public/', 'storage/', $filePath),
-                        'file_type' => $fileType,
-                        'upload_date' => now()
+                         'file_name' => $uniqueFileName, 
+                    // Store the original name separately for user-friendly display.
+                    // NOTE: This requires adding an 'original_name' column to your table.
+                        'file_path' => $file->getClientOriginalName(),
+                        'file_type' => $file->getClientMimeType(),
+                        'upload_date' => now(),
+
                     ]);
                 }
             }
@@ -275,16 +280,21 @@ class LawyerPaymentController extends Controller
 
             if ($request->hasFile('attachment')) {
                 $file = $request->file('attachment');
-                $filePath = $file->store('lawyer_payment_attachments', 'public');
-                $fileName = $file->getClientOriginalName();
-                $fileType = $file->getClientOriginalExtension();
+               $uniqueFileName = time() . '_' . $file->getClientOriginalName();
+
+                Log::info("time is: ".time());
+
+                $file->storeAs('public/laywer_payment_attachments', $uniqueFileName);
 
                 $document = LawyerPaymentAttachment::create([
                     'lawyer_payment_id' => $request->payment_id,
-                    'file_name' => $fileName,
-                    'file_path' => str_replace('public/', 'storage/', $filePath),
-                    'file_type' => $fileType,
-                    'upload_date' => now()
+                     'file_name' => $uniqueFileName, 
+                    // Store the original name separately for user-friendly display.
+                    // NOTE: This requires adding an 'original_name' column to your table.
+                    'file_path' => $file->getClientOriginalName(),
+                    'file_type' => $file->getClientMimeType(),
+                    'upload_date' => now(),
+
                 ]);
 
                 return response()->json(['message' => 'Document uploaded successfully!', 'document' => $document]);

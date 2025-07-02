@@ -13,6 +13,7 @@ use App\Models\CaseLawyer;
 use App\Models\CaseClosure;
 use App\Models\PanelEvaluation;
 use App\Models\DvcAppointment;
+use App\Models\User;
 
 
 class LawyerController extends Controller
@@ -320,7 +321,12 @@ public function getCasesAwaitingAction()
     {
         try {
             $lawyer = Lawyer::findOrFail($id);
+            $id = $lawyer->user->user_id;
             $lawyer->delete();
+
+             $user = User::findOrFail($id);
+             $user->delete();
+
 
             return redirect()->back()->with('success', 'Lawyer deleted successfully.');
         } catch (\Exception $e) {

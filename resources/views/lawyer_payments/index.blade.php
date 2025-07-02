@@ -483,12 +483,15 @@
                         <ul class="list-group">
                     `;
 
+                    const baseUrl = "{{ asset('storage/laywer_payment_attachments') }}"; 
+
 
                     if (attachments.length > 0) {
                         attachments.forEach(file => {
+                             let fileUrl = `${baseUrl}/${file.file_name}`;
                             content += `
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <a href="${file.file_path}" target="_blank">${file.file_name}</a>
+                                    <a href="${fileUrl}" target="_blank">${file.file_name}</a>
                                     <span class="badge bg-primary">${file.file_type ?? 'Unknown'}</span>
                                 </li>
                             `;
@@ -527,6 +530,8 @@ $(document).ready(function () {
                     paymentMethodSelect.append(`<option value="${lawyer.lawyer_id}">${lawyer.display_name}</option>`);
                 });
 
+                const baseUrl = "{{ asset('storage/laywer_payment_attachments') }}"; 
+
     
         // Fetch payment details using AJAX
         $.ajax({
@@ -562,9 +567,11 @@ $(document).ready(function () {
                  $('#documentList').empty();
                 if (attachments.length > 0) {
                     attachments.forEach(doc => {
+                         let fileUrl = `${baseUrl}/${doc.file_name}`;
+                        
                         $('#documentList').append(`
                             <li class="list-group-item d-flex justify-content-between align-items-center">
-                               <a href="${doc.file_path}" target="_blank">${doc.file_name}</a>
+                               <a href="${fileUrl}" target="_blank">${doc.file_name}</a>
                                 <button class="btn btn-danger btn-sm delete-document" data-id="${doc.attachment_id}">
                                     <i class="fa fa-trash"></i>
                                 </button>
@@ -669,6 +676,7 @@ $(document).ready(function () {
         formData.append("payment_id", paymentId);
         formData.append("attachment", fileInput);
         formData.append("_token", $('meta[name="csrf-token"]').attr("content"));
+        const baseUrl = "{{ asset('storage/laywer_payment_attachments') }}"; 
 
         $.ajax({
             url: "{{ route('lawyer_payments.uploadAttachment') }}",
@@ -687,10 +695,12 @@ $(document).ready(function () {
                 $("#modal_attachmentFile").val("");
                 $('#documentList').find('.no-documents').remove();
 
+                 let fileUrl = `${baseUrl}/${response.document.file_name}`;
+
                 // Append new document to the list
                 $("#documentList").append(`
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <a href="/storage/${response.document.file_path}" target="_blank">${response.document.file_name}</a>
+                        <a href="${fileUrl}" target="_blank">${response.document.file_name}</a>
                         <button class="btn btn-danger btn-sm delete-document" data-id="${response.document.attachment_id}">
                             <i class="fa fa-trash"></i>
                         </button>
@@ -735,7 +745,7 @@ $(document).ready(function () {
                     title: "Updated Successfully",
                     text: "Payment has been updated successfully!",
                 }).then(() => {
-                    window.location.href = "/lawyer_payments"; // Redirect after success
+                    window.location.href = url("/lawyer_payments") ; // Redirect after success
                 });
             },
             error: function (xhr) {

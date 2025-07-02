@@ -102,16 +102,21 @@ class TrialPreparationController extends Controller
         // Handle file uploads
         if ($request->hasFile('modalAttachments')) {
             foreach ($request->file('modalAttachments') as $file) {
-                $filePath = $file->store('public/trial_preparation_attachments');
-                $fileName = $file->getClientOriginalName();
-                $fileType = $file->getClientOriginalExtension();
+                
+                $uniqueFileName = time() . '_' . $file->getClientOriginalName();
+
+                Log::info("time is: ".time());
+
+                $file->storeAs('public/trial_preparation_attachments', $uniqueFileName);
 
                 TrialPreparationAttachment::create([
                     'preparation_id' => $trialPreparation->preparation_id,
-                    'file_name' => $fileName,
-                    'file_path' => str_replace('public/', 'storage/', $filePath),
-                    'file_type' => $fileType,
-                    'upload_date' => now()
+                     'file_name' => $uniqueFileName, 
+                    // Store the original name separately for user-friendly display.
+                    // NOTE: This requires adding an 'original_name' column to your table.
+                    'file_path' => $file->getClientOriginalName(),
+                    'file_type' => $file->getClientMimeType(),
+                    'upload_date' => now(),
                 ]);
             }
         }
@@ -328,16 +333,22 @@ class TrialPreparationController extends Controller
     
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');
-            $filePath = $file->store('trial_preparation_attachments', 'public'); // Save to storage/app/public/adjourn_attachments
-            $fileName = $file->getClientOriginalName();
-            $fileType = $file->getClientOriginalExtension();
+             $uniqueFileName = time() . '_' . $file->getClientOriginalName();
+
+                Log::info("time is: ".time());
+
+                $file->storeAs('public/trial_preparation_attachments', $uniqueFileName);
+
     
             $document = TrialPreparationAttachment::create([
                 'preparation_id' => $request->preparation_id,
-                'file_name' => $fileName,
-                'file_path' => str_replace('public/', 'storage/', $filePath),
-                'file_type' => $fileType,
-                'upload_date' => now()
+                
+                'file_name' => $uniqueFileName, 
+                    // Store the original name separately for user-friendly display.
+                        // NOTE: This requires adding an 'original_name' column to your table.
+                'file_path' => $file->getClientOriginalName(),
+                'file_type' => $file->getClientMimeType(),
+                'upload_date' => now(),
     
             ]);
     

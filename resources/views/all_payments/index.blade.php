@@ -332,7 +332,7 @@
                              <div class="form-group mt-2">
                                     <label for="payer_type">Payee (Payment Recipient) <span class="text-danger">*</span></label>
                                     <select name="payee" id="payee" class="form-control" required>
-                                        <option value="">Select Payment From</option>
+                                        <option value="">Select Payment For</option>
                                         <option value="kenyatta_university">Kenyatta University</option>
                                         <option value="complainant">Complainant</option>
                                         <option value="lawyer">Lawyer</option>
@@ -480,6 +480,9 @@
         });
     });
 });
+
+
+     const baseUrl = "{{ asset('storage/payment_attachments') }}"; 
      
     $(document).ready(function () {
         $(document).on('click', '.view-payment', function () {
@@ -529,9 +532,11 @@
 
                     if (attachments.length > 0) {
                         attachments.forEach(file => {
+
+                            let fileUrl = `${baseUrl}/${file.file_path}`;
                             content += `
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <a href="${file.file_path}" target="_blank">${file.file_name}</a>
+                                    <a href="${fileUrl}" target="_blank">${file.file_name}</a>
                                     <span class="badge bg-primary">${file.file_type ?? 'Unknown'}</span>
                                 </li>
                             `;
@@ -590,9 +595,14 @@
                  $('#documentList').empty();
                 if (attachments.length > 0) {
                     attachments.forEach(doc => {
+                        let fileUrl = `${baseUrl}/${doc.file_path}`;
+
+                        
+                        let linkHtml = `<a href="${fileUrl}" target="_blank">${doc.file_name}</a>`;
+
                         $('#documentList').append(`
                             <li class="list-group-item d-flex justify-content-between align-items-center">
-                               <a href="${doc.file_path}" target="_blank">${doc.file_name}</a>
+                               <a href="${fileUrl}" target="_blank">${doc.file_name}</a>
                                 <button class="btn btn-danger btn-sm delete-document" data-id="${doc.attachment_id}">
                                     <i class="fa fa-trash"></i>
                                 </button>
@@ -704,10 +714,12 @@ $(document).ready(function () {
                 $("#modal_attachmentFile").val("");
                 $('#documentList').find('.no-documents').remove();
 
+                let fileUrl = `${baseUrl}/${response.attachment.file_path}`;
+
                 // Append new document to the list
                 $("#documentList").append(`
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <a href="/storage/${response.attachment.file_path}" target="_blank">${response.attachment.file_name}</a>
+                        <a href="${fileUrl}" target="_blank">${response.attachment.file_name}</a>
                         <button class="btn btn-danger btn-sm delete-document" data-id="${response.attachment.attachment_id}">
                             <i class="fa fa-trash"></i>
                         </button>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\NegotiationAttachment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 class NegotiationAttachmentController extends Controller
 {
     /**
@@ -37,16 +38,24 @@ class NegotiationAttachmentController extends Controller
             $attachments = [];
             // Loop through each uploaded file
             foreach ($request->file('modalAttachments') as $file) {
-                $fileName = $file->getClientOriginalName();
-                $filePath = $file->store('negotiation_attachments', 'public'); // store in public disk
-                $fileType = $file->getClientMimeType();
+               
+                  $uniqueFileName = time() . '_' . $file->getClientOriginalName();
+
+                    Log::info("time is: ".time());
+
+                    $file->storeAs('public/negotiation_attachments', $uniqueFileName);
+
+
     
                 // Create an attachment record using the negotiation id from the route parameter
                 $attachment = NegotiationAttachment::create([
                     'negotiation_id' => $negotiation,
-                    'file_name'      => $fileName,
-                    'file_path'      => $filePath,
-                    'file_type'      => $fileType,
+                     'file_name' => $uniqueFileName, 
+                    // Store the original name separately for user-friendly display.
+                    // NOTE: This requires adding an 'original_name' column to your table.
+                    'file_path' => $file->getClientOriginalName(),
+                    'file_type' => $file->getClientMimeType(),
+            
                 ]);
                 $attachments[] = $attachment;
             }
@@ -144,22 +153,27 @@ class NegotiationAttachmentController extends Controller
 
         $attachments = [];
         foreach ($request->file('modalAttachments') as $file) {
-            $fileName = $file->getClientOriginalName();
-            $filePath = $file->store('negotiation_attachments', 'public'); 
-            $fileType = $file->getClientMimeType();
+                $uniqueFileName = time() . '_' . $file->getClientOriginalName();
+
+                    Log::info("time is: ".time());
+
+                    $file->storeAs('public/negotiation_attachments', $uniqueFileName);
+
 
             // Store in database
             $attachment = NegotiationAttachment::create([
                 'negotiation_id' => $negotiation,
-                'file_name'      => $fileName,
-                'file_path'      => $filePath,
-                'file_type'      => $fileType,
+                 'file_name' => $uniqueFileName, 
+                    // Store the original name separately for user-friendly display.
+                    // NOTE: This requires adding an 'original_name' column to your table.
+                    'file_path' => $file->getClientOriginalName(),
+                    'file_type' => $file->getClientMimeType(),
             ]);
 
             $attachments[] = [
                 'id'        => $attachment->id,
-                'file_name' => $fileName,
-                'file_path' => asset('storage/' . $filePath),
+                'file_name' => $uniqueFileName,
+                'file_path' => asset('storage/' . $uniqueFileName),
             ];
         }
 
@@ -192,7 +206,7 @@ public function delete($attachment_id)
         }
 
         // Delete the file from storage
-        Storage::disk('public')->delete($attachment->file_path);
+        Storage::disk('public')->delete($attachment->file_name);
 
         // Delete the record from the database
         $attachment->delete();

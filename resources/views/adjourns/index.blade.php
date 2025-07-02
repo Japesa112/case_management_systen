@@ -384,11 +384,18 @@
                         <ul class="list-group">
                     `;
 
+                    const baseUrl = "{{ asset('storage/adjourn_attachments') }}"; 
+
                     if (attachments.length > 0) {
                         attachments.forEach(file => {
+
+                            let fileUrl = `${baseUrl}/${file.file_name}`;
+
+                            
+
                             content += `
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <a href="${file.file_path}" target="_blank">${file.file_name}</a>
+                                    <a href="${fileUrl}" target="_blank">${file.file_name}</a>
                                     <span class="badge bg-primary">${file.file_type ?? 'Unknown'}</span>
                                 </li>
                             `;
@@ -413,7 +420,7 @@
     
         // Fetch adjourn details using AJAX
         $.ajax({
-            url: `adjourns/show/${adjournId}`, // Make sure this route exists in your Laravel routes
+            url: "{{ route('adjourns.show', ':id') }}".replace(':id', adjournId), // Make sure this route exists in your Laravel routes
             type: "GET",
             success: function (response) {
                 let adjourn = response.adjourn;
@@ -428,15 +435,20 @@
                 $('#edit_adjourn_comments').val(adjourn.adjourn_comments);
 
 
-
+                
+                const baseUrl = "{{ asset('storage/adjourn_attachments') }}"; 
 
                  // Clear and populate document list
                  $('#documentList').empty();
                 if (attachments.length > 0) {
                     attachments.forEach(doc => {
+
+                        let fileUrl = `${baseUrl}/${doc.file_name}`;
+
+                        
                         $('#documentList').append(`
                             <li class="list-group-item d-flex justify-content-between align-items-center">
-                               <a href="${doc.file_path}" target="_blank">${doc.file_name}</a>
+                               <a href="${fileUrl}" target="_blank">${doc.file_name}</a>
                                 <button class="btn btn-danger btn-sm delete-document" data-id="${doc.attachment_id}">
                                     <i class="fa fa-trash"></i>
                                 </button>
@@ -467,6 +479,8 @@
     $(document).on("click", ".delete-document", function () {
     let button = $(this);
     let documentId = button.data("id");
+    let deleteUrl = "{{ route('adjourns.deleteDocument', ':id') }}".replace(':id', documentId);
+
 
     Swal.fire({
         title: "Are you sure?",
@@ -480,7 +494,7 @@
     }).then((result) => {
         if (result.isConfirmed) {
             $.ajax({
-                url: `/adjourns/deleteDocuments/${documentId}`,
+                url: deleteUrl,
                 method: "DELETE",
                 headers: {
                     "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
@@ -497,6 +511,8 @@
         }
     });
 });
+
+    const baseUrl = "{{ asset('storage/adjourn_attachments') }}"; 
 
 $(document).ready(function () {
     // Open modal and set adjourn ID
@@ -531,7 +547,7 @@ $(document).ready(function () {
         formData.append("_token", $('meta[name="csrf-token"]').attr("content"));
 
         $.ajax({
-            url: "/adjourns/uploadAttachment",
+            url: "{{ route('adjourns.uploadAttachment') }}",
             type: "POST",
             data: formData,
             contentType: false,
@@ -547,10 +563,18 @@ $(document).ready(function () {
                 $("#modal_attachmentFile").val("");
                 $('#documentList').find('.no-documents').remove();
 
+
+
+
+                let fileUrl = `${baseUrl}/${response.document.file_name}`;
+
+
+
+
                 // Append new document to the list
                 $("#documentList").append(`
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <a href="/storage/${response.document.file_path}" target="_blank">${response.document.file_name}</a>
+                        <a href="${fileUrl}" target="_blank">${response.document.file_name}</a>
                         <button class="btn btn-danger btn-sm delete-document" data-id="${response.document.attachment_id}">
                             <i class="fa fa-trash"></i>
                         </button>
@@ -576,7 +600,8 @@ $(document).ready(function () {
 
         let formData = new FormData(this);
         let adjournId = $("#edit_adjourn_id").val(); // Get adjourn ID
-        let url = `/adjourns/update/${adjournId}`; // Construct the update route URL
+       let url = "{{ route('adjourns.update', ':id') }}".replace(':id', adjournId);
+
         console.log("Adjourn ID:", $("#edit_adjourn_id").val());
         console.log("Form Data:", Object.fromEntries(new FormData($("#editAdjournForm")[0])));
         
@@ -595,7 +620,7 @@ $(document).ready(function () {
                     title: "Updated Successfully",
                     text: "Adjournhas been updated successfully!",
                 }).then(() => {
-                    window.location.href = "/adjourns"; // Redirect after success
+                    window.location.href = "{{ route('adjourns.index') }}"; // Redirect after success
                 });
             },
             error: function (xhr) {

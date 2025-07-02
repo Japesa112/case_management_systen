@@ -114,15 +114,20 @@ class TrialController extends Controller
         // Handle file uploads
         if ($request->hasFile('trialAttachments')) {
             foreach ($request->file('trialAttachments') as $file) {
-                $filePath = $file->store('public/trial_attachments');
-                $fileName = $file->getClientOriginalName();
-                $fileType = $file->getClientOriginalExtension();
+                
+                $uniqueFileName = time() . '_' . $file->getClientOriginalName();
+
+                Log::info("time is: ".time());
+
+                $file->storeAs('public/trial_attachments', $uniqueFileName);
 
                 TrialAttachment::create([
                     'trial_id' => $trial->trial_id,
-                    'file_name' => $fileName,
-                    'file_path' => str_replace('public/', 'storage/', $filePath),
-                    'file_type' => $fileType,
+                     'file_name' => $uniqueFileName, 
+                    // Store the original name separately for user-friendly display.
+                            // NOTE: This requires adding an 'original_name' column to your table.
+                    'file_path' => $file->getClientOriginalName(),
+                    'file_type' => $file->getClientMimeType(),
                     'upload_date' => now()
                 ]);
             }
@@ -371,16 +376,20 @@ class TrialController extends Controller
     
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');
-            $filePath = $file->store('trial_attachments', 'public'); // Save to storage/app/public/adjourn_attachments
-            $fileName = $file->getClientOriginalName();
-            $fileType = $file->getClientOriginalExtension();
+            $uniqueFileName = time() . '_' . $file->getClientOriginalName();
+
+                Log::info("time is: ".time());
+
+                $file->storeAs('public/trial_attachments', $uniqueFileName);
     
             $document = TrialAttachment::create([
                 'trial_id' => $request->trial_id,
-                'file_name' => $fileName,
-                'file_path' => str_replace('public/', 'storage/', $filePath),
-                'file_type' => $fileType,
-                'upload_date' => now()
+                 'file_name' => $uniqueFileName, 
+                    // Store the original name separately for user-friendly display.
+                            // NOTE: This requires adding an 'original_name' column to your table.
+                    'file_path' => $file->getClientOriginalName(),
+                    'file_type' => $file->getClientMimeType(),
+                    'upload_date' => now()
     
             ]);
     

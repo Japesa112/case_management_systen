@@ -9,6 +9,9 @@ use App\Models\Lawyer;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use App\Mail\UserRegistered;
+use Illuminate\Support\Facades\Mail;
+
 use App\Models\NotificationPreference;
 class UserController extends Controller
 {
@@ -111,12 +114,18 @@ public function __construct()
                     'years_experience' => $request->years_experience,
                     'working_hours'=> $request->working_hours,
                 ]);
+                                // Send welcome email
+                Mail::to($user->email)->send(new UserRegistered($user));
+
    
                 return redirect()->route('lawyers.index')->with('success', 'Lawyer created successfully.');
    
    
             }
             else{
+                // Send welcome email
+                Mail::to($user->email)->send(new UserRegistered($user));
+
                 return redirect()->route('users.index')->with('success', 'User created successfully.');
             }
         } catch(\Exception $e){

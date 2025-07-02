@@ -114,19 +114,27 @@ class PaymentController extends Controller
                     $payment = Payment::create($validatedData);
 
 
-            if ($request->hasFile('paymentAttachments')) {
-                foreach ($request->file('paymentAttachments') as $file) {
-                    $filePath = $file->store('public/payment_attachments');
-                    PaymentAttachment::create([
-                        'payment_id' => $payment->payment_id,
-                        'file_name' => $file->getClientOriginalName(),
-                        'file_path' => str_replace('public/', 'storage/', $filePath),
-                        'file_type' => $file->getClientOriginalExtension(),
-                        'upload_date' => now()
-                    ]);
-                }
-            }
+                    if ($request->hasFile('paymentAttachments')) {
+                    foreach ($request->file('paymentAttachments') as $file) {
+                        
+                        // 1. Store the file. Laravel will generate a unique name.
+                        // The store() method returns the full path, e.g., "payment_attachments/aBcDeFg.pdf"
+                        $filePath = $file->store('payment_attachments', 'public');
 
+                        // 2. Extract ONLY the filename from the path returned by store().
+                        // This is the key step. basename() gets the last part of a path.
+                        $fileName = basename($filePath);
+
+                        // 3. Create the database record with the clean filename.
+                        PaymentAttachment::create([
+                            'payment_id' => $payment->payment_id,
+                            'file_name' => $file->getClientOriginalName(), // The original name, good for display
+                            'file_path' => $fileName, // The unique, stored filename
+                            'file_type' => $file->getClientOriginalExtension(),
+                            'upload_date' => now()
+                        ]);
+                    }
+                }
             return redirect()->route('all_payments.index')->with('success', 'Payment recorded successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -266,32 +274,45 @@ class PaymentController extends Controller
      * Upload a new attachment for a payment.
      */
     public function uploadAttachment(Request $request)
-    {
-        try {
-            $request->validate([
-                'payment_id' => 'required|exists:payments,payment_id',
-                'attachment' => 'required|file|mimes:pdf,doc,docx,jpg,png|max:4096'
+{
+    try {
+        $request->validate([
+            'payment_id' => 'required|exists:payments,payment_id',
+            'attachment' => 'required|file|mimes:pdf,doc,docx,jpg,png|max:4096'
+        ]);
+
+        if ($request->hasFile('attachment')) {
+            $file = $request->file('attachment');
+            
+            // 1. Create a unique filename. This gives you control.
+            $fileName = time() . '_' . $file->getClientOriginalName();
+
+            // 2. Store the file on the 'public' disk in the 'payment_attachments' directory with your unique name.
+            $file->storeAs('payment_attachments', $fileName, 'public');
+
+            $attachment = PaymentAttachment::create([
+                'payment_id' => $request->payment_id,
+                'file_name' => $file->getClientOriginalName(), // Good for display
+                'file_path' => $fileName, // CORRECT: Store ONLY the filename
+                'file_type' => $file->getClientOriginalExtension(),
+                'upload_date' => now()
             ]);
 
-            if ($request->hasFile('attachment')) {
-                $file = $request->file('attachment');
-                $filePath = $file->store('payment_attachments', 'public');
-
-                $attachment = PaymentAttachment::create([
-                    'payment_id' => $request->payment_id,
-                    'file_name' => $file->getClientOriginalName(),
-                    'file_path' => str_replace('public/', 'storage/', $filePath),
-                    'file_type' => $file->getClientOriginalExtension(),
-                    'upload_date' => now()
-                ]);
-
-                return response()->json(['message' => 'Attachment uploaded successfully!', 'attachment' => $attachment]);
-            }
-        } catch (\Exception $e) {
-            Log::error($e->getMessage());
-            return response()->json(['error' => 'Failed to upload attachment.'], 500);
+            // The 'attachment' object now correctly contains just the filename in file_path
+            return response()->json(['message' => 'Attachment uploaded successfully!', 'attachment' => $attachment]);
         }
+        
+        // It's good practice to handle the case where the file is not present, even with validation
+        return response()->json(['error' => 'Attachment file not provided.'], 422);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        // Specifically catch validation errors for a more precise response
+        return response()->json(['error' => 'Validation failed.', 'messages' => $e->errors()], 422);
+    } catch (\Exception $e) {
+        Log::error('Attachment Upload Failed: ' . $e->getMessage());
+        return response()->json(['error' => 'Server error: Failed to upload attachment.'], 500);
     }
+}
 
     public function checkCase(Request $request)
     {

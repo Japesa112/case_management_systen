@@ -100,22 +100,29 @@ class AdjournController extends Controller
             Log::info('Adjourn Created:', $adjourn->toArray());
     
             // Handle file uploads
+           // In your Controller
             if ($request->hasFile('modalAttachments')) {
                 foreach ($request->file('modalAttachments') as $file) {
-                    $filePath = $file->store('public/adjourn_attachments');
-                    $fileName = $file->getClientOriginalName();
-                    $fileType = $file->getClientOriginalExtension();
-    
+                    // 1. Create a unique, predictable filename that prevents overwrites.
+                    $uniqueFileName = time() . '_' . $file->getClientOriginalName();
+
+                    // 2. Use storeAs() to save the file with our new unique name.
+                    $file->storeAs('public/adjourn_attachments', $uniqueFileName);
+
+                    // 3. Save the details to the database. Store the new unique name.
                     AdjournAttachment::create([
                         'adjourns_id' => $adjourn->adjourns_id,
-                        'file_name' => $fileName,
-                        'file_path' => str_replace('public/', 'storage/', $filePath),
-                        'file_type' => $fileType,
+                        // We store the UNIQUE name, which matches the file on disk.
+                        'file_name' => $uniqueFileName,
+                        // It's also great practice to store the original name for display purposes.
+                        'file_path' => $file->getClientOriginalName(), 
+                        // We NO LONGER need a 'file_path' column!
+                        'file_type' => $file->getClientOriginalExtension(),
                         'upload_date' => now()
                     ]);
                 }
             }
-            $case = CaseModel::find($request->case_id);
+                        $case = CaseModel::find($request->case_id);
             if ($case) {
               
      // Assuming you want to set the case status to "Scheduled" when a hearing is added
@@ -360,18 +367,24 @@ class AdjournController extends Controller
     
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');
-            $filePath = $file->store('adjourn_attachments', 'public'); // Save to storage/app/public/adjourn_attachments
-            $fileName = $file->getClientOriginalName();
-            $fileType = $file->getClientOriginalExtension();
+            $uniqueFileName = time() . '_' . $file->getClientOriginalName();
+
+                Log::info("time is: ".time());
+
+                $file->storeAs('public/adjourn_attachments', $uniqueFileName);
     
-            $document = AdjournAttachment::create([
-                'adjourns_id' => $request->adjourns_id,
-                'file_name' => $fileName,
-                'file_path' => str_replace('public/', 'storage/', $filePath),
-                'file_type' => $fileType,
-                'upload_date' => now()
-    
-            ]);
+            $document =  AdjournAttachment::create([
+                    'adjourns_id' => $request->adjourns_id,
+                    // Store the UNIQUE filename. This is the source of truth.
+                    'file_name' => $uniqueFileName, 
+                    // Store the original name separately for user-friendly display.
+                    // NOTE: This requires adding an 'original_name' column to your table.
+                    'file_path' => $file->getClientOriginalName(),
+                    'file_type' => $file->getClientMimeType(),
+                    'upload_date' => now(),
+                ]);
+
+
     
             return response()->json([
                 'message' => 'Document uploaded successfully!',

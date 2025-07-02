@@ -130,22 +130,28 @@ class DvcAppointmentController extends Controller
                         'lawyer_id' => $lawyerId
                     ]);
                 }
-
+                $attachmentRecord = null;
         
                 // Handle file uploads
                 if ($request->hasFile('modalAttachments')) {
                     foreach ($request->file('modalAttachments') as $file) {
-                        $filePath = $document->storeAs('public/Appointments', $fileName);
-                        $fileName = time() . '_' . $document->getClientOriginalName(); 
-                        $fileType = $file->getClientOriginalExtension();
+                        $uniqueFileName = time() . '_' . $file->getClientOriginalName();
+
+                        Log::info("time is: ".time());
+
+                        $file->storeAs('public/dvc_attachments', $uniqueFileName);
         
-                        DvcAppointmentAttachment::create([
+                        $attachmentRecord = DvcAppointmentAttachment::create([
                             'appointment_id' => $appointment->appointment_id,
-                            'file_name' => $fileName,
-                            'file_path' => str_replace('public/', 'storage/', $filePath),
-                            'file_type' => $fileType,
-                            'upload_date' => now()
+                             'file_name' => $uniqueFileName, 
+                                    // Store the original name separately for user-friendly display.
+                                    // NOTE: This requires adding an 'original_name' column to your table.
+                            'file_path' => $file->getClientOriginalName(),
+                            'file_type' => $file->getClientMimeType(),
+                            'upload_date' => now(),
                         ]);
+
+                          break; // just one attachment
                     }
                 }
 
@@ -160,12 +166,16 @@ class DvcAppointmentController extends Controller
 
 
             $case = \App\Models\CaseModel::find($request->case_id);
-            $lawyer = \App\Models\User::find(3);
+           // $lawyerId = User::find($userId)?->lawyer?->lawyer_id;
+
+            $lawyer = \App\Models\User::find($userId);
 
             if ($case && $lawyer) {
                 
-                // Send the email immediately (no queue)
-                Mail::to($lawyer->email)->send(new LawyerAssignedNotification($case, $lawyer));
+              
+
+                // Send the email with attachments
+               Mail::to($lawyer->email)->send(new LawyerAssignedNotification($case, $lawyer, $attachmentRecord));
 
                 Log::info("Lawyer assigned and notified via email (no queue)", [
                     'case_id' => $case->case_id,
@@ -384,20 +394,24 @@ public function uploadAttachment(Request $request)
 
     if ($request->hasFile('attachment')) {
         $file = $request->file('attachment');
-        $fileName = time() . '_' . $file->getClientOriginalName();
-        $filePath = $file->storeAs('public/Appointments', $fileName); // Save to storage/app/public/appeal_attachments
+        $uniqueFileName = time() . '_' . $file->getClientOriginalName();
+
+        Log::info("time is: ".time());
+
+        $file->storeAs('public/dvc_attachments', $uniqueFileName);
         
-        $fileType = $file->getClientOriginalExtension();
 
        
        
 
         $document = DvcAppointmentAttachment::create([
             'appointment_id' => $request->appointment_id,
-            'file_name' => $fileName,
-            'file_path' => $filePath,
-            'file_type' => $fileType,
-            'upload_date' => now()
+            'file_name' => $uniqueFileName, 
+                    // Store the original name separately for user-friendly display.
+                    // NOTE: This requires adding an 'original_name' column to your table.
+            'file_path' => $file->getClientOriginalName(),
+            'file_type' => $file->getClientMimeType(),
+            'upload_date' => now(),
 
         ]);
 
