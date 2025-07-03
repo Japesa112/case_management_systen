@@ -32,7 +32,15 @@ class UpcomingEventDispatcher
 
              $pref = $admin->notificationPreference;
 
-                if (!$pref) continue;
+            if (!$pref) {
+                Log::info("Skipped {$admin->email} - no notification preference found.");
+                continue;
+            }
+
+            if ($pref->status === 'OFF') {
+                Log::info("Skipped {$admin->email} - notifications are OFF.");
+                continue;
+            }
 
                     // Match time
                 $timeMatch = $now->format('H:i') === Carbon::parse($pref->time)->format('H:i');
@@ -79,7 +87,15 @@ class UpcomingEventDispatcher
 
                 $pref = $user->notificationPreference;
 
-                if (!$pref) continue;
+                    if (!$pref) {
+                    Log::info("Skipped {$user->email} - no notification preference found.");
+                    continue;
+                }
+
+                if ($pref->status === 'OFF') {
+                    Log::info("Skipped {$user->email} - notifications are OFF.");
+                    continue;
+                }
 
                     // Match time
                 $timeMatch = $now->format('H:i') === Carbon::parse($pref->time)->format('H:i');

@@ -658,5 +658,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/notifications/clean-old', [NotificationController::class, 'cleanOld'])->name('notifications.cleanOld');
 
     Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unreadCount');
+    // Fetch notification status
+        Route::get('/user/notification-status', [NotificationController::class, 'getNotificationStatus'])->name('notifications.status');
+
+        // Update notification status
+        Route::post('/user/notification-toggle', [NotificationController::class, 'toggleNotificationStatus'])->name('notifications.toggle');
+
 
 });

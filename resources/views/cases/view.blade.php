@@ -172,19 +172,28 @@
                 <p><strong>Current Case Status:</strong> <span id="current_status_display">{{ ucfirst($case->case_status) }}</span></p>
 
                 {{-- Appended Lawyer Information --}}
-                <p><strong>Lawyer(s) Assigned:</strong>
-                    @if(count($case->caseLawyers) == 0)
+               <p><strong>Lawyer(s) Assigned:</strong> 
+                    @if($case->caseLawyers->isEmpty())
                         <span class="text-muted">Not assigned</span>
-                    @elseif(count($case->caseLawyers) == 1)
-                        {{ $case->caseLawyers->first()->lawyer->user->full_name }}:-{{ $case->caseLawyers->first()->lawyer->license_number }}
+                    @elseif($case->caseLawyers->count() === 1)
+                        @php
+                            $lawyer = $case->caseLawyers->first()->lawyer ?? null;
+                            $user = $lawyer?->user ?? null;
+                        @endphp
+                        {{ $user ? $user->full_name : 'Deleted Lawyer' }}:-{{ $lawyer?->license_number ?? '' }}
                     @else
                         <ul class="list-styled mb-0">
                             @foreach($case->caseLawyers as $caseLawyer)
-                                <li>{{ $caseLawyer->lawyer->user->full_name }}:-{{ $caseLawyer->lawyer->license_number }}</li>
+                                @php
+                                    $lawyer = $caseLawyer->lawyer ?? null;
+                                    $user = $lawyer?->user ?? null;
+                                @endphp
+                                <li>{{ $user ? $user->full_name : 'Deleted Lawyer' }}:-{{ $lawyer?->license_number ?? '' }}</li>
                             @endforeach
                         </ul>
                     @endif
                 </p>
+
 
                 <p class="text-muted">
                     Created at: {{ $case->created_at->format('F d, Y h:i A') }} <br>

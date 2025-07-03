@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 class NotificationController extends Controller
 {
     /**
@@ -100,5 +101,40 @@ class NotificationController extends Controller
         $count = Auth::user()->notifications()->wherePivot('is_read', false)->count();
         return response()->json(['count' => $count]);
     }
+
+    public function toggleNotificationStatus(Request $request)
+{
+    $user = Auth::user();
+
+    if (!$user) {
+        return response()->json(['error' => 'Unauthenticated'], 401);
+    }
+
+    $newStatus = $request->input('notifications_enabled') ? 'ON' : 'OFF';
+
+    DB::table('notification_preferences')->updateOrInsert(
+        ['user_id' => $user->user_id],
+        ['status' => $newStatus, 'updated_at' => now()]
+    );
+
+    return response()->json(['status' => $newStatus]);
+}
+
+public function getNotificationStatus()
+{
+    $user = Auth::user();
+
+    if (!$user) {
+        return response()->json(['error' => 'Unauthenticated'], 401);
+    }
+
+    $setting = DB::table('notification_preferences')
+        ->where('user_id', $user->user_id)
+        ->first();
+
+    $status = $setting ? $setting->status : 'ON'; // Default to ON if not found
+
+    return response()->json(['status' => $status]);
+}
 
 }

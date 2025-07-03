@@ -47,6 +47,13 @@ $isLawyer = Auth::user() && Auth::user()->role === 'Lawyer';
         <i class="fa fa-bell"></i> Notification Preferences
     </a>
 
+    <!-- Notification Toggle Button -->
+    <a href="javascript:void(0);" class="dropdown-item" id="toggle-notification">
+        <i class="fa fa-bell"></i>
+        <span id="notification-label">Checking status...</span>
+    </a>
+
+
     <div class="dropdown-divider"></div>
 
     <!-- Logout Form -->
@@ -344,6 +351,73 @@ function openNotificationPreferenceModal(currentData = {}) {
 			});
 		});
 	});
+</script>
+
+<script>
+    let notificationsEnabled = true;
+
+    function updateNotificationLabel() {
+        document.getElementById('notification-label').innerText = notificationsEnabled ? 'Turn Notifications Off' : 'Turn Notifications On';
+    }
+
+    function fetchNotificationStatus() {
+        fetch("{{ route('notifications.status') }}")
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'OFF') {
+                    notificationsEnabled = false;
+                } else {
+                    notificationsEnabled = true;
+                }
+                updateNotificationLabel();
+            })
+            .catch(error => console.error('Fetch status failed:', error));
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        fetchNotificationStatus();
+
+        document.getElementById('toggle-notification').addEventListener('click', function () {
+            let action = notificationsEnabled ? 'turn OFF' : 'turn ON';
+
+            Swal.fire({
+                title: 'Change Notification Preference',
+                text: `Do you want to ${action} notifications?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: `Yes, ${action}`,
+                cancelButtonText: 'Cancel',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Toggle local state
+                    notificationsEnabled = !notificationsEnabled;
+                    updateNotificationLabel();
+
+                    // Save to DB
+                    fetch("{{ route('notifications.toggle') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ notifications_enabled: notificationsEnabled })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        Swal.fire({
+                            title: 'Updated!',
+                            text: `Notifications have been turned ${data.status}.`,
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    })
+                    .catch(error => console.error('Status update failed:', error));
+                }
+            });
+        });
+    });
 </script>
 
 

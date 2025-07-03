@@ -159,17 +159,22 @@
                             {{ $case->case_status }}
                         </td>
 
-                        <td class="text-nowrap">
-                            <span class="text-muted">
-                                @if(count($case->caseLawyers) == 0)
-                                    Not Assigned
-                                @elseif(count($case->caseLawyers)==1)
-                                    {{ $case->caseLawyers->first()->lawyer->user->full_name . ":-" . $case->caseLawyers->first()->lawyer->license_number }}
-                                @else
-                                    More than 1 Lawyer Assigned
-                                @endif
-                            </span>
-                        </td>
+                       <td class="text-nowrap">
+                        <span class="text-muted">
+                            @if($case->caseLawyers->isEmpty())
+                                Not Assigned
+                            @elseif($case->caseLawyers->count() === 1)
+                                @php
+                                    $lawyer = $case->caseLawyers->first()->lawyer ?? null;
+                                    $user = $lawyer?->user ?? null;
+                                @endphp
+                                {{ $user ? $user->full_name : 'Deleted Lawyer' }}:-{{ $lawyer?->license_number ?? '' }}
+                            @else
+                                More than 1 Lawyer Assigned
+                            @endif
+                        </span>
+                    </td>
+
 
                          <td>
                             <a href="{{ route('cases.show', $case) }}" class="btn btn-info btn-sm">
